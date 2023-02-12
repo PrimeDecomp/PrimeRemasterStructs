@@ -13,3 +13,18 @@
 
 #include "CFormDescriptor.bt"
 #include "CChunkDescriptor.bt"
+
+struct ModelChunk
+{
+    ChunkDescriptor chunk;
+
+	local uint pos <format=hex, hidden=true> = FTell();
+    switch (chunk.id)
+    {
+        case "MTRL":
+            break;
+        case "MESH":
+            break;
+    }
+    FSeek(pos + chunk.size);
+};

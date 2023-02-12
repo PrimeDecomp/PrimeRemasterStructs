@@ -12,6 +12,9 @@
 //------------------------------------------------
 
 #include "CCharInfo.bt"
+#include "CChunkDescriptor.bt"
+#include "CGraphicsModel.bt"
+
 
 struct File
 {
@@ -20,6 +23,12 @@ struct File
     {
         case "CHPR":
             FCharInf charInfo;
+            break;
+        case "CMDL":
+            while(!FEof())
+            {
+                ModelChunk chunk;
+            }
             break;
     }
 };
