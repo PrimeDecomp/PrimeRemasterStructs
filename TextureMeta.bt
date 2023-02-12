@@ -13,32 +13,31 @@
 
 struct STextureReadInfo
 {
-    byte Index;
-    uint StartOffset;
-    uint EndOffset;
+    byte BufferIndex;
+    uint StartOffset; //Start buffer offset
+    uint EndOffset; //End buffer offset
 }; 
 
 struct SCompressedBufferInfo
 {
     uint Index;
-    uint GPUOffset;
-    uint CompressedSize;
-    uint DecompressedOffset;
-    uint DecompressedSize;
+    uint Offset; //Offset shift
+    uint CompressedSize; //Buffer size
+    uint DestOffset; //Output offset when decompressed
+    uint DestSize; //Output size when decompressed
 };
 
 struct CTextureMeta
 {
-    uint test;
+    uint unk;
     uint unk;
     uint AllocCategory;
     uint GPUOffset;
     uint align;
-    uint DecompressedSize;
+    uint DecompressedSize; //Total size decompressed
     uint infoCount;
     STextureReadInfo info[infoCount];
     
     uint bufferCount;
     SCompressedBufferInfo buffer[bufferCount];
-
 };
