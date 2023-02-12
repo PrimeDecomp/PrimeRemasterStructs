@@ -1,0 +1,33 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct
+{
+    string text;
+} CString <bgcolor=0xCDE6FF, read=StringRead>;
+
+typedef struct
+{
+    uint size;
+    char text[size];
+} CStringFixed <bgcolor=0xCDE6FF, read=StringReadFixed>;
+
+string StringRead(CString &str)
+{
+	return str.text;
+}
+
+string StringReadFixed(CStringFixed &str)
+{
+	return str.text;
+}

@@ -11,6 +11,12 @@
 //   History: 
 //------------------------------------------------
 
+struct Material
+{
+    CStringFixed name;
+};
+
+
 struct ModelChunk
 {
     ChunkDescriptor chunk;
@@ -19,6 +25,9 @@ struct ModelChunk
     switch (chunk.id)
     {
         case "MTRL":
+            uint unk;
+            uint numMaterials;
+            Material materials[numMaterials] <optimize=false>;
             break;
         case "MESH":
             break;

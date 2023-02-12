@@ -11,10 +11,13 @@
 //   History: 
 //------------------------------------------------
 
+struct CStringFixed;
+struct CString;
+
 #include "CCharInfo.bt"
 #include "CChunkDescriptor.bt"
 #include "CGraphicsModel.bt"
-
+#include "Common.bt"
 
 struct File
 {
@@ -25,6 +28,7 @@ struct File
             FCharInf charInfo;
             break;
         case "CMDL":
+        case "SMDL":
             while(!FEof())
             {
                 ModelChunk chunk;
@@ -35,4 +39,4 @@ struct File
 
 //Template start
 LittleEndian();
-File file;
+File file <open=true>;

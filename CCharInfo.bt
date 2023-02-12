@@ -13,8 +13,6 @@
 
 #include "CFormDescriptor.bt"
 
-struct CString;
-
 struct SAnimContext
 {
   
@@ -80,16 +78,3 @@ struct FCharInf
     byte count;
     CCharInfo charInfo[count];
 };
-
-
-//String display
-
-typedef struct
-{
-    string text;
-} CString <bgcolor=0xCDE6FF, read=StringRead>;
-
-string StringRead(CString &str)
-{
-	return str.text;
-}
