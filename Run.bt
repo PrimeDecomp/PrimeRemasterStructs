@@ -25,6 +25,5 @@ struct File
 };
 
 //Template start
-
 LittleEndian();
 File file;
