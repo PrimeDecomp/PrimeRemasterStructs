@@ -1,0 +1,9 @@
+
+struct FormDescriptor {
+    char type[4];
+    uint64 size;
+    uint64 unk1;
+    char id[4];
+    uint version;
+    uint unk2; // other version?
+};

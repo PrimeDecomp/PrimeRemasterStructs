@@ -1,0 +1,6 @@
+struct ChunkDescriptor {
+    char id[4];
+    uint64 size;
+    uint unk;
+    uint64 skip;
+};
