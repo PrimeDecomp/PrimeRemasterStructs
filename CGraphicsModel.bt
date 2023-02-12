@@ -11,9 +11,6 @@
 //   History: 
 //------------------------------------------------
 
-#include "CFormDescriptor.bt"
-#include "CChunkDescriptor.bt"
-
 struct ModelChunk
 {
     ChunkDescriptor chunk;
