@@ -1,0 +1,103 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "Common.bt"
+
+struct CString;
+struct File;
+struct NodeSet;
+struct CAssetHeader;
+struct CCharInfo;
+struct CString;
+struct CNamePool;
+struct SAnimContext;
+
+LittleEndian();
+
+File file;
+
+typedef struct
+{
+    CFormDescriptor form;
+    CAssetHeader assetHeader;
+
+    byte count;
+    CCharInfo charInfo[count];
+} File<bgcolor=0xCDE6FF>;
+
+
+typedef struct
+{
+    CNamePool namePool;
+    byte unk;
+    byte unk; //boolean
+
+    byte unk;
+    byte unk;
+
+    uint count1;
+    uint count2;
+    uint count3;
+    uint count4;
+    uint count5;
+
+    NodeSet BoneBind;
+    NodeSet Bones;
+    NodeSet Animations;
+
+} CCharInfo <bgcolor=0xCDE6FF>;
+
+typedef struct
+{
+    uint stringTableSize;
+	local uint pos <format=hex> = FTell();
+
+    while (true)
+    {
+        if (FTell() > pos + stringTableSize - 5)
+            break;
+
+        CString text;
+    }
+
+    FSeek(pos + stringTableSize);
+
+} CNamePool<bgcolor=0xCDE6FF>;
+
+typedef struct
+{
+  
+} SAnimContext<bgcolor=0xCDE6FF>;
+
+typedef struct
+{
+    ushort typeID;
+    ushort version;
+} CAssetHeader<bgcolor=0xCDE6FF>;
+
+typedef struct
+{
+    uint count;
+    uint Hash[count];
+    uint StringIDs[count];
+} NodeSet<bgcolor=0xCDE6FF>;
+
+typedef struct
+{
+    string text;
+} CString <bgcolor=0xCDE6FF, read=StringRead>;
+
+string StringRead(CString &str)
+{
+	return str.text;
+}
