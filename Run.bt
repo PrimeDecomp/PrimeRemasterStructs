@@ -1,0 +1,30 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "CCharInfo.bt"
+
+struct File
+{
+    FormDescriptor form;
+    switch (form.id)
+    {
+        case "CHPR":
+            FCharInf charInfo;
+            break;
+    }
+};
+
+//Template start
+
+LittleEndian();
+File file;

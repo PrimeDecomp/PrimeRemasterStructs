@@ -1,0 +1,95 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "CFormDescriptor.bt"
+
+struct CString;
+
+struct SAnimContext
+{
+  
+};
+
+struct CAssetHeader
+{
+    ushort typeID;
+    ushort version;
+};
+
+struct NodeSet
+{
+    uint count;
+    uint hash[count];
+    uint stringIDs[count];
+};
+
+struct CNamePool
+{
+    uint stringTableSize;
+	local uint pos <format=hex> = FTell();
+
+    while (true)
+    {
+        if (FTell() > pos + stringTableSize - 5)
+            break;
+
+        CString text;
+    }
+
+    FSeek(pos + stringTableSize);
+
+};
+
+struct CCharInfo
+{
+    CNamePool namePool;
+    byte unk;
+    byte unk; //boolean
+
+    byte unk;
+    byte unk;
+
+    //counts match first 3 node sets
+    uint count1;
+    uint count2;
+    uint count3;
+
+    uint count4;
+    uint count5;
+
+    NodeSet boneBind;
+    NodeSet bones;
+    NodeSet animations;
+
+};
+
+struct FCharInf
+{
+    CAssetHeader assetHeader;
+
+    byte count;
+    CCharInfo charInfo[count];
+};
+
+
+//String display
+
+typedef struct
+{
+    string text;
+} CString <bgcolor=0xCDE6FF, read=StringRead>;
+
+string StringRead(CString &str)
+{
+	return str.text;
+}
