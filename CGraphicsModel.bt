@@ -1,58 +1,84 @@
 #include "CAABox.bt"
-#include "CVector4i.bt"
 #include "CEvalSystem.bt"
+#include "CVector4i.bt"
 
 struct SModelAnimatedUVData {
-    CEvalSystem evalSystem;
-    uint evalIdCount;
-    CEvalId evalId[evalIdCount];
-    uint vec4iCount;
-    CVector4i vec4is[vec4iCount];
-    uint unkCount;
-    char unk[unkCount];
-    uchar unk2;
+  CEvalSystem evalSystem;
+  uint evalIdCount;
+  CEvalId evalId[evalIdCount];
+  uint vec4iCount;
+  CVector4i vec4is[vec4iCount];
+  uint unkCount;
+  char unk[unkCount];
+  uchar unk2;
+};
+
+struct DataSourceLoader {
+  FourCC type;
+  switch (type) {
+  case "ANUV":
+    SModelAnimatedUVData animatedUvs;
+    break;
+  }
+};
+
+struct CustomDataLoader {
+  FourCC type;
 };
 
 struct ModelHeader {
-    uint unk1;
-    CAABox bounds;
-    uint customDataCount;
-    local int i;
-    for (i = 0; i < customDataCount; ++i) {
-        struct {
-            FourCC type;
-            switch (type) {
-                case "ANUV":
-                    SModelAnimatedUVData animtedUvs;
-                break;
-            }
-        } customData;
-    }
-    uchar unk2;
-};
-struct Material
-{
-    CStringFixed name;
+  uint unk1;
+  CAABox bounds;
+  uint dataSourceCount;
+  local int i;
+  for (i = 0; i < dataSourceCount; ++i) {
+    DataSourceLoader dataSource;
+  }
+  uchar unk2;
+  if (unk2) {
+    CustomDataLoader customData;
+  }
 };
 
+struct Material {
+  CStringFixed name;
+  GUID guid1;
+  GUID guid2;
+  uint unk1;
+  uint unk2;
+  uint unk3;
+};
 
-struct ModelChunk
-{
-    ChunkDescriptor chunk;
+typedef struct CRenderMesh {
+  ushort unk1;
+  uchar unk2;
+  uchar unk3;
+  uint unk4;
+  uint unk5;
+  uint unk6;
+} CRenderMesh;
 
-    local uint pos <format=hex, hidden=true> = FTell();
-    switch (chunk.id)
-    {
-        case "HEAD":
-            ModelHeader header;
-            break;
-        case "MTRL":
-            uint unk;
-            uint numMaterials;
-            //Material materials[numMaterials] <optimize=false>;
-            break;
-        case "MESH":
-            break;
-    }
-    FSeek(pos + chunk.size);
+struct SMeshLoadInformation {
+    uint meshCount;
+    CRenderMesh meshes[meshCount];
+};
+
+struct ModelChunk {
+  ChunkDescriptor chunk;
+
+  local uint pos<format = hex, hidden = true> = FTell();
+  switch (chunk.id) {
+  case "HEAD":
+    ModelHeader header;
+    break;
+  case "MTRL":
+    uint unk;
+    uint numMaterials;
+    Material materials[1]<optimize = false>;
+    break;
+  case "MESH":
+    SMeshLoadInformation loadInformation;
+    break;
+  }
+  FSeek(pos + chunk.size);
 };
