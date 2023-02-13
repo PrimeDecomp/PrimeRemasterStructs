@@ -1,0 +1,35 @@
+struct AssetInfo
+{
+    GUID id;
+    uint32 compression;
+    uint32 entryIndex;
+    uint64 origOffset;
+};
+
+struct FooterChunk
+{
+    ChunkDescriptor chunk;
+	local uint64 start <format=hex, hidden=true> = FTell();
+    switch (chunk.id)
+    {
+        case "AINF":
+            AssetInfo info;
+            break;
+        case "META":
+            byte data[chunk.size];
+            break;
+        case "NAME":
+            char name[chunk.size];
+            break;
+    }
+    FSeek(start + chunk.size);
+};
+
+struct Footer
+{
+    FormDescriptor form;
+    local uint64 start <format=hex, hidden=true> = FTell();
+    while (FTell() < start + form.size) {
+        FooterChunk chunk;
+    }
+};

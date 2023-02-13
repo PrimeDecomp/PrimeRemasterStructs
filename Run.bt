@@ -1,6 +1,7 @@
 #include "Common.bt"
 #include "CChunkDescriptor.bt"
 #include "CFormDescriptor.bt"
+#include "Footer.bt"
 
 #include "CCharInfo.bt"
 #include "CGraphicsModel.bt"
@@ -9,6 +10,7 @@
 struct File
 {
     FormDescriptor form;
+    local uint64 start <format=hex, hidden=true> = FTell();
     switch (form.id)
     {
         case "CHPR":
@@ -24,6 +26,10 @@ struct File
         case "PACK":
             CPakFile pak;
             break;
+    }
+    FSeek(start + form.size);
+    if (ReadString(FTell(), 4) == "RFRM") {
+        Footer footer;
     }
 };
 
