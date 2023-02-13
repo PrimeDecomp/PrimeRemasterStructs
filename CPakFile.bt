@@ -1,3 +1,4 @@
+struct File;
 struct CPakFile;
 
 struct AssetDirectoryEntry {
@@ -11,7 +12,12 @@ struct AssetDirectoryEntry {
 
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(offset);
-    byte data[size];
+    if (size == decompressedSize) {
+        File data(false) <size=size>;
+    } else {
+        uint32 compressionMode;
+        byte compressedData[size - 4];
+    }
     FSeek(pos);
 };
 
@@ -55,11 +61,11 @@ struct TOCChunk(CPakFile& pak)
     {
         case "ADIR":
             uint32 count;
-            AssetDirectoryEntry entry[count] <optimize=false>;
+            AssetDirectoryEntry entry[count] <optimize=false, size=52>;
             break;
         case "META":
             uint32 count;
-            MetaEntry entry(start, pak)[count] <optimize=false>;
+            MetaEntry entry(start, pak)[count] <optimize=false, size=20>;
             break;
         case "STRG":
             uint32 count;

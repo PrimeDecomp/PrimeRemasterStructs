@@ -61,5 +61,5 @@ struct FCharInf
     CAssetHeader assetHeader;
 
     byte count;
-    CCharInfo charInfo[count];
+    CCharInfo charInfo[count] <optimize=false>;
 };
