@@ -1,8 +1,12 @@
-struct FormDescriptor {
+typedef struct
+{
     FourCC type;
-    uint64 size;
+    uint64 size <format=hex>;
     uint64 unk1;
     FourCC id;
-    uint32 versionA;
-    uint32 versionB;
-};
+    uint32 versionA <format=decimal>;
+    uint32 versionB <format=decimal>;
+} FormDescriptor <
+    name=(Str("%s v%d form header", id, versionA)),
+    comment=(SizeComment(size))
+>;

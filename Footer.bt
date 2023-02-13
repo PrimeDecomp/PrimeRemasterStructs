@@ -1,11 +1,11 @@
 struct AssetInfo
 {
     GUID id;
-    uint32 compression;
-    uint64 origOffset;
+    uint32 compressionMode;
+    uint64 origOffset <format=hex>;
 };
 
-struct FooterChunk(FourCC type)
+typedef struct(FourCC type)
 {
     ChunkDescriptor chunk;
     local uint64 start <format=hex, hidden=true> = FTell();
@@ -22,13 +22,15 @@ struct FooterChunk(FourCC type)
             break;
     }
     FSeek(start + chunk.size);
-};
+} FooterChunk <name=(Str("%s chunk", chunk.id))>;
 
-struct Footer(FourCC type)
+typedef struct(FourCC type)
 {
     FormDescriptor form;
     local uint64 start <format=hex, hidden=true> = FTell();
-    while (FTell() < start + form.size) {
+    while (FTell() < start + form.size)
+    {
         FooterChunk chunk(type);
     }
-};
+    FSeek(start + form.size);
+} Footer <name="Extracted file info">;

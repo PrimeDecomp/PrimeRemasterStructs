@@ -15,7 +15,7 @@
 // Custom footer
 #include "Footer.bt"
 
-struct File(byte isRoot)
+typedef struct
 {
     FormDescriptor form;
     local uint64 start <format=hex, hidden=true> = FTell();
@@ -33,12 +33,14 @@ struct File(byte isRoot)
             break;
     }
     FSeek(start + form.size);
-    // Custom footer for extracted files
-    if (isRoot && ReadString(FTell(), 4) == "RFRM") {
-        Footer footer(form.id);
-    }
-};
+} File <open=true>;
 
-//Template start
+// Template start
 LittleEndian();
-File file(true) <open=true>;
+File file <name=(Str("%s v%d file", form.id, form.versionA))>;
+
+// Custom footer for extracted files
+if (ReadString(FTell(), 4) == "RFRM")
+{
+    Footer footer(file.form.id);
+}

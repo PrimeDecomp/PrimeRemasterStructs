@@ -63,7 +63,7 @@ struct SMeshLoadInformation {
     CRenderMesh meshes[meshCount];
 };
 
-struct ModelChunk {
+typedef struct {
   ChunkDescriptor chunk;
 
   local uint pos<format = hex, hidden = true> = FTell();
@@ -81,11 +81,11 @@ struct ModelChunk {
     break;
   }
   FSeek(pos + chunk.size);
-};
+} ModelChunk <name=(Str("%s chunk", chunk.id))>;
 
-struct ModelFile(uint64 size) {
+typedef struct(uint64 size) {
     local uint64 start <format=hex, hidden=true> = FTell();
     while (FTell() < start + size) {
         ModelChunk chunk;
     }
-};
+} ModelFile <name="Model chunks">;

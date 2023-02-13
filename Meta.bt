@@ -1,5 +1,8 @@
-struct Meta(FourCC type, uint64 size) {
-  switch (type) {
+typedef struct(FourCC type, uint64 size)
+{
+  local uint64 start <format=hex, hidden=true> = FTell();
+  switch (type)
+  {
       case "TXTR":
           CTextureMeta meta;
           break;
@@ -7,4 +10,5 @@ struct Meta(FourCC type, uint64 size) {
           byte data[size];
           break;
   }
-};
+  FSeek(start + size);
+} Meta <open=true, size=size>;

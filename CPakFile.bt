@@ -1,7 +1,8 @@
 struct File;
 struct CPakFile;
 
-struct AssetDirectoryEntry {
+typedef struct
+{
     FourCC type;
     GUID id;
     uint32 versionA;
@@ -13,29 +14,31 @@ struct AssetDirectoryEntry {
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(offset);
     if (size == decompressedSize) {
-        File data(false) <size=size>;
+        File data <size=size>;
     } else {
         uint32 compressionMode;
         byte compressedData[size - 4];
     }
     FSeek(pos);
-};
+} AssetDirectoryEntry <
+    size=52, // Parse on-demand
+    name=(Str("%s v%d %s", this.type, this.versionA, GUIDToString(this.id))),
+    comment=(SizeComment(size))
+>;
 
-struct MetaEntry(uint64 start, CPakFile& pak) {
+typedef struct
+{
     GUID id;
     uint32 offset;
 
     // Find the FourCC for the asset ID
     // Assumes TOCC chunk 0 is ADIR
-    // Currently disabled, very slow
     local FourCC type <hidden=true>;
-    if (false) {
-        local uint32 i <hidden=true>;
-        for (i = 0; i < pak.chunk[0].count; i++) {
-            if (pak.chunk[0].entry[i].id == id) {
-                type = pak.chunk[0].entry[i].type;
-                break;
-            }
+    local uint32 i <hidden=true>;
+    for (i = 0; i < pak.chunk[0].count; i++) {
+        if (pak.chunk[0].entry[i].id == id) {
+            type = pak.chunk[0].entry[i].type;
+            break;
         }
     }
 
@@ -44,42 +47,54 @@ struct MetaEntry(uint64 start, CPakFile& pak) {
     uint32 size;
     Meta data(type, size);
     FSeek(pos);
-};
+} MetaEntry <
+    size=20, // Parse on-demand
+    name=(Str("%s %s", this.type, GUIDToString(this.id))),
+    comment=(SizeComment(size))
+>;
 
-struct StringEntry {
+typedef struct
+{
+    // Byteswapped
     uint32 type <read=FourCCInt>;
     GUID id;
     uint32 length;
     char name[length];
-};
+} StringEntry <
+    name=(Str("%s (%s) %s", name, FourCCInt(type), GUIDToString(id)))
+>;
 
-struct TOCChunk(CPakFile& pak)
+typedef struct(CPakFile& pak)
 {
     ChunkDescriptor chunk;
     local uint64 start <format=hex, hidden=true> = FTell();
     switch (chunk.id)
     {
         case "ADIR":
-            uint32 count;
-            AssetDirectoryEntry entry[count] <optimize=false, size=52>;
+            uint32 count <format=decimal, name="ADIR entry count">;
+            AssetDirectoryEntry entry[count] <optimize=false>;
             break;
         case "META":
-            uint32 count;
-            MetaEntry entry(start, pak)[count] <optimize=false, size=20>;
+            uint32 count <format=decimal, name="META entry count">;
+            MetaEntry entry[count] <optimize=false>;
             break;
         case "STRG":
-            uint32 count;
+            uint32 count <format=decimal, name="STRG entry count">;
             StringEntry entry[count] <optimize=false>;
             break;
     }
     FSeek(start + chunk.size);
-};
+} TOCChunk <
+    name=(Str("%s chunk", chunk.id)),
+    comment=(Str("%d entries", count))
+>;
 
-struct CPakFile
+typedef struct
 {
     FormDescriptor toc;
     local uint64 start <format=hex, hidden=true> = FTell(); 
-    while (FTell() < start + toc.size) {
+    while (FTell() < start + toc.size)
+    {
         TOCChunk chunk(this);
     }
-};
+} CPakFile <name="PACK chunks">;

@@ -21,11 +21,47 @@ string StringReadFixed(CStringFixed &str)
 
 typedef char FourCC[4];
 
-FourCC FourCCInt(uint32 in) {
+FourCC FourCCInt(uint32 in)
+{
     FourCC fcc;
     fcc[0] = (in >> 24) & 0xFF;
     fcc[1] = (in >> 16) & 0xFF;
     fcc[2] = (in >> 8) & 0xFF;
     fcc[3] = (in >> 0) & 0xFF;
     return fcc;
+}
+
+string FormatBytes(uint64 size)
+{
+    byte order = 0;
+    while (size >= 1024 && order < 5)
+    {
+        order++;
+        size /= 1024;
+    }
+    string suffix;
+    switch (order)
+    {
+        case 0:
+            suffix = "";
+            break;
+        case 1:
+            suffix = " KiB";
+            break;
+        case 2:
+            suffix = " MiB";
+            break;
+        case 3:
+            suffix = " GiB";
+            break;
+        case 4:
+            suffix = " TiB";
+            break;
+    }
+    return Str("%d%s", size, suffix);
+}
+
+string SizeComment(uint64 size)
+{
+    return Str("Size: %s (0x%X)", FormatBytes(size), size);
 }

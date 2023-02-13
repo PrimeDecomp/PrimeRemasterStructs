@@ -1,8 +1,11 @@
-struct ChunkDescriptor {
+typedef struct
+{
     FourCC id;
-    uint64 size;
+    uint64 size <format=hex>;
     uint32 unk;
-    uint64 skip;
-
-    FSeek(FTell() + skip);
-};
+    uint64 skip <format=hex>;
+    FSkip(skip);
+} ChunkDescriptor <
+    name=(id + " chunk header"),
+    comment=(SizeComment(size))
+>;
