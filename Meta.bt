@@ -11,4 +11,4 @@ typedef struct(FourCC type, uint64 size)
           break;
   }
   FSeek(start + size);
-} Meta <open=true, size=size>;
+} Meta <open=true>;
