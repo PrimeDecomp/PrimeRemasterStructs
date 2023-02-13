@@ -19,7 +19,7 @@ struct NodeSet
 struct CNamePool
 {
     uint stringTableSize;
-	local uint pos <format=hex> = FTell();
+    local uint pos <format=hex> = FTell();
 
     while (true)
     {

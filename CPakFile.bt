@@ -28,7 +28,7 @@ struct StringEntry {
 struct TOCChunk
 {
     ChunkDescriptor chunk;
-	local uint64 start <format=hex, hidden=true> = FTell();
+    local uint64 start <format=hex, hidden=true> = FTell();
     switch (chunk.id)
     {
         case "ADIR":

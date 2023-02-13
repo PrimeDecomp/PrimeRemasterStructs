@@ -9,7 +9,7 @@ struct AssetInfo
 struct FooterChunk
 {
     ChunkDescriptor chunk;
-	local uint64 start <format=hex, hidden=true> = FTell();
+    local uint64 start <format=hex, hidden=true> = FTell();
     switch (chunk.id)
     {
         case "AINF":

@@ -8,7 +8,7 @@ struct ModelChunk
 {
     ChunkDescriptor chunk;
 
-	local uint pos <format=hex, hidden=true> = FTell();
+    local uint pos <format=hex, hidden=true> = FTell();
     switch (chunk.id)
     {
         case "MTRL":

@@ -11,12 +11,12 @@ typedef struct
 
 string StringRead(CString &str)
 {
-	return str.text;
+    return str.text;
 }
 
 string StringReadFixed(CStringFixed &str)
 {
-	return str.text;
+    return str.text;
 }
 
 typedef char FourCC[4];
