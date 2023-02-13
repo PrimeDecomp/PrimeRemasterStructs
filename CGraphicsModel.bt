@@ -1,3 +1,35 @@
+#include "CAABox.bt"
+#include "CVector4i.bt"
+#include "CEvalSystem.bt"
+
+struct SModelAnimatedUVData {
+    CEvalSystem evalSystem;
+    uint evalIdCount;
+    CEvalId evalId[evalIdCount];
+    uint vec4iCount;
+    CVector4i vec4is[vec4iCount];
+    uint unkCount;
+    char unk[unkCount];
+    uchar unk2;
+};
+
+struct ModelHeader {
+    uint unk1;
+    CAABox bounds;
+    uint customDataCount;
+    local int i;
+    for (i = 0; i < customDataCount; ++i) {
+        struct {
+            FourCC type;
+            switch (type) {
+                case "ANUV":
+                    SModelAnimatedUVData animtedUvs;
+                break;
+            }
+        } customData;
+    }
+    uchar unk2;
+};
 struct Material
 {
     CStringFixed name;
@@ -11,10 +43,13 @@ struct ModelChunk
     local uint pos <format=hex, hidden=true> = FTell();
     switch (chunk.id)
     {
+        case "HEAD":
+            ModelHeader header;
+            break;
         case "MTRL":
             uint unk;
             uint numMaterials;
-            Material materials[numMaterials] <optimize=false>;
+            //Material materials[numMaterials] <optimize=false>;
             break;
         case "MESH":
             break;

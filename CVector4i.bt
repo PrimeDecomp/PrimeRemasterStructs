@@ -1,0 +1,11 @@
+#ifndef CVECTOR4I_BT
+#define CVECTOR4I_BT
+
+typedef struct CVector4i {
+    int x;
+    int y;
+    int z;
+    int w;
+} CVector4i;
+
+#endif // CVECTOR4I_BT

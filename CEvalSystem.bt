@@ -1,0 +1,27 @@
+#ifndef CEVALSYSTEM_BT
+#define CEVALSYSTEM_BT
+
+typedef struct CEvalId {
+    uint unk1;
+} CEvalId;
+
+typedef struct CEvalDataHandle {
+    uint unk1;
+    uint unks[unk1 / 4];
+} CEvalDataHandle;
+
+typedef struct CEvalDataContext {
+    uint dataLen;
+    uint dataHandleCount;
+    char data[dataLen * 4];
+    CEvalDataHandle handles[dataHandleCount] <optimize = false>;
+} CEvalDataContext;
+
+typedef struct CEvalSystem {
+    CEvalDataContext context;
+    uint unk1;
+    uint unk2;
+    uint unk3;
+} CEvalSystem;
+
+#endif // CEVALSYSTEM_BT

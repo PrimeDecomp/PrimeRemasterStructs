@@ -1,0 +1,10 @@
+#ifndef CVECTOR3F_BT
+#define CVECTOR3F_BT
+
+typedef struct CVector3f {
+    float x;
+    float y;
+    float z;
+} CVector3f;
+
+#endif // CVECTOR3F_BT

@@ -1,0 +1,11 @@
+#ifndef CAABOX_BT
+#define CAABOX_BT
+
+#include "CVector3f.bt"
+
+typedef struct CAABox {
+    CVector3f min;  
+    CVector3f max;
+} CAABox;
+
+#endif // CAABOX_BT
