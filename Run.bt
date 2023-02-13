@@ -25,6 +25,7 @@ struct File
             break;
     }
     FSeek(start + form.size);
+    // Custom footer for extracted files
     if (ReadString(FTell(), 4) == "RFRM") {
         Footer footer;
     }

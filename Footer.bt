@@ -2,7 +2,6 @@ struct AssetInfo
 {
     GUID id;
     uint32 compression;
-    uint32 entryIndex;
     uint64 origOffset;
 };
 
