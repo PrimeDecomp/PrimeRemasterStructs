@@ -82,3 +82,10 @@ struct ModelChunk {
   }
   FSeek(pos + chunk.size);
 };
+
+struct ModelFile(uint64 size) {
+    local uint64 start <format=hex, hidden=true> = FTell();
+    while (FTell() < start + size) {
+        ModelChunk chunk;
+    }
+};

@@ -15,7 +15,7 @@ struct AssetDirectoryEntry {
 
 struct MetaEntry {
     GUID id;
-    uint offset;
+    uint32 offset;
 };
 
 struct StringEntry {

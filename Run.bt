@@ -18,10 +18,7 @@ struct File
             break;
         case "CMDL":
         case "SMDL":
-            while(!FEof())
-            {
-                ModelChunk chunk;
-            }
+            ModelFile model(form.size);
             break;
         case "PACK":
             CPakFile pak;
