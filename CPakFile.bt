@@ -1,0 +1,57 @@
+struct AssetDirectoryEntry {
+    FourCC type;
+    GUID id;
+    uint32 versionA;
+    uint32 versionB;
+    uint64 offset;
+    uint64 decompressedSize;
+    uint64 size;
+
+    local uint64 pos <format=hex, hidden=true> = FTell();
+    FSeek(offset);
+    byte data[size];
+    FSeek(pos);
+};
+
+struct MetaEntry {
+    GUID id;
+    uint offset;
+};
+
+struct StringEntry {
+    FourCC type;
+    GUID id;
+    uint32 length;
+    char name[length];
+};
+
+struct TOCChunk
+{
+    ChunkDescriptor chunk;
+	local uint64 start <format=hex, hidden=true> = FTell();
+    switch (chunk.id)
+    {
+        case "ADIR":
+            uint32 count;
+            AssetDirectoryEntry entry[count] <optimize=true>;
+            break;
+        case "META":
+            uint32 count;
+            MetaEntry entry[count];
+            break;
+        case "STRG":
+            uint32 count;
+            StringEntry entry[count] <optimize=false>;
+            break;
+    }
+    FSeek(start + chunk.size);
+};
+
+struct CPakFile
+{
+    FormDescriptor toc;
+    local uint64 start <format=hex, hidden=true> = FTell(); 
+    while (FTell() < start + toc.size) {
+        TOCChunk chunk;
+    }
+};

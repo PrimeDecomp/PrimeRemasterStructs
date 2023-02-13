@@ -1,23 +1,10 @@
-//------------------------------------------------
-//--- 010 Editor v13.0.1 Binary Template
-//
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
-// File Mask: 
-//  ID Bytes: 
-//   History: 
-//------------------------------------------------
-
-struct CStringFixed;
-struct CString;
+#include "Common.bt"
+#include "CChunkDescriptor.bt"
+#include "CFormDescriptor.bt"
 
 #include "CCharInfo.bt"
-#include "CChunkDescriptor.bt"
 #include "CGraphicsModel.bt"
-#include "Common.bt"
+#include "CPakFile.bt"
 
 struct File
 {
@@ -33,6 +20,9 @@ struct File
             {
                 ModelChunk chunk;
             }
+            break;
+        case "PACK":
+            CPakFile pak;
             break;
     }
 };

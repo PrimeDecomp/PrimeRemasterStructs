@@ -1,4 +1,3 @@
-
 struct FormDescriptor {
     char type[4];
     uint64 size;

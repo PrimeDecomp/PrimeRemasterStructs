@@ -3,4 +3,6 @@ struct ChunkDescriptor {
     uint64 size;
     uint unk;
     uint64 skip;
+
+    FSeek(FTell() + skip);
 };
