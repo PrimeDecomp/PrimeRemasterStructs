@@ -5,7 +5,7 @@ struct AssetInfo
     uint64 origOffset;
 };
 
-struct FooterChunk
+struct FooterChunk(FourCC type)
 {
     ChunkDescriptor chunk;
     local uint64 start <format=hex, hidden=true> = FTell();
@@ -15,7 +15,7 @@ struct FooterChunk
             AssetInfo info;
             break;
         case "META":
-            byte data[chunk.size];
+            Meta meta(type, chunk.size);
             break;
         case "NAME":
             char name[chunk.size];
@@ -24,11 +24,11 @@ struct FooterChunk
     FSeek(start + chunk.size);
 };
 
-struct Footer
+struct Footer(FourCC type)
 {
     FormDescriptor form;
     local uint64 start <format=hex, hidden=true> = FTell();
     while (FTell() < start + form.size) {
-        FooterChunk chunk;
+        FooterChunk chunk(type);
     }
 };

@@ -1,7 +1,7 @@
 struct ChunkDescriptor {
-    char id[4];
+    FourCC id;
     uint64 size;
-    uint unk;
+    uint32 unk;
     uint64 skip;
 
     FSeek(FTell() + skip);

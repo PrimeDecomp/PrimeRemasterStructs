@@ -20,3 +20,12 @@ string StringReadFixed(CStringFixed &str)
 }
 
 typedef char FourCC[4];
+
+FourCC FourCCInt(uint32 in) {
+    FourCC fcc;
+    fcc[0] = (in >> 24) & 0xFF;
+    fcc[1] = (in >> 16) & 0xFF;
+    fcc[2] = (in >> 8) & 0xFF;
+    fcc[3] = (in >> 0) & 0xFF;
+    return fcc;
+}

@@ -1,8 +1,8 @@
 struct FormDescriptor {
-    char type[4];
+    FourCC type;
     uint64 size;
     uint64 unk1;
-    char id[4];
-    uint versionA;
-    uint versionB;
+    FourCC id;
+    uint32 versionA;
+    uint32 versionB;
 };

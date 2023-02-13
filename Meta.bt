@@ -1,0 +1,10 @@
+struct Meta(FourCC type, uint64 size) {
+  switch (type) {
+      case "TXTR":
+          CTextureMeta meta;
+          break;
+      default:
+          byte data[size];
+          break;
+  }
+};
