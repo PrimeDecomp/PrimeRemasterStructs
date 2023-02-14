@@ -12,6 +12,7 @@
 #include "CGraphicsModel.bt"
 #include "CPakFile.bt"
 #include "MessageStudioBinaryText.bt"
+#include "MaterialArchive.bt"
 
 // Custom footer
 #include "Footer.bt"
@@ -22,6 +23,9 @@ typedef struct
     local uint64 start <format=hex, hidden=true> = FTell();
     switch (form.id)
     {
+        case "MTRL":
+            MaterialArchive materialArchive(form.size);
+            break;
         case "CHPR":
             FCharInf charInfo;
             break;
