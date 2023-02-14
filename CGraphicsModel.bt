@@ -50,12 +50,13 @@ struct Material {
 };
 
 typedef struct CRenderMesh {
-  ushort unk1;
-  uchar unk2;
-  uchar unk3;
-  uint unk4;
-  uint unk5;
-  uint unk6;
+  ushort MaterialIndex;
+  byte VertexBufferIndex;
+  byte IndexBufferIndex;
+  uint IndexStart;
+  uint IndexCount;
+  ushort field_C;
+  ushort field_E; //0x4000
 } CRenderMesh;
 
 struct SMeshLoadInformation {
