@@ -40,12 +40,11 @@ struct ModelHeader {
   }
 };
 
-struct MaterialTypeExtra {
+struct MaterialRenderTypes {
    char type[4];
    char format[4];
-   //version?
-   byte unk;
-   byte unk;
+   byte flag1;
+   byte flag2;
 };
 
 struct MaterialType;
@@ -68,7 +67,7 @@ struct CMaterialTextureTokenData{
    STextureUsageInfo usage;
 };
 
-struct MaterialData{
+struct CMaterialData{
    char type[4];
    char format[4];
    switch (format)
@@ -115,13 +114,13 @@ struct CMaterialCache {
   uint typeCount;
   uint types[typeCount];
   //material data types (with extra value)
-  uint dataTypeExtraCount;
-  MaterialTypeExtra dataTypes1[dataTypeExtraCount];
+  uint renderTypeCount;
+  MaterialRenderTypes renderTypes[renderTypeCount];
   //material data types
   uint dataCount;
   MaterialType dataTypes2[dataCount];
   //data parse
-  MaterialData data[dataCount] <optimize=false>;
+  CMaterialData data[dataCount] <optimize=false>;
 };
 
 typedef struct CRenderMesh {
