@@ -16,7 +16,13 @@ typedef struct
     if (size == decompressedSize) {
         File data <size=size>;
     } else {
-        uint32 compressionMode;
+		enum <uint32> CompressionType
+		{
+			LZSS_8  = 0x1,
+			LZSS_16 = 0x2,
+			LZSS_32 = 0x3,
+			ZLIB    = 0xD,
+		} compressionType;
         byte compressedData[size - 4];
     }
     FSeek(pos);
