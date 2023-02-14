@@ -100,7 +100,23 @@ typedef struct{
     
         break;
    }
-} CMaterialData <name=(Str("%s %s", type, format))>;
+} CMaterialData <read=CMaterialDataRead>;
+
+string CMaterialDataRead(CMaterialData &mat)
+{
+	string s;
+	
+   switch (mat.format)
+   {
+        case "TXTR": SPrintf(s, "Texture: %s = %s", mat.type, GUIDToString(mat.texture.id)); break;
+        case "COLR": SPrintf(s, "Color %s = %f %f %f %f", mat.type, mat.color[0], mat.color[1], mat.color[2], mat.color[3]); break;
+        case "SCLR": SPrintf(s, "Scalar %s = %f", mat.type, mat.scalar); break;
+        case "INT ": SPrintf(s, "Int %s = %f", mat.type, mat.int1); break;
+        case "INT4": SPrintf(s, "Int4 %s = %u %u %u %u", mat.type, mat.int4[0], mat.int4[1], mat.int4[2], mat.int4[3]); break;
+        case "CPLX": SPrintf(s, "Complex: %s", mat.type); break;
+   }
+	return s;
+}
 
 struct CMaterialCache {
   CStringFixed name;
