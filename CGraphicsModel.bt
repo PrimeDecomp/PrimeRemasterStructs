@@ -40,13 +40,88 @@ struct ModelHeader {
   }
 };
 
-struct Material {
+struct MaterialTypeExtra {
+   char type[4];
+   char format[4];
+   //version?
+   byte unk;
+   byte unk;
+};
+
+struct MaterialType;
+
+typedef struct {
+   char type[4];
+   char format[4];
+}MaterialType <read=MaterialTypeRead>;
+
+struct STextureUsageInfo{
+   uint flags;
+   uint filter;
+   uint wrapX;
+   uint wrapY;
+   uint wrapZ;
+};
+
+struct CMaterialTextureTokenData{
+   GUID textureID;
+   STextureUsageInfo usage;
+};
+
+struct MaterialData{
+   char type[4];
+   char format[4];
+   switch (format)
+   {
+        case "TXTR":
+            CMaterialTextureTokenData texture;
+        break;
+        case "COLR":
+            float color[4];
+        break;
+        case "SCLR":
+            float scalar;
+        break;
+        case "INT ":
+            int int1;
+        break;
+        case "INT4":
+            int int4[4];
+        break;
+        case "CPLX":
+            uint unk;
+            float color1[4];
+            float color2[4];
+            float color3[4];
+            byte flags;
+            GUID texture1ID;
+            if (texture1ID != 0) CMaterialTextureTokenData texture1;
+            GUID texture2ID;
+            if (texture2ID != 0) CMaterialTextureTokenData texture2;
+            GUID texture3ID;
+            if (texture3ID != 0) CMaterialTextureTokenData texture3;
+    
+        break;
+   }
+};
+
+struct CMaterialCache {
   CStringFixed name;
-  GUID guid1;
-  GUID guid2;
+  GUID shaderID;
+  GUID guid2; //unsure
   uint unk1;
   uint unk2;
-  uint unk3;
+  //material type list (can be 0)
+  uint typeCount;
+  uint types[typeCount];
+  //material data types (with extra value)
+  uint dataTypeExtraCount;
+  MaterialTypeExtra dataTypes1[dataTypeExtraCount];
+  //material data types
+  uint dataCount;
+  MaterialType dataTypes2[dataCount];
+  //data parse
+  MaterialData data[dataCount] <optimize=false>;
 };
 
 typedef struct CRenderMesh {
@@ -75,7 +150,7 @@ typedef struct {
   case "MTRL":
     uint unk;
     uint numMaterials;
-    Material materials[1]<optimize = false>;
+    CMaterialCache materials[1]<optimize = false>;
     break;
   case "MESH":
     SMeshLoadInformation loadInformation;
@@ -90,3 +165,8 @@ typedef struct(uint64 size) {
         ModelChunk chunk;
     }
 } ModelFile <name="Model chunks">;
+
+string MaterialTypeRead(MaterialType &str)
+{
+    return str.type + str.format;
+}
