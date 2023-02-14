@@ -49,5 +49,5 @@ File file <bgcolor=cYellow, name=(Str("%s v%d file", form.id, form.versionA))>;
 // Custom footer for extracted files
 if (ReadString(FTell(), 4) == "RFRM")
 {
-    Footer footer(file.form.id);
+    Footer footer(file.form.id) <bgcolor=cLtBlue>;
 }

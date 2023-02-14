@@ -201,8 +201,8 @@ struct STextureHeader
     uint32 width;
     uint32 height;
     uint32 depth;
-    uint32 unk;
-    uint32 unk;
+    uint32 unk; // tile mode?
+    uint32 unk; // swizzle?
     uint32 mips;
     uint32 mipSizes[mips];
     STextureSamplerData samplerData;

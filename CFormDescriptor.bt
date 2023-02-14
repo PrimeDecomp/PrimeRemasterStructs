@@ -8,5 +8,6 @@ typedef struct
     uint32 versionB <format=decimal>;
 } FormDescriptor <
     name=(Str("%s v%d form header", id, versionA)),
-    comment=(SizeComment(size))
+    comment=(SizeComment(size)),
+    bgcolor=cLtAqua
 >;

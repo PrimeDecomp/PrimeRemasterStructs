@@ -7,5 +7,6 @@ typedef struct
     FSkip(skip);
 } ChunkDescriptor <
     name=(id + " chunk header"),
-    comment=(SizeComment(size))
+    comment=(SizeComment(size)),
+    bgcolor=cDkAqua
 >;
