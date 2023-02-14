@@ -40,19 +40,17 @@ struct ModelHeader {
   }
 };
 
-struct MaterialRenderTypes {
+typedef struct {
    char type[4];
    char format[4];
    byte flag1;
    byte flag2;
-};
-
-struct MaterialType;
+} MaterialRenderTypes <name=(Str("%s %s", type, format))>;
 
 typedef struct {
    char type[4];
    char format[4];
-}MaterialType <read=MaterialTypeRead>;
+} MaterialType <name=(Str("%s %s", type, format))>;
 
 struct STextureUsageInfo{
    uint flags;
@@ -62,12 +60,12 @@ struct STextureUsageInfo{
    uint wrapZ;
 };
 
-struct CMaterialTextureTokenData{
-   GUID textureID;
+typedef struct{
+   GUID id;
    STextureUsageInfo usage;
-};
+} CMaterialTextureTokenData <name=(Str("%s", GUIDToString(this.id)))>;
 
-struct CMaterialData{
+typedef struct{
    char type[4];
    char format[4];
    switch (format)
@@ -102,7 +100,7 @@ struct CMaterialData{
     
         break;
    }
-};
+} CMaterialData <name=(Str("%s %s", type, format))>;
 
 struct CMaterialCache {
   CStringFixed name;
@@ -164,8 +162,3 @@ typedef struct(uint64 size) {
         ModelChunk chunk;
     }
 } ModelFile <name="Model chunks">;
-
-string MaterialTypeRead(MaterialType &str)
-{
-    return str.type + str.format;
-}
