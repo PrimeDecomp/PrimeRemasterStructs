@@ -118,7 +118,7 @@ string CMaterialDataRead(CMaterialData &mat)
 	return s;
 }
 
-struct CMaterialCache {
+typedef struct {
   CStringFixed name;
   GUID shaderID;
   GUID guid2; //unsure
@@ -135,9 +135,9 @@ struct CMaterialCache {
   MaterialType dataTypes2[dataCount];
   //data parse
   CMaterialData data[dataCount] <optimize=false>;
-};
+} CMaterialCache <name=(Str("%s %s", this.name.text, GUIDToString(this.shaderID)))>;
 
-typedef struct CRenderMesh {
+typedef struct {
   ushort MaterialIndex;
   byte VertexBufferIndex;
   byte IndexBufferIndex;
