@@ -150,7 +150,7 @@ typedef struct {
   case "MTRL":
     uint unk;
     uint numMaterials;
-    CMaterialCache materials[1]<optimize = false>;
+    CMaterialCache materials[numMaterials]<optimize = false>;
     break;
   case "MESH":
     SMeshLoadInformation loadInformation;
