@@ -33,7 +33,7 @@ typedef struct
             break;
     }
     FSeek(start + form.size);
-} File <open=true>;
+} File <open=true, bgcolor=cGreen>;
 
 // Template start
 LittleEndian();
