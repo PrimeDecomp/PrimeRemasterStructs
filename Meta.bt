@@ -4,7 +4,7 @@ typedef struct(FourCC type, uint64 size)
   switch (type)
   {
       case "TXTR":
-          CTextureMeta meta;
+          STextureMetaData meta;
           break;
       default:
           byte data[size];

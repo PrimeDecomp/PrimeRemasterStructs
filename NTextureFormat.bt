@@ -1,0 +1,236 @@
+struct STextureReadInfo
+{
+    byte BufferIndex;
+    uint32 StartOffset; //Start buffer offset
+    uint32 EndOffset; //End buffer offset
+};
+
+struct STextureCompressedBufferInfo
+{
+    uint32 Index;
+    uint32 Offset; //Offset shift
+    uint32 CompressedSize; //Buffer size
+    uint32 DestOffset; //Output offset when decompressed
+    uint32 DestSize; //Output size when decompressed
+};
+
+struct STextureMetaData
+{
+    uint32 unk;
+    uint32 unk;
+    uint32 AllocCategory;
+    uint32 GPUOffset;
+    uint32 align;
+    uint32 DecompressedSize; //Total size decompressed
+    uint32 infoCount;
+    STextureReadInfo info[infoCount];
+    uint32 bufferCount;
+    STextureCompressedBufferInfo buffer[bufferCount];
+};
+
+enum <byte> ETextureWrap
+{
+    TEXTURE_WRAP_CLAMP_TO_EDGE = 0,
+    TEXTURE_WRAP_REPEAT = 1,
+    TEXTURE_WRAP_MIRRORED_REPEAT = 2,
+    TEXTURE_WRAP_MIRROR_CLAMP = 3,
+    TEXTURE_WRAP_CLAMP_TO_BORDER = 4,
+    TEXTURE_WRAP_CLAMP = 5,
+};
+
+enum <byte> ETextureFilter
+{
+    TEXTURE_FILTER_NEAREST = 0,
+    TEXTURE_FILTER_LINEAR = 1,
+};
+
+enum <byte> ETextureMipFilter
+{
+    TEXTURE_MIP_FILTER_NEAREST = 0,
+    TEXTURE_MIP_FILTER_LINEAR = 1,
+};
+
+enum <byte> ETextureAnisotropicRatio
+{
+    TEXTURE_ANISO_NONE = -1,
+    TEXTURE_ANISO_1 = 0,
+    TEXTURE_ANISO_2 = 1,
+    TEXTURE_ANISO_4 = 2,
+    TEXTURE_ANISO_8 = 3,
+    TEXTURE_ANISO_16 = 4,
+};
+
+enum /* where? */ ECompareFunction
+{
+    TEXTURE_COMPARE_NONE = -1,
+    TEXTURE_COMPARE_NEVER = 0,
+    TEXTURE_COMPARE_ALWAYS = 1,
+    TEXTURE_COMPARE_NOTEQUAL = 2,
+    TEXTURE_COMPARE_LESS = 3,
+    TEXTURE_COMPARE_LEQUAL = 4,
+    TEXTURE_COMPARE_EQUAL = 5,
+    TEXTURE_COMPARE_GEQUAL = 6,
+    TEXTURE_COMPARE_GREATER = 7,
+};
+
+struct STextureSamplerData
+{
+    uint32 unk;
+    ETextureFilter filter;
+    ETextureMipFilter mipFilter;
+    ETextureWrap wrapX;
+    ETextureWrap wrapY;
+    ETextureWrap wrapZ;
+    ETextureAnisotropicRatio aniso;
+};
+
+enum <uint32> ETextureType
+{
+    TEXTURE_1D = 0,
+    TEXTURE_2D = 1,
+    TEXTURE_3D = 2,
+    TEXTURE_CUBE = 3,
+    TEXTURE_1D_ARRAY = 4,
+    TEXTURE_2D_ARRAY = 5,
+    TEXTURE_2D_MULTISAMPLE = 6,
+    TEXTURE_2D_MULTISAMPLE_ARRAY = 7,
+    TEXTURE_CUBE_ARRAY = 8,
+};
+
+enum <uint32> ETextureFormat
+{
+    TEXTURE_FORMAT_R8_UNORM = 0,
+    TEXTURE_FORMAT_R8_SNORM = 1,
+    TEXTURE_FORMAT_R8_UINT = 2,
+    TEXTURE_FORMAT_R8_SINT = 3,
+    TEXTURE_FORMAT_R16_UNORM = 4,
+    TEXTURE_FORMAT_R16_SNORM = 5,
+    TEXTURE_FORMAT_R16_UINT = 6,
+    TEXTURE_FORMAT_R16_SINT = 7,
+    TEXTURE_FORMAT_R16_FLOAT = 8,
+    TEXTURE_FORMAT_R32_UINT = 9,
+    TEXTURE_FORMAT_R32_SINT = 10,
+    TEXTURE_FORMAT_RGB8_UNORM = 11,
+    TEXTURE_FORMAT_RGBA8_UNORM = 12,
+    TEXTURE_FORMAT_RGBA8_SRGB = 13,
+    TEXTURE_FORMAT_RGBA16_FLOAT = 14,
+    TEXTURE_FORMAT_RGBA32_FLOAT = 15,
+    TEXTURE_FORMAT_DEPTH16_UNORM = 16,
+    TEXTURE_FORMAT_DEPTH16_UNORM_2 = 17, // ?
+    TEXTURE_FORMAT_DEPTH24_S8_UNORM = 18,
+    TEXTURE_FORMAT_DEPTH32_FLOAT = 19,
+    TEXTURE_FORMAT_RGBA_BC1_UNORM = 20, // DXT1
+    TEXTURE_FORMAT_RGBA_BC1_SRGB = 21, // DXT1
+    TEXTURE_FORMAT_RGBA_BC2_UNORM = 22, // DXT3
+    TEXTURE_FORMAT_RGBA_BC2_SRGB = 23, // DXT3
+    TEXTURE_FORMAT_RGBA_BC3_UNORM = 24, // DXT5
+    TEXTURE_FORMAT_RGBA_BC3_SRGB = 25, // DXT5
+    TEXTURE_FORMAT_RGBA_BC4_UNORM = 26, // RGTC1
+    TEXTURE_FORMAT_RGBA_BC4_SNORM = 27, // RGTC1
+    TEXTURE_FORMAT_RGBA_BC5_UNORM = 28, // RGTC2
+    TEXTURE_FORMAT_RGBA_BC5_SNORM = 29, // RGTC2
+    TEXTURE_FORMAT_RG11_B10_FLOAT = 30,
+    TEXTURE_FORMAT_R32_FLOAT = 31,
+    TEXTURE_FORMAT_RG8_UNORM = 32,
+    TEXTURE_FORMAT_RG8_SNORM = 33,
+    TEXTURE_FORMAT_RG8_UINT = 34,
+    TEXTURE_FORMAT_RG8_SINT = 35,
+    TEXTURE_FORMAT_RG16_FLOAT = 36,
+    TEXTURE_FORMAT_RG16_UNORM = 37,
+    TEXTURE_FORMAT_RG16_SNORM = 38,
+    TEXTURE_FORMAT_RG16_UINT = 39,
+    TEXTURE_FORMAT_RG16_SINT = 40,
+    TEXTURE_FORMAT_RGB10_A2_UNORM = 41,
+    TEXTURE_FORMAT_RGB10_A2_UINT = 42,
+    TEXTURE_FORMAT_RG32_UINT = 43,
+    TEXTURE_FORMAT_RG32_SINT = 44,
+    TEXTURE_FORMAT_RG32_FLOAT = 45,
+    TEXTURE_FORMAT_RGBA16_UNORM = 46,
+    TEXTURE_FORMAT_RGBA16_SNORM = 47,
+    TEXTURE_FORMAT_RGBA16_UINT = 48,
+    TEXTURE_FORMAT_RGBA16_SINT = 49,
+    TEXTURE_FORMAT_RGBA32_UINT = 50,
+    TEXTURE_FORMAT_RGBA32_SINT = 51,
+    TEXTURE_FORMAT_NONE = 52,
+    TEXTURE_FORMAT_RGBA_ASTC_4x4 = 53,
+    TEXTURE_FORMAT_RGBA_ASTC_5x4 = 54,
+    TEXTURE_FORMAT_RGBA_ASTC_5x5 = 55,
+    TEXTURE_FORMAT_RGBA_ASTC_6x5 = 56,
+    TEXTURE_FORMAT_RGBA_ASTC_6x6 = 57,
+    TEXTURE_FORMAT_RGBA_ASTC_8x5 = 58,
+    TEXTURE_FORMAT_RGBA_ASTC_8x6 = 59,
+    TEXTURE_FORMAT_RGBA_ASTC_8x8 = 60,
+    TEXTURE_FORMAT_RGBA_ASTC_10x5 = 61,
+    TEXTURE_FORMAT_RGBA_ASTC_10x6 = 62,
+    TEXTURE_FORMAT_RGBA_ASTC_10x8 = 63,
+    TEXTURE_FORMAT_RGBA_ASTC_10x10 = 64,
+    TEXTURE_FORMAT_RGBA_ASTC_12x10 = 65,
+    TEXTURE_FORMAT_RGBA_ASTC_12x12 = 66,
+    TEXTURE_FORMAT_RGBA_ASTC_4x4_SRGB = 67,
+    TEXTURE_FORMAT_RGBA_ASTC_5x4_SRGB = 68,
+    TEXTURE_FORMAT_RGBA_ASTC_5x5_SRGB = 69,
+    TEXTURE_FORMAT_RGBA_ASTC_6x5_SRGB = 70,
+    TEXTURE_FORMAT_RGBA_ASTC_6x6_SRGB = 71,
+    TEXTURE_FORMAT_RGBA_ASTC_8x5_SRGB = 72,
+    TEXTURE_FORMAT_RGBA_ASTC_8x6_SRGB = 73,
+    TEXTURE_FORMAT_RGBA_ASTC_8x8_SRGB = 74,
+    TEXTURE_FORMAT_RGBA_ASTC_10x5_SRGB = 75,
+    TEXTURE_FORMAT_RGBA_ASTC_10x6_SRGB = 76,
+    TEXTURE_FORMAT_RGBA_ASTC_10x8_SRGB = 77,
+    TEXTURE_FORMAT_RGBA_ASTC_10x10_SRGB = 78,
+    TEXTURE_FORMAT_RGBA_ASTC_12x10_SRGB = 79,
+    TEXTURE_FORMAT_RGBA_ASTC_12x12_SRGB = 80,
+    TEXTURE_FORMAT_BPTC_UFLOAT = 81,
+    TEXTURE_FORMAT_BPTC_SFLOAT = 82,
+    TEXTURE_FORMAT_BPTC_UNORM = 83,
+    TEXTURE_FORMAT_BPTC_UNORM_SRGB = 84,
+};
+
+enum <uint32> EMultiSample
+{
+    MULTISAMPLE_NONE = 0,
+    MULTISAMPLE_2 = 1,
+    MULTISAMPLE_4 = 2,
+    MULTISAMPLE_8 = 3,
+};
+
+struct STextureHeader
+{
+    ETextureType type;
+    ETextureFormat format;
+    uint32 width;
+    uint32 height;
+    uint32 depth;
+    uint32 unk;
+    uint32 unk;
+    uint32 mips;
+    uint32 mipSizes[mips];
+    STextureSamplerData samplerData;
+};
+
+typedef struct
+{
+    ChunkDescriptor chunk;
+    local uint64 start <format=hex, hidden=true> = FTell();
+    switch (chunk.id)
+    {
+        case "HEAD":
+            STextureHeader header;
+            break;
+        case "GPU ":
+            byte data[chunk.size];
+            break;
+    }
+    FSeek(start + chunk.size);
+} TXTRChunk <
+    name=(Str("%s chunk", chunk.id))
+>;
+
+typedef struct(uint64 size)
+{
+    local uint64 start <format=hex, hidden=true> = FTell();
+    while (FTell() < start + size)
+    {
+        TXTRChunk chunk;
+    }
+} NTextureFormat <name="TXTR chunks">;

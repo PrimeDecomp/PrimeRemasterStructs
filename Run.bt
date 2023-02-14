@@ -4,7 +4,7 @@
 #include "CFormDescriptor.bt"
 
 // Meta
-#include "TextureMeta.bt"
+#include "NTextureFormat.bt"
 #include "Meta.bt"
 
 // Files
@@ -34,6 +34,9 @@ typedef struct
             break;
         case "PACK":
             CPakFile pak;
+            break;
+        case "TXTR":
+            NTextureFormat texture(form.size);
             break;
     }
     FSeek(start + form.size);
