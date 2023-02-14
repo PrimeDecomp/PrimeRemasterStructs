@@ -11,6 +11,7 @@
 #include "CCharInfo.bt"
 #include "CGraphicsModel.bt"
 #include "CPakFile.bt"
+#include "MessageStudioBinaryText.bt"
 
 // Custom footer
 #include "Footer.bt"
@@ -27,6 +28,9 @@ typedef struct
         case "CMDL":
         case "SMDL":
             ModelFile model(form.size);
+            break;
+        case "MSBT":
+            MessageStudioBinaryText text;
             break;
         case "PACK":
             CPakFile pak;

@@ -1,0 +1,161 @@
+struct LanguageHeader(string expectedLanguage) {
+    char magic[4];
+    Assert(magic == expectedLanguage);
+    uint fileSize;
+    uint unk[4];
+};
+
+struct MSBTHeader {
+    char magic[8];
+    Assert(magic == "MsgStdBn");
+    ushort bom <format=hex>;
+    Assert(bom == 0xFEFF); // Big-Endian byte order
+    ushort unk1;
+    ubyte maybeMajorVersion;
+    ubyte maybeMinorVersion;
+    ushort sectionCount;
+    ushort unk3;
+    uint fileSize;
+    byte padding[10]<hidden=true>;
+};
+
+struct TableHeader(string expectedMagic) {
+    char magic[4];
+    Assert(magic == expectedMagic);
+    uint tableSize;
+    byte padding[8]<hidden=true>;
+};
+
+struct LabelOffset {
+    uint stringCount;
+    uint stringOffset;
+};
+
+struct LabelEntry {
+    ubyte stringLength;
+    char str[stringLength];
+    uint stringTableIndex;
+};
+
+wstring LabelEntryRead(LabelEntry &le) {
+    return le.str;
+}
+
+struct LabelsSection {
+    TableHeader header("LBL1");
+    local int64 tableStart = FTell();
+    uint offsetCount;
+    LabelOffset offset[offsetCount];
+    local uint i;
+    for (i = 0; i < offsetCount; i++) {
+        Assert(FTell() == tableStart + offset[i].stringOffset);
+        if (offset[i].stringCount) {
+            LabelEntry label[offset[i].stringCount]<optimize=false,read=LabelEntryRead>;
+        }
+    }
+    while (ReadUByte(FTell()) == 0xAB) {
+        byte padding<hidden=true>;
+    }
+};
+
+struct AttributeEntry {
+    wstring str;
+};
+
+wstring AttributeEntryRead(AttributeEntry &ae) {
+    return ae.str;
+}
+
+struct AttributesSection {
+    TableHeader header("ATR1");
+    local int64 tableStart = FTell();
+    uint offsetCount;
+    uint entrySize; // should always be 4
+    uint offset[offsetCount];
+    local uint i;
+    for (i = 0; i < offsetCount; i++) {
+        Assert(FTell() == tableStart + offset[i]);
+        AttributeEntry attribute<optimize=false,read=AttributeEntryRead>;
+    }
+    while (ReadUByte(FTell()) == 0xAB) {
+        byte padding<hidden=true>;
+    }
+};
+
+struct TextsEntry(int64 size) {
+    wchar_t str[size / 2];
+};
+
+wstring TextsEntryRead(TextsEntry &te) {
+    local wstring out;
+    local uint i;
+    for (i = 0; i < (sizeof te.str / 2); i++) {
+        // Skip invalid characters based on text command type
+        if (te.str[i] == 0x0E) {
+            i++; // Read next short to determine type
+            switch (te.str[i]) {
+                case 0:
+                case 3:
+                case 4:
+                    i += 3;
+                    break;
+                case 2:
+                case 5:
+                    i += 2;
+                    break;
+                case 1:
+                    // TODO: This command type has a variable size
+                    // and doesn't seem to be used in MPR anyway.
+                    Assert(false, "Unimplemented text stop type");
+                    break;
+            }
+        } else {
+            out += te.str[i];
+        }
+    }
+    return out;
+}
+
+struct TextsSection {
+    TableHeader header("TXT2");
+    local int64 tableStart = FTell();
+    uint offsetCount;
+    uint offset[offsetCount];
+    local uint i;
+    // This is kind of hacky- these strings may contain null characters, so
+    // we need to read between the offsets and stop at the end of the table.
+    for (i = 0; i < offsetCount - 1; i++) {
+        TextsEntry text(offset[i + 1] - offset[i])<optimize=false,read=TextsEntryRead>;
+    }
+    TextsEntry text(header.tableSize - offset[i])<optimize=false,read=TextsEntryRead>;
+    
+    while (ReadUByte(FTell()) == 0xAB) {
+        byte padding<hidden=true>;
+    }
+};
+
+struct Language (string expectedLanguage) {
+    LanguageHeader languageHeader(expectedLanguage);
+    // Each section here is heavily referenced from https://zeldamods.org/wiki/Msbt
+    MSBTHeader header;
+    LabelsSection labels;
+    AttributesSection attributes;
+    TextsSection texts;
+};
+
+struct MessageStudioBinaryText
+{
+    Language us_english("USEN");
+    Language eu_english("EUEN");
+    Language eu_french("EUFR");
+    Language us_french("USFR");
+    Language eu_spanish("EUSP");
+    Language eu_german("EUGE");
+    Language eu_italian("EUIT");
+    Language eu_dutch("EUDU");
+    Language jp_japanese("JPJP");
+    Language ko_korean("KOKO");
+    Language ch_traditionalchinese("CHTC");
+    Language ch_simplifiedchinese("CHSC");
+    Language us_spanish("USSP");
+};
