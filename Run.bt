@@ -19,12 +19,6 @@
 // Custom footer
 #include "Footer.bt"
 
-
-local uint isDKCTF <hidden=true> = -1;
-local uint AssetDirEntryChunkSz <hidden=true> = 0;
-
-//Mod by LolHacksRule, added support for DKCTF (older Big Endian) formats
-
 typedef struct
 {
     FormDescriptor form;
@@ -65,7 +59,11 @@ typedef struct
 } File <open=true, bgcolor=cSilver>;
 
 // Template start
-LittleEndian();
+BigEndian();
+local uint isDKCTF <hidden=true> = (ReadInt(4) & 0xFFFFFF) == 0;
+if (!isDKCTF) {
+    LittleEndian();
+}
 File file <bgcolor=cGray, name=(Str("%s v%d file", form.id, form.versionA))>;
 
 // Custom footer for extracted files

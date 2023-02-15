@@ -1,7 +1,8 @@
 struct AssetInfo
 {
     GUID id;
-    uint32 compressionMode;
+    CompressionType compressionType;
+    byte pad[3] <hidden=true>;
     uint64 origOffset <format=hex>;
 };
 

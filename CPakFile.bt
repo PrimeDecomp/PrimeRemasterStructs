@@ -5,46 +5,52 @@ typedef struct
 {
     FourCC type;
     GUID id;
-    if (isDKCTF == 0)
+    if (!isDKCTF)
     {
         uint32 versionA;
         uint32 versionB;
     }
-    uint64 offset;
-    if (isDKCTF == 0)
+    uint64 offset <format=hex>;
+    if (!isDKCTF)
     {
-        uint64 decompressedSize;
+        uint64 decompressedSize <format=hex>;
     }
-    else
+    uint64 size <format=hex>;
+    if (isDKCTF)
     {
-        local uint decompressedSize <hidden=true> = 0; //hack
+        local uint64 decompressedSize <hidden=true> = size;
     }
-    uint64 size;
+
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(offset);
-    if (size == decompressedSize || isDKCTF == 1) {
+    if (size == decompressedSize) {
         File data <size=size>;
     } else {
-		enum <uint32> CompressionType
-		{
-			LZSS_8  = 0x1,
-			LZSS_16 = 0x2,
-			LZSS_32 = 0x3,
-			ZLIB    = 0xD,
-		} compressionType;
+        CompressionType compressionType;
+        byte pad[3] <hidden=true>;
         byte compressedData[size - 4];
     }
     FSeek(pos);
 } AssetDirectoryEntry <
-    size=AssetDirEntryChunkSz, // Parse on-demand
-    name=(Str("%s v%d.%d %s", this.type, data.form.versionA, data.form.versionB, GUIDToString(this.id))), //Read the chunk ver and subver from form descriptor
-    comment=(SizeComment(size))
+    size=(isDKCTF ? 36 : 52), // Parse on-demand
+    name=AssetDirectoryEntryName,
+    comment=(SizeComment(this.size))
 >;
+
+string AssetDirectoryEntryName(AssetDirectoryEntry& entry)
+{
+    if (isDKCTF) {
+        // Read the chunk ver and subver from form descriptor
+        return Str("%s v%d.%d %s", entry.type, entry.data.form.versionA, entry.data.form.versionB, GUIDToString(entry.id));
+    } else {
+        return Str("%s v%d.%d %s", entry.type, entry.versionA, entry.versionB, GUIDToString(entry.id));
+    }
+}
 
 typedef struct
 {
     GUID id;
-    uint32 offset;
+    uint32 offset <format=hex>;
 
     // Find the FourCC for the asset ID
     // Assumes TOCC chunk 0 is ADIR
@@ -61,7 +67,7 @@ typedef struct
 
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(start + offset);
-    uint32 size;
+    uint32 size <format=hex>;
     Meta data(type, size, fileOffset);
     FSeek(pos);
 } MetaEntry <

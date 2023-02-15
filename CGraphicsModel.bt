@@ -106,11 +106,11 @@ typedef struct{
             float color3[4];
             byte flags;
             GUID texture1ID;
-            if (texture1ID != 0) CMaterialTextureTokenData texture1;
+            if (texture1ID != GUIDZero) CMaterialTextureTokenData texture1;
             GUID texture2ID;
-            if (texture2ID != 0) CMaterialTextureTokenData texture2;
+            if (texture2ID != GUIDZero) CMaterialTextureTokenData texture2;
             GUID texture3ID;
-            if (texture3ID != 0) CMaterialTextureTokenData texture3;
+            if (texture3ID != GUIDZero) CMaterialTextureTokenData texture3;
     
         break;
    }

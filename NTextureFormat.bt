@@ -16,7 +16,8 @@ struct STextureCompressedBufferInfo(uint64 fileStart)
     // Compressed data
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(fileStart + info[index].offset + offset);
-    uint32 compressionMode;
+    CompressionType compressionType;
+    byte pad[3] <hidden=true>;
     byte data[size - 4] <bgcolor=cLtRed>;
     FSeek(pos);
 };
@@ -30,9 +31,13 @@ struct STextureMetaData(uint64 fileStart)
     uint32 align;
     uint32 decompressedSize <format=hex>; // Total size decompressed
     uint32 infoCount;
-    STextureReadInfo info[infoCount];
+    if (infoCount != 0) {
+        STextureReadInfo info[infoCount];
+    }
     uint32 bufferCount;
-    STextureCompressedBufferInfo buffer(fileStart)[bufferCount] <optimize=false>;
+    if (bufferCount != 0) {
+        STextureCompressedBufferInfo buffer(fileStart)[bufferCount] <optimize=false>;
+    }
 };
 
 enum <byte> ETextureWrap
@@ -228,13 +233,13 @@ typedef struct
             STextureHeader header;
             break;
         case "GPU ":
-            LittleEndian();
-            uint32 compressionType;
-            if (isDKCTF == 1)
-            {
-                BigEndian();
+            if (isDKCTF) {
+                CompressionType compressionType;
+                byte pad[3] <hidden=true>;
+                byte data[chunk.size - 4];
+            } else {
+                byte data[chunk.size];
             }
-            byte data[chunk.size-4];
             break;
     }
     FSeek(start + chunk.size);

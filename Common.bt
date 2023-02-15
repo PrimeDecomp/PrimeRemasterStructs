@@ -65,3 +65,13 @@ string SizeComment(uint64 size)
 {
     return Str("Size: %s (0x%X)", FormatBytes(size), size);
 }
+
+local GUID GUIDZero <hidden=true>;
+
+typedef enum <byte>
+{
+    LZSS_8  = 0x1,
+    LZSS_16 = 0x2,
+    LZSS_32 = 0x3,
+    ZLIB    = 0xD,
+} CompressionType;
