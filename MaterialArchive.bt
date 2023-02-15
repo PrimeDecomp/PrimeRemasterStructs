@@ -244,19 +244,19 @@ struct MaterialBackend {
     ChunkDescriptor chunk;
     local uint64 start <format=hex, hidden=true> = FTell();
     uint flags;
-    uint tocSize;
     if (flags != 0) {
+        uint tocSize;
         uint bufferEntryCount;
         SBufferTOCEntry bufferEntries[bufferEntryCount];
         uint materialEntryCount;
         SMaterialTOCEntry materialEntries[materialEntryCount] <optimize = false>;
-        uint shaderSourceCount;
-        SShaderSource shaderSources[shaderSourceCount]  <optimize = false>;
-        uint materialImportDescCount;
-        SMaterialImportDesc materialImportDescs[materialImportDescCount] <optimize = false>;
-    };
-    break;
+    }
     
+	uint shaderSourceCount;
+	SShaderSource shaderSources[shaderSourceCount]  <optimize = false>;
+	
+	uint materialImportDescCount;
+	SMaterialImportDesc materialImportDescs[materialImportDescCount] <optimize = false>;
 
     if ((FTell() - start) != chunk.size) {
         char data[chunk.size - (FTell() - start)];
