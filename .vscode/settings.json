@@ -1,5 +1,15 @@
 {
     "files.associations": {
         "*.bt": "c",
-    }
+    },
+    "C/C++ Include Guard.Header Extensions": [
+        ".h",
+        ".hpp",
+        ".h++",
+        ".hh",
+        ".bt"
+    ],
+    "C/C++ Include Guard.Path Depth": 0,
+    "C/C++ Include Guard.Path Skip": 0,
+    "C/C++ Include Guard.Spaces After Endif": 0
 }

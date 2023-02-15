@@ -1,3 +1,5 @@
+#ifndef _CGRAPHICSMODEL
+#define _CGRAPHICSMODEL
 #include "CAABox.bt"
 #include "CEvalSystem.bt"
 #include "CVector4i.bt"
@@ -78,6 +80,17 @@ typedef struct{
    GUID id;
    STextureUsageInfo usage;
 } CMaterialTextureTokenData <name=(Str("%s", GUIDToString(this.id)))>;
+
+struct SSkinnedModelHeader {
+  uint unk;
+  uint unk;
+  uint unk;
+  uint unk;
+  uint uintsCount;
+  uint uints[uintsCount];
+  uint dataCount;
+  uint data[dataCount];
+};
 
 typedef struct{
    char type[4];
@@ -330,6 +343,7 @@ typedef struct {
 struct SMeshLoadInformation {
     uint meshCount;
     CRenderMesh meshes[meshCount];
+    uint unk;
 };
 
 typedef struct {
@@ -339,6 +353,9 @@ typedef struct {
   switch (chunk.id) {
   case "HEAD":
     ModelHeader header;
+    break;
+  case "SKHD":
+    SSkinnedModelHeader skinnedModelHeader;
     break;
   case "MTRL":
     if (isDKCTF == 0)
@@ -361,3 +378,6 @@ typedef struct(uint64 size) {
         ModelChunk chunk;
     }
 } ModelFile <name="Model chunks">;
+
+
+#endif// _CGRAPHICSMODEL

@@ -13,6 +13,7 @@
 #include "CPakFile.bt"
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"
+#include "CVectorField.bt"
 //#include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
@@ -26,8 +27,13 @@ typedef struct
     switch (form.id)
     {
         case "MTRL":
-            byte MTRLRaw [form.size]; //For now
-            //MaterialArchive materialArchive(form.size);
+            if (form.versionA == 168) {
+                byte MTRLRaw [form.size]; //For now
+            } else if (form.versionA == 22) {
+                MaterialArchive materialArchive(form.size);
+            } else {
+                Assert("Invalid version!");
+            }
             break;
         case "CHPR":
             FCharInf charInfo;
@@ -54,6 +60,9 @@ typedef struct
         /*case "GFX ":
             CFlashMovieResource flashmovieresource(form.size);
             break;*/
+        case "VECF":
+            CVectorField vectorField;
+            break;
     }
     FSeek(start + form.size);
 } File <open=true, bgcolor=cSilver>;

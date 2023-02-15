@@ -1,3 +1,5 @@
+#ifndef _NTEXTUREFORMAT
+#define _NTEXTUREFORMAT
 struct STextureReadInfo
 {
     byte index;
@@ -255,3 +257,6 @@ typedef struct(uint64 size)
         TXTRChunk chunk;
     }
 } NTextureFormat <name="TXTR chunks">;
+
+
+#endif// _NTEXTUREFORMAT

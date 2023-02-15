@@ -1,3 +1,5 @@
+#ifndef _MATERIALARCHIVE
+#define _MATERIALARCHIVE
 struct SBufferTOCEntry {
     uint unk1;
     uint unk2;
@@ -197,7 +199,22 @@ struct IFeatureInstance {
     }
 };
 
+struct SDepthModeState {
 
+};
+
+struct SStencilModeState {
+
+};
+
+struct CGraphicsState {
+    uint flags;
+};
+
+struct SOverrideState {
+    CBooleanExpressionEvaluator evaluator;
+    CGraphicsState state;  
+};
 struct SMaterialImportDesc {
     GUID guid;
     uint unk1;
@@ -212,6 +229,11 @@ struct SMaterialImportDesc {
             uchar hasFeatureSet;
             if (hasFeatureSet) {
                 CFeatureSet featureSet;
+            }
+            CGraphicsState state;
+            uint overrideStateCount;
+            if (overrideStateCount) {
+                SOverrideState overrideStates;
             }
         } meta;
         char data[dataSize];
@@ -247,3 +269,6 @@ struct MaterialArchive(uint64 size) {
         MaterialBackend backend;
     }
 };
+
+
+#endif// _MATERIALARCHIVE

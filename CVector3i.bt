@@ -1,0 +1,11 @@
+#ifndef _CVECTOR3I
+#define _CVECTOR3I
+
+
+typedef struct {
+    int x;
+    int y;
+    int z;
+} CVector3i;
+
+#endif// _CVECTOR3I

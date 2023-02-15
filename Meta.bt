@@ -1,3 +1,5 @@
+#ifndef _META
+#define _META
 typedef struct(FourCC type, uint64 size, uint64 fileStart)
 {
   local uint64 start <format=hex, hidden=true> = FTell();
@@ -12,3 +14,6 @@ typedef struct(FourCC type, uint64 size, uint64 fileStart)
   }
   FSeek(start + size);
 } Meta <open=true>;
+
+
+#endif// _META

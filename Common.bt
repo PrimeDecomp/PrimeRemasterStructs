@@ -1,3 +1,5 @@
+#ifndef _COMMON
+#define _COMMON
 typedef struct
 {
     string text;
@@ -75,3 +77,5 @@ typedef enum <byte>
     LZSS_32 = 0x3,
     ZLIB    = 0xD,
 } CompressionType;
+
+#endif// _COMMON

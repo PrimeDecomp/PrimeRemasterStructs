@@ -1,0 +1,25 @@
+#ifndef _CVECTORFIELD
+#define _CVECTORFIELD
+
+#include "CAABox.bt"
+#include "CVector3f.bt"
+#include "CVector3i.bt"
+
+struct CVectorField {
+  CVector3i unk;
+  CAABox bounds;
+  uint vectorCount;
+  CVector3f vectors[vectorCount];
+
+  local int i = 0;
+  for (i = 0; i < vectorCount; ++i) {
+    Printf("v %f %f %f\n", vectors[i].x - 0.00005, vectors[i].y - 0.00005, vectors[i].z - 0.00005);
+    Printf("v %f %f %f\n", vectors[i].x, vectors[i].y, vectors[i].z);
+    Printf("v %f %f %f\n", vectors[i].x + 0.00005, vectors[i].y + 0.00005, vectors[i].z + 0.00005);
+  }
+  for (i = 0; i < vectorCount; ++i) {
+    Printf("f %i %i %i\n", i + 1, i + 2, i + 3);
+  }
+};
+
+#endif // _CVECTORFIELD

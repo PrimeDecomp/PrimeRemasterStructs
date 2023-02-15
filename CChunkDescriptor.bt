@@ -1,3 +1,5 @@
+#ifndef _CCHUNKDESCRIPTOR
+#define _CCHUNKDESCRIPTOR
 typedef struct
 {
     FourCC id;
@@ -10,3 +12,6 @@ typedef struct
     comment=(SizeComment(size)),
     bgcolor=cDkAqua
 >;
+
+
+#endif// _CCHUNKDESCRIPTOR

@@ -1,3 +1,5 @@
+#ifndef _FOOTER
+#define _FOOTER
 struct AssetInfo
 {
     GUID id;
@@ -35,3 +37,6 @@ typedef struct(FourCC type)
     }
     FSeek(start + form.size);
 } Footer <name="Extracted file info">;
+
+
+#endif// _FOOTER

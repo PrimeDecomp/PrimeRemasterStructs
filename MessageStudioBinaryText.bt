@@ -1,3 +1,5 @@
+#ifndef _MESSAGESTUDIOBINARYTEXT
+#define _MESSAGESTUDIOBINARYTEXT
 struct LanguageHeader(string expectedLanguage) {
     char magic[4];
     Assert(magic == expectedLanguage);
@@ -163,3 +165,6 @@ struct MessageStudioBinaryText
         Language us_spanish("USSP");
     }
 };
+
+
+#endif// _MESSAGESTUDIOBINARYTEXT

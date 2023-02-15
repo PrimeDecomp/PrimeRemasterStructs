@@ -1,3 +1,6 @@
+#ifndef _CCHARINFO
+#define _CCHARINFO
+
 struct SAnimContext
 {
   
@@ -63,3 +66,6 @@ struct FCharInf
     byte count;
     CCharInfo charInfo[count] <optimize=false>;
 };
+
+
+#endif// _CCHARINFO

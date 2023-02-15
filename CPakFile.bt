@@ -1,3 +1,5 @@
+#ifndef _CPAKFILE
+#define _CPAKFILE
 struct File;
 struct CPakFile;
 
@@ -121,3 +123,6 @@ typedef struct
         TOCChunk chunk(this);
     }
 } CPakFile <name="PACK chunks">;
+
+
+#endif// _CPAKFILE

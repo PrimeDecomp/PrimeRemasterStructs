@@ -11,6 +11,9 @@
 //   History: 
 //------------------------------------------------
 
+#ifndef _CSCALEFORMFLASHLIBRARY
+#define _CSCALEFORMFLASHLIBRARY
+
 typedef struct
 {   ChunkDescriptor chunk;
     struct CScaleformFlashLibraryChunk
@@ -33,3 +36,6 @@ typedef struct
 	    byte theGFXFile[swfSize]; //History
     } GFXLChunk;
 } CScaleformFlashLibrary;
+
+
+#endif// _CSCALEFORMFLASHLIBRARY
