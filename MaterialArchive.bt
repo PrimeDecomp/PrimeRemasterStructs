@@ -217,7 +217,7 @@ struct SOverrideState {
 };
 struct SMaterialImportDesc {
     GUID guid;
-    uint unk1;
+    uint shaderHash;
     uint nameLen;
     char name[nameLen];
     ushort unk2;
