@@ -14,6 +14,7 @@
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"
 #include "CVectorField.bt"
+#include "CAABoxCollisionTree.bt"
 //#include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
@@ -34,6 +35,9 @@ typedef struct
             } else {
                 Assert("Invalid version!");
             }
+            break;
+        case "CLSN":
+            CAABoxCollisionTree aaboxCollisionTree(form.size);
             break;
         case "CHPR":
             FCharInf charInfo;

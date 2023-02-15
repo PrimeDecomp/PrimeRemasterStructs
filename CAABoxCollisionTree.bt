@@ -1,0 +1,66 @@
+#ifndef _CAABOXCOLLISIONTREE
+#define _CAABOXCOLLISIONTREE
+
+#include "CTransform4f.bt"
+
+struct CCollisionMaterial {
+  uint orientation;
+  uint materialType;
+  uint worldType;
+  uint behaviorList;
+  uint filterList;
+};
+
+struct CIndexedTriangle {
+  uint idx1;
+  uint idx2;
+  uint idx3;
+  ushort material;
+  ushort unk2;
+};
+
+struct CollisionMaterialVector {
+  uint count;
+  CCollisionMaterial collisionMaterials[count];
+};
+
+struct VertexVector {
+  uint count;
+  CVector3f vertices[count];
+};
+
+struct IndexedTriangleVector {
+  uint count;
+  CIndexedTriangle tris[count];
+};
+
+struct ModConData {
+  char id[16];
+  CTransform4f xf;
+  ushort unk;
+};
+
+struct CAABoxCollisionTree(uint64 size) {
+  local uint64 start<format = hex, hidden = true> = FTell();
+  while (FTell() != start + size) {
+    struct Chunk {
+      ChunkDescriptor desc;
+      union {
+        switch (desc.id) {
+        case "MTRL":
+          CollisionMaterialVector materials;
+          break;
+        case "TRIS":
+          IndexedTriangleVector triangles;
+          break;
+        case "VERT":
+          VertexVector vertices;
+          break;
+        }
+        char raw[desc.size];
+      } data;
+    } chunks;
+  }
+};
+
+#endif // _CAABOXCOLLISIONTREE
