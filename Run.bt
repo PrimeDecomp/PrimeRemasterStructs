@@ -52,6 +52,12 @@ typedef struct
             break;
         /*case "RULE":
             CRuleSet rulesetconfig(form.size);
+            break;
+        case "GFXL":
+            CScaleformFlashLibrary scaleformflashlibrary(form.size);
+            break;
+        case "GFXL":
+            CFlashMovieResource flashmobieresource(form.size);
             break;*/
     }
     FSeek(start + form.size);
