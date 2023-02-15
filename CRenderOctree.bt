@@ -1,0 +1,27 @@
+#ifndef _CRENDEROCTREE
+#define _CRENDEROCTREE
+
+#include "Common.bt"
+#include "CAABox.bt"
+
+struct CRenderOctree {
+    struct SHeader {
+        FourCC fcc;
+        uint version;
+        uint bitmaskCount;
+        uint bitmaskNumBits;
+        uint entryNodeCount;
+        CAABox bounds;
+    };
+    SHeader header;
+    uint bitmaskWordCount;
+    uint bitmaskWords[bitmaskWordCount];
+    uint edgeOffsetCount;
+    uint edgeOffsets[edgeOffsetCount];
+    uint dataSize;
+    char data[dataSize];
+    uint aaboxCount;
+    CAABox aaboxes[aaboxCount];
+};
+
+#endif// _CRENDEROCTREE

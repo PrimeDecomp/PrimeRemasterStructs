@@ -44,6 +44,7 @@ typedef struct
             break;
         case "CMDL":
         case "SMDL":
+        case "WMDL":
             ModelFile model(form.size);
             break;
         case "MSBT":

@@ -3,6 +3,7 @@
 #include "CAABox.bt"
 #include "CEvalSystem.bt"
 #include "CVector4i.bt"
+#include "CRenderOctree.bt"
 
 struct SModelAnimatedUVData {
   CEvalSystem evalSystem;
@@ -90,6 +91,10 @@ struct SSkinnedModelHeader {
   uint uints[uintsCount];
   uint dataCount;
   uint data[dataCount];
+};
+
+struct SWorldModelHeader {
+  uchar unk;
 };
 
 typedef struct{
@@ -343,7 +348,6 @@ typedef struct {
 struct SMeshLoadInformation {
     uint meshCount;
     CRenderMesh meshes[meshCount];
-    uint unk;
 };
 
 typedef struct {
@@ -351,6 +355,17 @@ typedef struct {
 
   local uint pos<format = hex, hidden = true> = FTell();
   switch (chunk.id) {
+  case "WDHD":
+    SWorldModelHeader worldHeader;
+    CRenderOctree renderOctree;
+    uint aaboxCount;
+    CAABox aaboxes[aaboxCount];
+    uint floatCount;
+    float floats[floatCount];
+    ushort unk;
+    uint shortCount;
+    ushort shorts[shortCount];
+    break;
   case "HEAD":
     ModelHeader header;
     break;
