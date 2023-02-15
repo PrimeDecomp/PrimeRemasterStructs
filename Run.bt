@@ -13,9 +13,17 @@
 #include "CPakFile.bt"
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"
+//#include "CRuleSet.bt"
+#include "CScaleformFlashLibrary.bt"
 
 // Custom footer
 #include "Footer.bt"
+
+
+local uint isDKCTF <hidden=true> = -1;
+local uint AssetDirEntryChunkSz <hidden=true> = 0;
+
+//Mod by LolHacksRule, added support for DKCTF (older Big Endian) formats
 
 typedef struct
 {
@@ -24,7 +32,8 @@ typedef struct
     switch (form.id)
     {
         case "MTRL":
-            MaterialArchive materialArchive(form.size);
+            byte MTRLRaw [form.size]; //For now
+            //MaterialArchive materialArchive(form.size);
             break;
         case "CHPR":
             FCharInf charInfo;
@@ -42,6 +51,15 @@ typedef struct
         case "TXTR":
             NTextureFormat texture(form.size);
             break;
+        /*case "RULE":
+            CRuleSet rulesetconfig(form.size);
+            break;*/
+        case "GFXL":
+            CScaleformFlashLibrary scaleformflashlibrary;
+            break;
+        /*case "GFX ":
+            CFlashMovieResource flashmovieresource(form.size);
+            break;*/
     }
     FSeek(start + form.size);
 } File <open=true, bgcolor=cSilver>;

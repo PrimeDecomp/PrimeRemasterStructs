@@ -1,6 +1,23 @@
 typedef struct
 {
     FourCC type;
+    //So this is a check for DKCTF (Big Endian), basically 0x04 should be 0, if that's true, assume DKCTF, strange for DKCTF on NS was in BE, I'll prob fix this memory usage later
+    if (isDKCTF == -1) //Like this
+    {
+        uint32 checkForDKCTF;
+        FSkip(-4);
+        if (checkForDKCTF == 0)
+        {
+            isDKCTF = 1;
+            AssetDirEntryChunkSz = 36;
+            BigEndian();
+        }
+        else
+        {
+            isDKCTF = 0;
+            AssetDirEntryChunkSz = 52;
+        }
+    }
     uint64 size <format=hex>;
     uint64 unk1;
     FourCC id;

@@ -87,8 +87,11 @@ struct STextureSamplerData
     ETextureMipFilter mipFilter;
     ETextureWrap wrapX;
     ETextureWrap wrapY;
-    ETextureWrap wrapZ;
-    ETextureAnisotropicRatio aniso;
+    if (isDKCTF == 0)
+    {
+        ETextureWrap wrapZ;
+        ETextureAnisotropicRatio aniso;
+    }
 };
 
 enum <uint32> ETextureType
@@ -225,7 +228,13 @@ typedef struct
             STextureHeader header;
             break;
         case "GPU ":
-            byte data[chunk.size];
+            LittleEndian();
+            uint32 compressionType;
+            if (isDKCTF == 1)
+            {
+                BigEndian();
+            }
+            byte data[chunk.size-4];
             break;
     }
     FSeek(start + chunk.size);

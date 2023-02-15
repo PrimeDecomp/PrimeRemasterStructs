@@ -27,16 +27,30 @@ struct CustomDataLoader {
 };
 
 struct ModelHeader {
-  uint unk1;
+  if (isDKCTF == 1)
+  {
+    uint opaqueMeshes;
+    uint onePassTransMeshes;
+    uint TwoPassTransMeshes;
+    uint oneBitMeshes;
+    uint additiveMeshes;
+  }
+  else
+  {
+    uint unk1;
+  }
   CAABox bounds;
   uint dataSourceCount;
   local int i;
   for (i = 0; i < dataSourceCount; ++i) {
     DataSourceLoader dataSource;
   }
-  uchar unk2;
-  if (unk2) {
-    CustomDataLoader customData;
+  if (isDKCTF == 0)
+  {
+    uchar unk2;
+    if (unk2) {
+      CustomDataLoader customData;
+    }
   }
 };
 
@@ -273,15 +287,29 @@ string CMaterialDataRead(CMaterialData &mat)
 typedef struct {
   CStringFixed name;
   GUID shaderID;
-  GUID guid2; //unsure
-  uint unk1;
-  uint unk2;
-  //material type list (can be 0)
-  uint typeCount;
+  if (isDKCTF == 1)
+  {
+    local uint typeCount <hidden=true> = 1; //Hack it to 1
+  }
+  else
+  {
+    GUID guid2; //unsure
+    uint unk1;
+    uint unk2;
+    //material type list (can be 0)
+    uint typeCount;
+  }
   uint types[typeCount];
-  //material data types (with extra value)
-  uint renderTypeCount;
-  MaterialRenderTypes renderTypes[renderTypeCount];
+  if (isDKCTF == 1)
+  {
+    uint flags;
+  }
+  else
+  {
+    //material data types (with extra value)
+    uint renderTypeCount;
+    MaterialRenderTypes renderTypes[renderTypeCount];
+  }
   //material data types
   uint dataCount;
   MaterialType dataTypes2[dataCount];
@@ -313,7 +341,10 @@ typedef struct {
     ModelHeader header;
     break;
   case "MTRL":
-    uint unk;
+    if (isDKCTF == 0)
+    {
+        uint unk;
+    }
     uint numMaterials;
     CMaterialCache materials[numMaterials]<optimize = false>;
     break;
