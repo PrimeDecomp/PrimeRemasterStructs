@@ -42,7 +42,7 @@ struct SMaterialTOCEntry {
 };
 
 struct SShaderSource {
-    uchar unk;
+    uchar state;
     uint strLen;
     if (strLen)
         char str[strLen]; 
@@ -67,12 +67,12 @@ struct CShaderVariable {
 };
 struct SShaderImportDesc {
     CShaderIdentifier ident;
-    uint64 unk1;
-    uint unk2;
-    uint unk3;
-    uint unk4;
-    uint unk5;
-    uint unk6;
+    uint64 shaderID;
+    int vertexProgramIndex;
+    int pixelProgramIndex;
+    int geomProgramIndex;
+    int computeProgramIndex;
+    uint unk;
     CShaderDefines defines;
     uint dataSize;
     union {
@@ -221,9 +221,9 @@ struct SMaterialImportDesc {
 struct MaterialBackend {
     ChunkDescriptor chunk;
     local uint64 start <format=hex, hidden=true> = FTell();
-    uint unk1;
-    uint unk2;
-    if (unk1 != 0) {
+    uint flags;
+    uint tocSize;
+    if (flags != 0) {
         uint bufferEntryCount;
         SBufferTOCEntry bufferEntries[bufferEntryCount];
         uint materialEntryCount;
