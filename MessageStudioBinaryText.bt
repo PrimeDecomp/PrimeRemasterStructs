@@ -94,26 +94,11 @@ wstring TextsEntryRead(TextsEntry &te) {
     local wstring out;
     local uint i;
     for (i = 0; i < (sizeof te.str / 2); i++) {
-        // Skip invalid characters based on text command type
-        if (te.str[i] == 0x0E) {
-            i++; // Read next short to determine type
-            switch (te.str[i]) {
-                case 0:
-                case 3:
-                case 4:
-                    i += 3;
-                    break;
-                case 2:
-                case 5:
-                    i += 2;
-                    break;
-                case 1:
-                    // TODO: This command type has a variable size
-                    // and doesn't seem to be used in MPR anyway.
-                    Assert(false, "Unimplemented text stop type");
-                    break;
-            }
-        } else {
+        // MSBT includes "text commands" in strings, which are sections of binary
+        // data with varying lengths. Parsing them is complicated, so for now we
+        // just skip all characters below the printable range. Some random bytes
+        // will still slip through.
+        if (te.str[i] >= 0x20) {
             out += te.str[i];
         }
     }
@@ -141,38 +126,40 @@ struct TextsSection {
 struct Language (string expectedLanguage) {
     LanguageHeader languageHeader(expectedLanguage);
     // Each section here is heavily referenced from https://zeldamods.org/wiki/Msbt
-    MSBTHeader header;
-    LabelsSection labels;
-    AttributesSection attributes;
-    TextsSection texts;
+    struct MSBTContents {
+        MSBTHeader header;
+        LabelsSection labels;
+        AttributesSection attributes;
+        TextsSection texts;
+    } contents;
 };
 
 struct MessageStudioBinaryText
 {   
-    Language us_english("USEN");
     if (isDKCTF == 1)
     {
+        Language us_english("USEN");
         Language us_french("USFR");
         Language us_spanish("USSP");
-    }
-    Language eu_english("EUEN");
-    Language eu_french("EUFR");
-    if (isDKCTF == 0)
-    {
+        Language eu_english("EUEN");
+        Language eu_french("EUFR");
+        Language eu_spanish("EUSP");
+        Language eu_german("EUGE");
+        Language eu_italian("EUIT");
+        Language jp_japanese("JPJP");
+    } else {
+        Language us_english("USEN");
+        Language eu_english("EUEN");
+        Language eu_french("EUFR");
         Language us_french("USFR");
-    }
-    Language eu_spanish("EUSP");
-    Language eu_german("EUGE");
-    Language eu_italian("EUIT");
-    if (isDKCTF == 0)
-    {
+        Language eu_spanish("EUSP");
+        Language eu_german("EUGE");
+        Language eu_italian("EUIT");
         Language eu_dutch("EUDU");
-    }
-    Language jp_japanese("JPJP");
-    if (isDKCTF == 0)
-    {
+        Language jp_japanese("JPJP");
         Language ko_korean("KOKO");
         Language ch_traditionalchinese("CHTC");
-        Language ch_simplifiedchinese("CHSC"); 
+        Language ch_simplifiedchinese("CHSC");
+        Language us_spanish("USSP");
     }
 };
