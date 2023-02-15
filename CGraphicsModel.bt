@@ -45,7 +45,7 @@ struct ModelHeader {
   for (i = 0; i < dataSourceCount; ++i) {
     DataSourceLoader dataSource;
   }
-  if (isDKCTF != 1)
+  if (isDKCTF == 0)
   {
     uchar unk2;
     if (unk2) {
@@ -341,7 +341,7 @@ typedef struct {
     ModelHeader header;
     break;
   case "MTRL":
-    if (isDKCTF != 1)
+    if (isDKCTF == 0)
     {
         uint unk;
     }

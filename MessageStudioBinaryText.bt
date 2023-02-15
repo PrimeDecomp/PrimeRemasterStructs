@@ -9,6 +9,7 @@ struct MSBTHeader {
     char magic[8];
     Assert(magic == "MsgStdBn");
     ushort bom <format=hex>;
+    //Todo add a meaningful check for endian, this works for LE/DKCTF NS/MP1R for now
     Assert(bom == 0xFEFF); // Big-Endian byte order
     ushort unk1;
     ubyte maybeMajorVersion;
@@ -71,11 +72,14 @@ struct AttributesSection {
     local int64 tableStart = FTell();
     uint offsetCount;
     uint entrySize; // should always be 4
-    uint offset[offsetCount];
-    local uint i;
-    for (i = 0; i < offsetCount; i++) {
-        Assert(FTell() == tableStart + offset[i]);
-        AttributeEntry attribute<optimize=false,read=AttributeEntryRead>;
+    if (isDKCTF == 0)
+    {
+        uint offset[offsetCount];
+        local uint i;
+        for (i = 0; i < offsetCount; i++) {
+            Assert(FTell() == tableStart + offset[i]);
+            AttributeEntry attribute<optimize=false,read=AttributeEntryRead>;
+        }
     }
     while (ReadUByte(FTell()) == 0xAB) {
         byte padding<hidden=true>;
@@ -144,21 +148,31 @@ struct Language (string expectedLanguage) {
 };
 
 struct MessageStudioBinaryText
-{
+{   
     Language us_english("USEN");
+    if (isDKCTF == 1)
+    {
+        Language us_french("USFR");
+        Language us_spanish("USSP");
+    }
     Language eu_english("EUEN");
     Language eu_french("EUFR");
-    Language us_french("USFR");
+    if (isDKCTF == 0)
+    {
+        Language us_french("USFR");
+    }
     Language eu_spanish("EUSP");
     Language eu_german("EUGE");
     Language eu_italian("EUIT");
-    Language eu_dutch("EUDU");
+    if (isDKCTF == 0)
+    {
+        Language eu_dutch("EUDU");
+    }
     Language jp_japanese("JPJP");
-    if (isDKCTF != 1)
+    if (isDKCTF == 0)
     {
         Language ko_korean("KOKO");
         Language ch_traditionalchinese("CHTC");
-        Language ch_simplifiedchinese("CHSC");
-        Language us_spanish("USSP");
+        Language ch_simplifiedchinese("CHSC"); 
     }
 };

@@ -19,7 +19,7 @@
 #include "Footer.bt"
 
 
-local uint isDKCTF <hidden=true> = 0;
+local uint isDKCTF <hidden=true> = -1;
 local uint AssetDirEntryChunkSz <hidden=true> = 0;
 
 //Mod by LolHacksRule, added support for DKCTF (older Big Endian) formats
