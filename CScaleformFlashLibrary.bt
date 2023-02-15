@@ -1,0 +1,35 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct
+{   ChunkDescriptor chunk;
+    struct CScaleformFlashLibraryChunk
+    {
+        uint32 referencedTextures;
+	    struct ReferencedTxtrs
+	    {
+            struct ReferencedTxtr
+		    {
+		        GUID texRef;
+                CStringFixed texName;
+		    } rtxtr[referencedTextures] <optimize = false>;
+	    } rtxrs;
+	    CStringFixed theSWFName;
+	    FSkip(4); //Skip ahead to see the SWF size
+	    LittleEndian(); //temp swap endian
+	    uint32 swfSize<hidden=true>; //Pull SWF size
+	    BigEndian(); //temp swap endian
+	    FSkip(-8); //Go back to GFX
+	    byte theGFXFile[swfSize]; //History
+    } GFXLChunk;
+} CScaleformFlashLibrary;

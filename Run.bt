@@ -14,6 +14,7 @@
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"
 //#include "CRuleSet.bt"
+#include "CScaleformFlashLibrary.bt"
 
 // Custom footer
 #include "Footer.bt"
@@ -52,12 +53,12 @@ typedef struct
             break;
         /*case "RULE":
             CRuleSet rulesetconfig(form.size);
-            break;
+            break;*/
         case "GFXL":
-            CScaleformFlashLibrary scaleformflashlibrary(form.size);
+            CScaleformFlashLibrary scaleformflashlibrary;
             break;
-        case "GFXL":
-            CFlashMovieResource flashmobieresource(form.size);
+        /*case "GFX ":
+            CFlashMovieResource flashmovieresource(form.size);
             break;*/
     }
     FSeek(start + form.size);
