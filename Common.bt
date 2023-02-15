@@ -19,7 +19,7 @@ string StringReadFixed(CStringFixed &str)
     return str.text;
 }
 
-typedef char FourCC[4];
+typedef char FourCC[4]<fgcolor=cLtGreen>;
 
 FourCC FourCCInt(uint32 in)
 {

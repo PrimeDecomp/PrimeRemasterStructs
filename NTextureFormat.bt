@@ -1,17 +1,24 @@
 struct STextureReadInfo
 {
-    byte BufferIndex;
-    uint32 StartOffset; //Start buffer offset
-    uint32 EndOffset; //End buffer offset
+    byte index;
+    uint32 offset <format=hex>;
+    uint32 size <format=hex>;
 };
 
-struct STextureCompressedBufferInfo
+struct STextureCompressedBufferInfo(uint64 fileStart)
 {
-    uint32 Index;
-    uint32 Offset; //Offset shift
-    uint32 CompressedSize; //Buffer size
-    uint32 DestOffset; //Output offset when decompressed
-    uint32 DestSize; //Output size when decompressed
+    uint32 index;
+    uint32 offset <format=hex>; // Relative offset into associated STextureReadInfo
+    uint32 size <format=hex>; // Buffer size
+    uint32 destOffset <format=hex>; // Output offset when decompressed
+    uint32 destSize <format=hex>; // Output size when decompressed
+
+    // Compressed data
+    local uint64 pos <format=hex, hidden=true> = FTell();
+    FSeek(fileStart + info[index].offset + offset);
+    uint32 compressionMode;
+    byte data[size - 4] <bgcolor=cLtRed>;
+    FSeek(pos);
 };
 
 struct STextureMetaData
@@ -80,8 +87,11 @@ struct STextureSamplerData
     ETextureMipFilter mipFilter;
     ETextureWrap wrapX;
     ETextureWrap wrapY;
-    ETextureWrap wrapZ;
-    ETextureAnisotropicRatio aniso;
+    if (isDKCTF == 0)
+    {
+        ETextureWrap wrapZ;
+        ETextureAnisotropicRatio aniso;
+    }
 };
 
 enum <uint32> ETextureType
@@ -200,11 +210,11 @@ struct STextureHeader
     ETextureFormat format;
     uint32 width;
     uint32 height;
-    uint32 depth;
-    uint32 unk; // tile mode?
-    uint32 unk; // swizzle?
+    uint32 layers;
+    uint32 tileMode; // ?
+    uint32 swizzle; // ?
     uint32 mips;
-    uint32 mipSizes[mips];
+    uint32 mipSizes[mips] <format=hex>;
     STextureSamplerData samplerData;
 };
 
@@ -218,7 +228,13 @@ typedef struct
             STextureHeader header;
             break;
         case "GPU ":
-            byte data[chunk.size];
+            LittleEndian();
+            uint32 compressionType;
+            if (isDKCTF == 1)
+            {
+                BigEndian();
+            }
+            byte data[chunk.size-4];
             break;
     }
     FSeek(start + chunk.size);

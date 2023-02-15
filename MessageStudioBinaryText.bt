@@ -154,8 +154,11 @@ struct MessageStudioBinaryText
     Language eu_italian("EUIT");
     Language eu_dutch("EUDU");
     Language jp_japanese("JPJP");
-    Language ko_korean("KOKO");
-    Language ch_traditionalchinese("CHTC");
-    Language ch_simplifiedchinese("CHSC");
-    Language us_spanish("USSP");
+    if (isDKCTF != 1)
+    {
+        Language ko_korean("KOKO");
+        Language ch_traditionalchinese("CHTC");
+        Language ch_simplifiedchinese("CHSC");
+        Language us_spanish("USSP");
+    }
 };

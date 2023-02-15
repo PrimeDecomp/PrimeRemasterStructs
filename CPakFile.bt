@@ -5,15 +5,24 @@ typedef struct
 {
     FourCC type;
     GUID id;
-    uint32 versionA;
-    uint32 versionB;
+    if (isDKCTF == 0)
+    {
+        uint32 versionA;
+        uint32 versionB;
+    }
     uint64 offset;
-    uint64 decompressedSize;
+    if (isDKCTF == 0)
+    {
+        uint64 decompressedSize;
+    }
+    else
+    {
+        local uint decompressedSize <hidden=true> = 0; //hack
+    }
     uint64 size;
-
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(offset);
-    if (size == decompressedSize) {
+    if (size == decompressedSize || isDKCTF == 1) {
         File data <size=size>;
     } else {
 		enum <uint32> CompressionType
@@ -27,8 +36,8 @@ typedef struct
     }
     FSeek(pos);
 } AssetDirectoryEntry <
-    size=52, // Parse on-demand
-    name=(Str("%s v%d %s", this.type, this.versionA, GUIDToString(this.id))),
+    size=AssetDirEntryChunkSz, // Parse on-demand
+    name=(Str("%s v%d.%d %s", this.type, data.form.versionA, data.form.versionB, GUIDToString(this.id))), //Read the chunk ver and subver from form descriptor
     comment=(SizeComment(size))
 >;
 
@@ -40,10 +49,12 @@ typedef struct
     // Find the FourCC for the asset ID
     // Assumes TOCC chunk 0 is ADIR
     local FourCC type <hidden=true>;
+    local uint64 fileOffset <hidden=true>;
     local uint32 i <hidden=true>;
     for (i = 0; i < pak.chunk[0].count; i++) {
         if (pak.chunk[0].entry[i].id == id) {
             type = pak.chunk[0].entry[i].type;
+            fileOffset = pak.chunk[0].entry[i].offset;
             break;
         }
     }
@@ -51,7 +62,7 @@ typedef struct
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(start + offset);
     uint32 size;
-    Meta data(type, size);
+    Meta data(type, size, fileOffset);
     FSeek(pos);
 } MetaEntry <
     size=20, // Parse on-demand
