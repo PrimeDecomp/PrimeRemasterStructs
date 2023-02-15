@@ -15,7 +15,7 @@ typedef struct(FourCC type)
             AssetInfo info;
             break;
         case "META":
-            Meta meta(type, chunk.size);
+            Meta meta(type, chunk.size, 0);
             break;
         case "NAME":
             char name[chunk.size];

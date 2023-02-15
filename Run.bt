@@ -44,11 +44,11 @@ typedef struct
             break;
     }
     FSeek(start + form.size);
-} File <open=true, bgcolor=cGreen>;
+} File <open=true, bgcolor=cSilver>;
 
 // Template start
 LittleEndian();
-File file <bgcolor=cYellow, name=(Str("%s v%d file", form.id, form.versionA))>;
+File file <bgcolor=cGray, name=(Str("%s v%d file", form.id, form.versionA))>;
 
 // Custom footer for extracted files
 if (ReadString(FTell(), 4) == "RFRM")

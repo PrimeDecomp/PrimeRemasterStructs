@@ -1,10 +1,10 @@
-typedef struct(FourCC type, uint64 size)
+typedef struct(FourCC type, uint64 size, uint64 fileStart)
 {
   local uint64 start <format=hex, hidden=true> = FTell();
   switch (type)
   {
       case "TXTR":
-          STextureMetaData meta;
+          STextureMetaData meta(fileStart);
           break;
       default:
           byte data[size];

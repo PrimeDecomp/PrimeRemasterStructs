@@ -1,31 +1,38 @@
 struct STextureReadInfo
 {
-    byte BufferIndex;
-    uint32 StartOffset; //Start buffer offset
-    uint32 EndOffset; //End buffer offset
+    byte index;
+    uint32 offset <format=hex>;
+    uint32 size <format=hex>;
 };
 
-struct STextureCompressedBufferInfo
+struct STextureCompressedBufferInfo(uint64 fileStart)
 {
-    uint32 Index;
-    uint32 Offset; //Offset shift
-    uint32 CompressedSize; //Buffer size
-    uint32 DestOffset; //Output offset when decompressed
-    uint32 DestSize; //Output size when decompressed
+    uint32 index;
+    uint32 offset <format=hex>; // Relative offset into associated STextureReadInfo
+    uint32 size <format=hex>; // Buffer size
+    uint32 destOffset <format=hex>; // Output offset when decompressed
+    uint32 destSize <format=hex>; // Output size when decompressed
+
+    // Compressed data
+    local uint64 pos <format=hex, hidden=true> = FTell();
+    FSeek(fileStart + info[index].offset + offset);
+    uint32 compressionMode;
+    byte data[size - 4] <bgcolor=cLtRed>;
+    FSeek(pos);
 };
 
-struct STextureMetaData
+struct STextureMetaData(uint64 fileStart)
 {
     uint32 unk;
     uint32 unk;
-    uint32 AllocCategory;
-    uint32 GPUOffset;
+    uint32 allocCategory;
+    uint32 gpuOffset <format=hex>;
     uint32 align;
-    uint32 DecompressedSize; //Total size decompressed
+    uint32 decompressedSize <format=hex>; // Total size decompressed
     uint32 infoCount;
     STextureReadInfo info[infoCount];
     uint32 bufferCount;
-    STextureCompressedBufferInfo buffer[bufferCount];
+    STextureCompressedBufferInfo buffer(fileStart)[bufferCount] <optimize=false>;
 };
 
 enum <byte> ETextureWrap
@@ -200,11 +207,11 @@ struct STextureHeader
     ETextureFormat format;
     uint32 width;
     uint32 height;
-    uint32 depth;
-    uint32 unk; // tile mode?
-    uint32 unk; // swizzle?
+    uint32 layers;
+    uint32 tileMode; // ?
+    uint32 swizzle; // ?
     uint32 mips;
-    uint32 mipSizes[mips];
+    uint32 mipSizes[mips] <format=hex>;
     STextureSamplerData samplerData;
 };
 

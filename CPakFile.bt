@@ -40,10 +40,12 @@ typedef struct
     // Find the FourCC for the asset ID
     // Assumes TOCC chunk 0 is ADIR
     local FourCC type <hidden=true>;
+    local uint64 fileOffset <hidden=true>;
     local uint32 i <hidden=true>;
     for (i = 0; i < pak.chunk[0].count; i++) {
         if (pak.chunk[0].entry[i].id == id) {
             type = pak.chunk[0].entry[i].type;
+            fileOffset = pak.chunk[0].entry[i].offset;
             break;
         }
     }
@@ -51,7 +53,7 @@ typedef struct
     local uint64 pos <format=hex, hidden=true> = FTell();
     FSeek(start + offset);
     uint32 size;
-    Meta data(type, size);
+    Meta data(type, size, fileOffset);
     FSeek(pos);
 } MetaEntry <
     size=20, // Parse on-demand
