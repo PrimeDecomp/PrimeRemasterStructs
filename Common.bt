@@ -72,6 +72,7 @@ local GUID GUIDZero <hidden=true>;
 
 typedef enum <byte>
 {
+    NONE    = 0x0,
     LZSS_8  = 0x1,
     LZSS_16 = 0x2,
     LZSS_32 = 0x3,

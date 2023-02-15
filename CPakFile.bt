@@ -83,8 +83,14 @@ typedef struct
     // Byteswapped
     uint32 type <read=FourCCInt>;
     GUID id;
-    uint32 length;
-    char name[length];
+    // Wii U DKCTF uses a null terminated string here
+    // but PACK/TOCC version is the same
+    if (!isDKCTF || ReadByte() == 0) {
+        uint32 length;
+        char name[length];
+    } else {
+        string name;
+    }
 } StringEntry <
     name=(Str("%s (%s) %s", name, FourCCInt(type), GUIDToString(id)))
 >;
