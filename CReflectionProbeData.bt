@@ -1,0 +1,13 @@
+#ifndef _CREFLECTIONPROBE
+#define _CREFLECTIONPROBE
+
+#include "CChunkDescriptor.bt"
+
+typedef struct CReflectionProbeData {
+    ChunkDescriptor chunkHeader;
+    uint unk1;
+    GUID textureId;
+    float unk2;
+} CReflectionProbeData;
+
+#endif// _CREFLECTIONPROBE

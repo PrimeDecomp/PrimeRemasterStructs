@@ -6,10 +6,10 @@ typedef struct
     uint64 size <format=hex>;
     uint64 unk1;
     FourCC id;
-    uint32 versionA <format=decimal>;
-    uint32 versionB <format=decimal>;
+    uint32 readerVersion <format=decimal>;
+    uint32 writerVersion <format=decimal>;
 } FormDescriptor <
-    name=(Str("%s v%d form header", id, versionA)),
+    name=(Str("%s rv%d wv%d form header", id, readerVersion, writerVersion)),
     comment=(SizeComment(size)),
     bgcolor=cLtAqua
 >;

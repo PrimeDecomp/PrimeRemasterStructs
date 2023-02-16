@@ -1,0 +1,74 @@
+#ifndef _CLIGHTPROBEDATA
+#define _CLIGHTPROBEDATA
+
+#include "CChunkDescriptor.bt"
+#include "CFormDescriptor.bt"
+#include "NTextureFormat.bt"
+#include "CVector3f.bt"
+#include "CVector3i.bt"
+
+typedef struct CBakedLightingUniformProbeGridIndex {
+    ushort unk1;
+    ushort unk2;
+    ushort unk3;
+} CBakedLightingUniformProbeGridIndex;
+
+struct LightProbeBundleHeader {
+    uint unk1;
+    uint unk2;
+    CVector3f unk3;
+    CBakedLightingUniformProbeGridIndex unk4;
+    CBakedLightingUniformProbeGridIndex unk5;
+};
+
+struct SReadInfo {
+    uchar unk1;
+    uint unk2;
+    uint unk3;
+};
+
+struct ReadInfoVector {
+    uint count;
+    SReadInfo readInfos[count];
+};
+
+struct SCompressedBufferInfo {
+    uint unk1;
+    uint unk2;
+    uint unk3;
+    uint unk4;
+    uint unk5;
+};
+
+struct SMetaData {
+    uint unk1;
+    uint unk2;
+    uint unk3;
+    uint unk4;
+    uint unk5;
+    uint unk6;
+    uint readInfoCount;
+    SReadInfo readInfos[readInfoCount];
+    uint compressedBufferInfoCount;
+    SCompressedBufferInfo compressedBufferInfos[compressedBufferInfoCount];
+};
+
+struct LightProbeBundle {
+    SMetaData metaData;
+    CVector3i unkVector;
+    uint unk;
+    FormDescriptor textureForm;
+    NTextureFormat txtrChunk(textureForm.size);
+};
+
+typedef struct CLightProbeData(uint64 size) {
+    local uint64 start <hidden=true> = FTell();
+    ChunkDescriptor phdr;
+    LightProbeBundleHeader bundleHeader;
+    ChunkDescriptor ptext;
+    while (FTell() < start + size) {
+        LightProbeBundle bundle;
+    }
+} CLightProbeData;
+
+#endif// _CLIGHTPROBEDATA

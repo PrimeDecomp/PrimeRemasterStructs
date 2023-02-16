@@ -9,12 +9,14 @@
 
 // Files
 #include "CCharInfo.bt"
+#include "CLightProbeData.bt"
 #include "CGraphicsModel.bt"
 #include "CPakFile.bt"
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"
 #include "CVectorField.bt"
 #include "CAABoxCollisionTree.bt"
+#include "CReflectionProbeData.bt"
 //#include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
@@ -36,6 +38,9 @@ typedef struct
                 Assert("Invalid version!");
             }
             break;
+        case "LTPB":
+            CLightProbeData lightProbe(form.size);
+            break;
         case "CLSN":
             CAABoxCollisionTree aaboxCollisionTree(form.size);
             break;
@@ -55,6 +60,9 @@ typedef struct
             break;
         case "TXTR":
             NTextureFormat texture(form.size);
+            break;
+        case "REFL":
+            CReflectionProbeData probeData;
             break;
         /*case "RULE":
             CRuleSet rulesetconfig(form.size);
@@ -78,7 +86,7 @@ local uint isDKCTF <hidden=true> = (ReadInt(4) & 0xFFFFFF) == 0;
 if (!isDKCTF) {
     LittleEndian();
 }
-File file <bgcolor=cGray, name=(Str("%s v%d file", form.id, form.versionA))>;
+File file <bgcolor=cGray, name=(Str("%s rv%d wv%d file", form.id, form.readerVersion, form.readerVersion))>;
 
 // Custom footer for extracted files
 if (ReadString(FTell(), 4) == "RFRM")
