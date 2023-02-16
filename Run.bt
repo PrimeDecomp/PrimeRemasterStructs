@@ -22,6 +22,7 @@ if (!exists(isDKCTF)) {
 #include "CVectorField.bt"
 #include "CAABoxCollisionTree.bt"
 #include "CReflectionProbeData.bt"
+#include "CLegacyStateMachine.bt"
 //#include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
@@ -45,6 +46,13 @@ typedef struct
             break;
         case "LTPB":
             CLightProbeData lightProbe(form.size);
+            break;
+        case "LFSM":
+            if (!isDKCTF)
+                BigEndian();
+            CLegacyStateMachine legacyStateMachine;
+            if (!isDKCTF)
+                LittleEndian();
             break;
         case "CLSN":
             CAABoxCollisionTree aaboxCollisionTree(form.size);

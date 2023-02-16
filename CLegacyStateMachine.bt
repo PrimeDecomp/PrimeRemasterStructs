@@ -1,0 +1,41 @@
+#ifndef _CLEGACYSTATEMACHINE
+#define _CLEGACYSTATEMACHINE
+
+struct NameEntry {
+    string name;
+};
+
+struct State
+{
+    local byte firstIndex = true;
+	int triggerCount;
+    if (triggerCount > 0)
+    {
+        struct
+        {
+            uint triggerCount;
+            struct
+            {
+                string actionName;
+                float actionTime;
+                if (firstIndex)
+                {
+                    int stateIndex;
+                    firstIndex = false;
+                }
+            } triggers[triggerCount] <optimize = false>;
+            firstIndex = true;
+        } subTrigger[triggerCount] <optimize = false>;
+    }
+};
+
+struct CLegacyStateMachine
+{
+    uint stateCount;
+    NameEntry states[stateCount] <optimize = false>;
+    uint triggerCount;
+	State triggers[stateCount] <optimize = false>;
+};
+
+
+#endif// _CLEGACYSTATEMACHINE
