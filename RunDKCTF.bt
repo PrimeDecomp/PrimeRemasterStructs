@@ -1,0 +1,9 @@
+#ifndef _RUNDKCTF
+#define _RUNDKCTF
+
+BigEndian();
+local uint isDKCTF <hidden=true> = true;
+#include "Run.bt"
+
+
+#endif// _RUNDKCTF
