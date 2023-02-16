@@ -8,9 +8,9 @@
 #include "CVector3i.bt"
 
 typedef struct CBakedLightingUniformProbeGridIndex {
-    ushort unk1;
-    ushort unk2;
-    ushort unk3;
+    short x;
+    short y;
+    short z;
 } CBakedLightingUniformProbeGridIndex;
 
 struct LightProbeBundleHeader {
