@@ -29,6 +29,7 @@ if (!exists(isDKCTF)) {
 #include "MaterialArchive.bt"
 #include "MessageStudioBinaryText.bt"
 // #include "CRuleSet.bt"
+#include "CGameAreaResource.bt"
 #include "CScaleformFlashLibrary.bt"
 
 // Custom footer

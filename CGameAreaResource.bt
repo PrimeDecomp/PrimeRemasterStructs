@@ -1,0 +1,104 @@
+#ifndef _CGAMEAREARESOURCE
+#define _CGAMEAREARESOURCE
+
+struct GameAreaHeader 
+{
+    ChunkDescriptor chunk;
+    GUID id_a;
+    ushort unk1;
+    ushort unk2;
+    bool unk3;
+    GUID id_b;
+    GUID id_c;
+    GUID id_d;
+    GUID id_e;
+    GUID id_f;
+    FSeek(FTell() + chunk.size - 16 * 6 - 5);
+};
+
+struct PerformanceGroups 
+{
+    ChunkDescriptor chunk;
+    FSeek(FTell() + chunk.size);
+};
+
+struct GeneratedObjectMap 
+{
+    ChunkDescriptor chunk;
+    FSeek(FTell() + chunk.size);
+};
+
+struct Docks 
+{
+    ChunkDescriptor chunk;
+    FSeek(FTell() + chunk.size);
+};
+
+struct BakedLightning 
+{
+    ChunkDescriptor chunk;
+    FSeek(FTell() + chunk.size);
+};
+
+struct LoadUnit
+{
+    FormDescriptor form;
+    FSeek(FTell() + form.size);
+};
+
+
+struct RoomHeader
+{
+    FormDescriptor form;
+
+    GameAreaHeader game_area_header;
+    PerformanceGroups performance_groups;
+    GeneratedObjectMap generated_object_map;
+    Docks docks;
+    BakedLightning baked_lightinng;
+
+    ChunkDescriptor load_unit_chunk;
+    short num_load_units;
+    LoadUnit load_units[num_load_units] <optimize=false>;
+};
+
+struct STRP
+{
+    FormDescriptor form;
+    uint unk;
+    FSeek(FTell() + form.size - 4);
+};
+
+struct ScriptData
+{
+    FormDescriptor form;
+    FSeek(FTell() + form.size);
+};
+
+struct LayerHeader {
+    int name_length;
+    //char name[name_length];
+    //GUID id;
+    //int unk;
+};
+
+struct Layer
+{
+    FormDescriptor form;
+    
+    ChunkDescriptor header_chunk;
+    //LayerHeader header;
+};
+
+
+struct CGameAreaResource
+{
+    RoomHeader header;
+    STRP strp;
+    ScriptData script_data;
+
+    FormDescriptor layers_form;
+    Layer layer;
+};
+
+#endif // _CGAMEAREARESOURCE

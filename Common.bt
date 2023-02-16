@@ -1,5 +1,8 @@
 #ifndef _COMMON
 #define _COMMON
+
+typedef uchar bool;
+
 typedef struct
 {
     string text;
