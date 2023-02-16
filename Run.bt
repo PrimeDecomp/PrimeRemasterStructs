@@ -86,7 +86,7 @@ local uint isDKCTF <hidden=true> = (ReadInt(4) & 0xFFFFFF) == 0;
 if (!isDKCTF) {
     LittleEndian();
 }
-File file <bgcolor=cGray, name=(Str("%s rv%d wv%d file", form.id, form.readerVersion, form.readerVersion))>;
+File file <bgcolor=cGray, name=(Str("%s rv%d wv%d file", form.id, form.readerVersion, form.writerVersion))>;
 
 // Custom footer for extracted files
 if (ReadString(FTell(), 4) == "RFRM")
