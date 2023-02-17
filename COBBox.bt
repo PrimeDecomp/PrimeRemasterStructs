@@ -1,0 +1,12 @@
+#ifndef _COBBOX
+#define _COBBOX
+
+#include "CTransform4f.bt"
+#include "CVector3f.bt"
+
+typedef struct COBBox {
+    CTransform4f xf;
+    CVector3f extents;
+} COBBox;
+
+#endif// _COBBOX

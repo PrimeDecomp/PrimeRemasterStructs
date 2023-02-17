@@ -15,12 +15,14 @@ if (!exists(isDKCTF)) {
 
 // Files
 #include "CCharInfo.bt"
+#include "CAudioBusHierarchy.bt"
+#include "CDataEnumObject.bt"
 #include "CLightProbeData.bt"
 #include "CPakFile.bt"
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"
 #include "CVectorField.bt"
-#include "CAABoxCollisionTree.bt"
+#include "CCollisionTree.bt"
 #include "CReflectionProbeData.bt"
 #include "CLegacyStateMachine.bt"
 //#include "CRuleSet.bt"
@@ -41,8 +43,14 @@ typedef struct
             } else if (form.readerVersion == 22) {
                 MaterialArchive materialArchive(form.size);
             } else {
-                Assert("Invalid version!");
+                Assert(false, "Invalid version!");
             }
+            break;
+        case "CABH":
+            CAudioBusHierarchy audioBusHierarchy;
+            break;
+        case "ENUM":
+            CDataEnumObject dataEnum;
             break;
         case "LTPB":
             CLightProbeData lightProbe(form.size);
@@ -54,8 +62,11 @@ typedef struct
             if (!isDKCTF)
                 LittleEndian();
             break;
+        case "DCLN":
+            CCollisionTree obboxCollisionTree(form.size, kCOL_OBBox);
+        break;
         case "CLSN":
-            CAABoxCollisionTree aaboxCollisionTree(form.size);
+            CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
             break;
         case "CHPR":
             FCharInf charInfo;

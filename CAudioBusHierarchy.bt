@@ -1,0 +1,30 @@
+#ifndef _CAUDIOBUSHIERARCHY
+#define _CAUDIOBUSHIERARCHY
+
+typedef struct CAudioBusData {
+    uint unk1;
+    uint unk2;
+    float unk3;
+    float unk4;
+    float unk5;
+    float unk6;
+    float unk7;
+    ushort unk8;
+    ushort unk9;
+    ushort unk10;
+} CAudioBusData;
+
+typedef struct CAudioBus {
+    uchar unk1;
+    uchar unk2;
+    uchar unk3;
+    CAudioBusData data;
+    uint unk;
+} CAudioBus;
+
+typedef struct {
+    uint unk1;
+    CAudioBus buses[unk1];
+} CAudioBusHierarchy;
+
+#endif// _CAUDIOBUSHIERARCHY

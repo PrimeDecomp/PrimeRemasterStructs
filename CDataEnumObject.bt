@@ -1,0 +1,16 @@
+#ifndef _CDATAENUMOBJECT
+#define _CDATAENUMOBJECT
+
+typedef struct  {
+    uint id;
+    uint value;
+} CDataEnumValue;
+
+typedef struct {
+    uint unkCount;
+    CDataEnumValue enums[unkCount];
+    uint objectIdCount;
+    GUID objectIds[objectIdCount];
+} CDataEnumObject;
+
+#endif// _CDATAENUMOBJECT

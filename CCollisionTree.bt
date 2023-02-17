@@ -1,0 +1,166 @@
+#ifndef _CAABOXCOLLISIONTREE
+#define _CAABOXCOLLISIONTREE
+
+#include "CAABox.bt"
+#include "COBBox.bt"
+#include "CTransform4f.bt"
+
+typedef enum {
+  kCOL_AABox = 0,
+  kCOL_OBBox = 1,
+} CollisionPrimitiveType;
+
+struct CAABoxTreeNode {
+  CAABox bounds;
+  uint start;
+  uint end;
+  uchar unk3;
+  uchar unk4;
+  uchar unk5;
+  uchar unk6;
+};
+
+struct COBBoxTreeNode {
+  COBBox bounds;
+  uint start;
+  uint end;
+  uchar unk3;
+  uchar unk4;
+  uchar unk5;
+  uchar unk6;
+};
+
+struct CCollisionMaterial {
+  uint orientation;
+  uint materialType;
+  uint worldType;
+  uint behaviorList;
+  uint filterList;
+};
+
+struct CIndexedTriangle {
+  uint idx1;
+  uint idx2;
+  uint idx3;
+  ushort material;
+  ushort unk2;
+};
+
+struct CollisionMaterialVector {
+  uint count;
+  CCollisionMaterial collisionMaterials[count];
+};
+
+struct VertexVector {
+  uint count;
+  CVector3f vertices[count];
+};
+
+struct IndexedTriangleVector {
+  uint count;
+  CIndexedTriangle tris[count];
+};
+
+struct TreeNodeVector(CollisionPrimitiveType type) {
+  uint count;
+  switch (type) {
+  case kCOL_AABox:
+    CAABoxTreeNode nodes[count];
+    break;
+  case kCOL_OBBox:
+    COBBoxTreeNode nodes[count];
+    break;
+  }
+};
+
+struct ModConData {
+  char id[16];
+  CTransform4f xf;
+  ushort unk;
+};
+
+typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
+  local CollisionPrimitiveType tmpType <hidden = true> = type;
+  local uint64 start<format = hex, hidden = true> = FTell();
+  while (FTell() != start + size) {
+    struct Chunk {
+      ChunkDescriptor desc;
+      union {
+        switch (desc.id) {
+        case "INFO":
+          CAABox bounds;
+          break;
+        case "MTRL":
+          CollisionMaterialVector materials;
+          break;
+        case "TRIS":
+          IndexedTriangleVector triangles;
+          break;
+        case "VERT":
+          VertexVector vertices;
+          break;
+        case "TREE":
+          TreeNodeVector treeNodes(tmpType);
+          break;
+        }
+        char raw[desc.size];
+      } data;
+    } chunks;
+  }
+  /*
+    local int i = 0;
+    for (i = 0; i < chunks[0].data.vertices.count; ++i) {
+      Printf("v %f  %f %f\n", chunks[0].data.vertices.vertices[i].x,
+             chunks[0].data.vertices.vertices[i].y,
+             chunks[0].data.vertices.vertices[i].z);
+    }
+
+    local int t;
+    local int y;
+    local int prevMat = -1;
+    for (i = 0; i < chunks[2].data.triangles.count; ++i) {
+
+      if (chunks[2].data.triangles.tris[i].material != prevMat) {
+        Printf("o mat_%i_%08X\n", chunks[2].data.triangles.tris[i].material,
+               chunks[1]
+                   .data.materials
+                   .collisionMaterials[chunks[2].data.triangles.tris[i].material]
+                   .filterList);
+        prevMat = chunks[2].data.triangles.tris[i].material;
+      }
+      Printf("f %i %i %i\n", chunks[2].data.triangles.tris[i].idx1 + 1,
+             chunks[2].data.triangles.tris[i].idx2 + 1,
+             chunks[2].data.triangles.tris[i].idx3 + 1);
+    }
+  */
+  /*
+    for (i = 0; i < chunks[2].data.triangles.count; ++i) {
+      Printf("%i->%i: orientation=%08X, materialType=%08X, worldType=%08X, "
+             "behaviorList=%08X, filterList=%08X\n",
+             i, chunks[2].data.triangles.tris[i].material,
+             chunks[1]
+                 .data.materials
+                 .collisionMaterials[chunks[2].data.triangles.tris[i].material]
+                 .orientation,
+             chunks[1]
+                 .data.materials
+                 .collisionMaterials[chunks[2].data.triangles.tris[i].material]
+                 .materialType,
+             chunks[1]
+                 .data.materials
+                 .collisionMaterials[chunks[2].data.triangles.tris[i].material]
+                 .worldType,
+             chunks[1]
+                 .data.materials
+                 .collisionMaterials[chunks[2].data.triangles.tris[i].material]
+                 .behaviorList,
+             chunks[1]
+                 .data.materials
+                 .collisionMaterials[chunks[2].data.triangles.tris[i].material]
+                 .filterList);
+    }
+    */
+}
+CCollisionTree;
+
+#endif // _CAABOXCOLLISIONTREE
