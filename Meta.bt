@@ -8,6 +8,9 @@ typedef struct(FourCC type, uint64 size, uint64 fileStart)
       case "TXTR":
           STextureMetaData meta(fileStart);
           break;
+      case "CMDL":
+          SModelMetaData meta(fileStart);
+          break;
       default:
           byte data[size];
           break;

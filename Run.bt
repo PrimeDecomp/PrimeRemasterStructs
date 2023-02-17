@@ -10,12 +10,12 @@ if (!exists(isDKCTF)) {
 
 // Meta
 #include "NTextureFormat.bt"
+#include "CGraphicsModel.bt"
 #include "Meta.bt"
 
 // Files
 #include "CCharInfo.bt"
 #include "CLightProbeData.bt"
-#include "CGraphicsModel.bt"
 #include "CPakFile.bt"
 #include "MessageStudioBinaryText.bt"
 #include "MaterialArchive.bt"

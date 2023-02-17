@@ -58,248 +58,707 @@ struct ModelHeader {
 };
 
 typedef struct {
-   char type[4];
-   char format[4];
-   byte flag1;
-   byte flag2;
+    char type[4];
+    char format[4];
+    byte flag1;
+    byte flag2;
 } MaterialRenderTypes <name=(Str("%s %s", type, format))>;
 
 typedef struct {
-   char type[4];
-   char format[4];
-} MaterialType <name=(Str("%s %s", type, format))>;
+    FourCC id <read=ReadMaterialDataId>;
+    FourCC type <read=ReadMaterialDataType>;
+} MaterialType <read=(Str("%s %s", id, type))>;
 
-struct STextureUsageInfo{
-   uint flags;
-   uint filter;
-   uint wrapX;
-   uint wrapY;
-   uint wrapZ;
+struct STextureUsageInfo {
+    uint flags;
+    uint filter;
+    uint wrapX;
+    uint wrapY;
+    uint wrapZ;
 };
 
-typedef struct{
-   GUID id;
-   STextureUsageInfo usage;
-} CMaterialTextureTokenData <name=(Str("%s", GUIDToString(this.id)))>;
-
 struct SSkinnedModelHeader {
-  uint unk;
-  uint unk;
-  uint unk;
-  uint unk;
-  uint uintsCount;
-  uint uints[uintsCount];
-  uint dataCount;
-  uint data[dataCount];
+    uint unk;
+    uint unk;
+    uint unk;
+    uint unk;
+    uint uintsCount;
+    uint uints[uintsCount];
+    uint dataCount;
+    uint data[dataCount];
 };
 
 struct SWorldModelHeader {
-  uchar unk;
+    uchar unk;
 };
 
-typedef struct{
-   char type[4];
-   char format[4];
-   switch (format)
-   {
-        case "TXTR":
-            CMaterialTextureTokenData texture;
+enum <uint32> EMaterialDataId
+{
+    DATA_ID_DEBUG = 0,
+    // TXTR data IDs
+    DATA_ID_CBUF = 1,
+    DATA_ID_ZBUF = 2,
+    DATA_ID_GBUF = 3,
+    DATA_ID_GFLG = 4,
+    DATA_ID_OPCT = 5,
+    DATA_ID_DIFT = 6,
+    DATA_ID_ICAN = 7,
+    DATA_ID_SINC = 8,
+    DATA_ID_NMAP = 9,
+    DATA_ID_MNMP = 10,
+    DATA_ID_REFL = 11,
+    DATA_ID_REFS = 12,
+    DATA_ID_REFV = 13,
+    DATA_ID_SPCT = 14,
+    DATA_ID_LIBD = 15,
+    DATA_ID_LIBS = 16,
+    DATA_ID_FOGR = 17,
+    DATA_ID_INDI = 18,
+    DATA_ID_OTMP = 19,
+    DATA_ID_CGMP = 20,
+    DATA_ID_OGMP = 21,
+    DATA_ID_VAND = 22,
+    DATA_ID_BLAT = 23,
+    DATA_ID_BCLR = 24,
+    DATA_ID_METL = 25,
+    DATA_ID_TCH0 = 26,
+    DATA_ID_TCH1 = 27,
+    DATA_ID_TCH2 = 28,
+    DATA_ID_TCH3 = 29,
+    DATA_ID_TCH4 = 30,
+    DATA_ID_TCH5 = 31,
+    // COLR data IDs
+    DATA_ID_DIFC = 32,
+    DATA_ID_SHRC = 33,
+    DATA_ID_SPCC = 34,
+    DATA_ID_ICNC = 35,
+    DATA_ID_ICMC = 36,
+    DATA_ID_ODAT = 37,
+    DATA_ID_MDCI = 38,
+    DATA_ID_MDOI = 39,
+    DATA_ID_LODC = 40,
+    DATA_ID_LODP = 41,
+    DATA_ID_VANP = 42,
+    DATA_ID_BLAL = 43,
+    DATA_ID_BLCM = 44,
+    DATA_ID_INDP = 45,
+    DATA_ID_PVLO = 46,
+    DATA_ID_PSXT = 47,
+    DATA_ID_PTAI = 48,
+    DATA_ID_PCMD = 49,
+    DATA_ID_BSAO = 50,
+    DATA_ID_CCH0 = 51,
+    DATA_ID_CCH1 = 52,
+    DATA_ID_CCH2 = 53,
+    DATA_ID_CCH3 = 54,
+    DATA_ID_CCH4 = 55,
+    DATA_ID_CCH5 = 56,
+    DATA_ID_CCH6 = 57,
+    DATA_ID_BKLT = 58,
+    DATA_ID_BKLB = 59,
+    DATA_ID_BKLA = 60,
+    DATA_ID_BKGL = 61,
+    DATA_ID_DYIN = 62,
+    DATA_ID_CLP0 = 63,
+    DATA_ID_HOTP = 64,
+    // INT1 data IDs
+    DATA_ID_SHID = 65,
+    DATA_ID_GBFF = 66,
+    DATA_ID_PMOD = 67,
+    DATA_ID_PFLG = 68,
+    DATA_ID_BLPI = 69,
+    DATA_ID_ICH0 = 70,
+    DATA_ID_ICH1 = 71,
+    DATA_ID_ICH2 = 72,
+    // INT4 data IDs
+    DATA_ID_AUVI = 73,
+    DATA_ID_ECH0 = 74,
+    // SCLR data IDs
+    DATA_ID_OPCS = 75,
+    DATA_ID_SPCP = 76,
+    DATA_ID_INDS = 77,
+    DATA_ID_BLSM = 78,
+    DATA_ID_LITS = 79,
+    DATA_ID_MDOE = 80,
+    DATA_ID_VANF = 81,
+    DATA_ID_OTHS = 82,
+    DATA_ID_PZSO = 83,
+    DATA_ID_RCH0 = 84,
+    DATA_ID_RCH1 = 85,
+    DATA_ID_RCH2 = 86,
+    // MAT4 data IDs
+    DATA_ID_PXFM = 87,
+    DATA_ID_MCH0 = 88,
+    // CPLX data IDs
+    DATA_ID_BCRL = 89, // texture_layered
+    DATA_ID_MTLL = 90, // texture_layered
+    DATA_ID_NRML = 91, // texture_layered
+    DATA_ID_SHDD = 92,
+    DATA_ID_SKIN = 93,
+    DATA_ID_DIMD = 94,
+    DATA_ID_LIT  = 95,
+    DATA_ID_ALLD = 96,
+    DATA_ID_DLLD = 97,
+    DATA_ID_CLLD = 98,
+    DATA_ID_AUXF = 99,
+    DATA_ID_WIND = 100,
+    DATA_ID_WATR = 101,
+    DATA_ID_DFXS = 102,
+    DATA_ID_DFXN = 103,
+    DATA_ID_MCDD = 104,
+    DATA_ID_CAUS = 105,
+    DATA_ID_BLPD = 106,
+    DATA_ID_BLPT = 107,
+    DATA_ID_FOGS = 108,
+    DATA_ID_VOLF = 109,
+    DATA_ID_VFXB = 110,
+    DATA_ID_VFXD = 111,
+    DATA_ID_REFP = 112,
+    DATA_ID_RAIN = 113,
+    DATA_ID_XCH0 = 114,
+    DATA_ID_XCH1 = 115,
+};
+
+// NMaterialFeatures::is_debug_material_data_id
+byte IsDebugMaterialDataId(EMaterialDataId id) {
+    return id == DATA_ID_DEBUG;
+}
+
+// NMaterialFeatures::is_texture_material_data_id
+byte IsTextureMaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_CBUF && id <= DATA_ID_TCH5;
+}
+
+// NMaterialFeatures::is_float4_material_data_id
+byte IsFloat4MaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_DIFC && id <= DATA_ID_HOTP;
+}
+
+//  NMaterialFeatures::is_int_material_data_id
+byte IsIntMaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_SHID && id <= DATA_ID_ICH2;
+}
+
+// NMaterialFeatures::is_int4_material_data_id
+byte IsInt4MaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_AUVI && id <= DATA_ID_ECH0;
+}
+
+// NMaterialFeatures::is_float_material_data_id
+byte IsFloatMaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_OPCS && id <= DATA_ID_RCH2;
+}
+
+// NMaterialFeatures::is_float4x4_material_data_id
+byte IsFloat4x4MaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_PXFM && id <= DATA_ID_MCH0;
+}
+
+// NMaterialFeatures::is_complex_material_data_id
+byte IsComplexMaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_BCRL && id <= DATA_ID_XCH1;
+}
+
+// NMaterialFeatures::is_texture_layered_material_data_id
+byte IsTextureLayeredMaterialDataId(EMaterialDataId id) {
+    return id >= DATA_ID_BCRL && id <= DATA_ID_NRML;
+}
+
+EMaterialDataId MapMaterialDataId(FourCC value)
+{
+    switch (value) {
+    case "CBUF":
+        return DATA_ID_CBUF;
+    case "ZBUF":
+        return DATA_ID_ZBUF;
+    case "GBUF":
+        return DATA_ID_GBUF;
+    case "GFLG":
+        return DATA_ID_GFLG;
+    case "OPCT":
+        return DATA_ID_OPCT;
+    case "DIFT":
+        return DATA_ID_DIFT;
+    case "ICAN":
+        return DATA_ID_ICAN;
+    case "SINC":
+        return DATA_ID_SINC;
+    case "NMAP":
+        return DATA_ID_NMAP;
+    case "MNMP":
+        return DATA_ID_MNMP;
+    case "REFL":
+        return DATA_ID_REFL;
+    case "REFS":
+        return DATA_ID_REFS;
+    case "REFV":
+        return DATA_ID_REFV;
+    case "SPCT":
+        return DATA_ID_SPCT;
+    case "LIBD":
+        return DATA_ID_LIBD;
+    case "LIBS":
+        return DATA_ID_LIBS;
+    case "FOGR":
+        return DATA_ID_FOGR;
+    case "INDI":
+        return DATA_ID_INDI;
+    case "OTMP":
+        return DATA_ID_OTMP;
+    case "CGMP":
+        return DATA_ID_CGMP;
+    case "OGMP":
+        return DATA_ID_OGMP;
+    case "VAND":
+        return DATA_ID_VAND;
+    case "BLAT":
+        return DATA_ID_BLAT;
+    case "BCLR":
+        return DATA_ID_BCLR;
+    case "METL":
+        return DATA_ID_METL;
+    case "TCH0":
+        return DATA_ID_TCH0;
+    case "TCH1":
+        return DATA_ID_TCH1;
+    case "TCH2":
+        return DATA_ID_TCH2;
+    case "TCH3":
+        return DATA_ID_TCH3;
+    case "TCH4":
+        return DATA_ID_TCH4;
+    case "TCH5":
+        return DATA_ID_TCH5;
+    case "DIFC":
+        return DATA_ID_DIFC;
+    case "SHRC":
+        return DATA_ID_SHRC;
+    case "SPCC":
+        return DATA_ID_SPCC;
+    case "ICNC":
+        return DATA_ID_ICNC;
+    case "ICMC":
+        return DATA_ID_ICMC;
+    case "ODAT":
+        return DATA_ID_ODAT;
+    case "MDCI":
+        return DATA_ID_MDCI;
+    case "MDOI":
+        return DATA_ID_MDOI;
+    case "LODC":
+        return DATA_ID_LODC;
+    case "LODP":
+        return DATA_ID_LODP;
+    case "VANP":
+        return DATA_ID_VANP;
+    case "BLAL":
+        return DATA_ID_BLAL;
+    case "BLCM":
+        return DATA_ID_BLCM;
+    case "INDP":
+        return DATA_ID_INDP;
+    case "PVLO":
+        return DATA_ID_PVLO;
+    case "PSXT":
+        return DATA_ID_PSXT;
+    case "PTAI":
+        return DATA_ID_PTAI;
+    case "PCMD":
+        return DATA_ID_PCMD;
+    case "BSAO":
+        return DATA_ID_BSAO;
+    case "CCH0":
+        return DATA_ID_CCH0;
+    case "CCH1":
+        return DATA_ID_CCH1;
+    case "CCH2":
+        return DATA_ID_CCH2;
+    case "CCH3":
+        return DATA_ID_CCH3;
+    case "CCH4":
+        return DATA_ID_CCH4;
+    case "CCH5":
+        return DATA_ID_CCH5;
+    case "CCH6":
+        return DATA_ID_CCH6;
+    case "BKLT":
+        return DATA_ID_BKLT;
+    case "BKLB":
+        return DATA_ID_BKLB;
+    case "BKLA":
+        return DATA_ID_BKLA;
+    case "BKGL":
+        return DATA_ID_BKGL;
+    case "DYIN":
+        return DATA_ID_DYIN;
+    case "CLP0":
+        return DATA_ID_CLP0;
+    case "HOTP":
+        return DATA_ID_HOTP;
+    case "SHID":
+        return DATA_ID_SHID;
+    case "GBFF":
+        return DATA_ID_GBFF;
+    case "PMOD":
+        return DATA_ID_PMOD;
+    case "PFLG":
+        return DATA_ID_PFLG;
+    case "BLPI":
+        return DATA_ID_BLPI;
+    case "ICH0":
+        return DATA_ID_ICH0;
+    case "ICH1":
+        return DATA_ID_ICH1;
+    case "ICH2":
+        return DATA_ID_ICH2;
+    case "AUVI":
+        return DATA_ID_AUVI;
+    case "ECH0":
+        return DATA_ID_ECH0;
+    case "OPCS":
+        return DATA_ID_OPCS;
+    case "SPCP":
+        return DATA_ID_SPCP;
+    case "INDS":
+        return DATA_ID_INDS;
+    case "BLSM":
+        return DATA_ID_BLSM;
+    case "LITS":
+        return DATA_ID_LITS;
+    case "MDOE":
+        return DATA_ID_MDOE;
+    case "VANF":
+        return DATA_ID_VANF;
+    case "OTHS":
+        return DATA_ID_OTHS;
+    case "PZSO":
+        return DATA_ID_PZSO;
+    case "RCH0":
+        return DATA_ID_RCH0;
+    case "RCH1":
+        return DATA_ID_RCH1;
+    case "RCH2":
+        return DATA_ID_RCH2;
+    case "PXFM":
+        return DATA_ID_PXFM;
+    case "MCH0":
+        return DATA_ID_MCH0;
+    case "BCRL":
+        return DATA_ID_BCRL;
+    case "MTLL":
+        return DATA_ID_MTLL;
+    case "NRML":
+        return DATA_ID_NRML;
+    case "SHDD":
+        return DATA_ID_SHDD;
+    case "SKIN":
+        return DATA_ID_SKIN;
+    case "DIMD":
+        return DATA_ID_DIMD;
+    case "LIT ":
+        return DATA_ID_LIT;
+    case "ALLD":
+        return DATA_ID_ALLD;
+    case "DLLD":
+        return DATA_ID_DLLD;
+    case "CLLD":
+        return DATA_ID_CLLD;
+    case "AUXF":
+        return DATA_ID_AUXF;
+    case "WIND":
+        return DATA_ID_WIND;
+    case "WATR":
+        return DATA_ID_WATR;
+    case "DFXS":
+        return DATA_ID_DFXS;
+    case "DFXN":
+        return DATA_ID_DFXN;
+    case "MCDD":
+        return DATA_ID_MCDD;
+    case "CAUS":
+        return DATA_ID_CAUS;
+    case "BLPD":
+        return DATA_ID_BLPD;
+    case "BLPT":
+        return DATA_ID_BLPT;
+    case "FOGS":
+        return DATA_ID_FOGS;
+    case "VOLF":
+        return DATA_ID_VOLF;
+    case "VFXB":
+        return DATA_ID_VFXB;
+    case "VFXD":
+        return DATA_ID_VFXD;
+    case "REFP":
+        return DATA_ID_REFP;
+    case "RAIN":
+        return DATA_ID_RAIN;
+    case "XCH0":
+        return DATA_ID_XCH0;
+    case "XCH1":
+        return DATA_ID_XCH1;
+    }
+}
+
+string ReadMaterialDataId(FourCC value)
+{
+    EMaterialDataId id = MapMaterialDataId(value);
+    return EnumToString(id);
+}
+
+enum <uint32> EMaterialFlag
+{
+    DATA_FLAG_MFTR = 0,
+    DATA_FLAG_MFMT = 1,
+    DATA_FLAG_MFSR = 2,
+    DATA_FLAG_MFSK = 3,
+    DATA_FLAG_MFVC = 4,
+    DATA_FLAG_MF1B = 5,
+    DATA_FLAG_MFAV = 6,
+    DATA_FLAG_MFIN = 7,
+    DATA_FLAG_MFCA = 8,
+    DATA_FLAG_MFIM = 9,
+    DATA_FLAG_MTSM = 10,
+    DATA_FLAG_MFRL = 11,
+    DATA_FLAG_MFOE = 12,
+    DATA_FLAG_MFOT = 13,
+    DATA_FLAG_MFCI = 14,
+    DATA_FLAG_MFOI = 15,
+    DATA_FLAG_MFVA = 16,
+    DATA_FLAG_MFSU = 17,
+    DATA_FLAG_MFBP = 18,
+    DATA_FLAG_MFBL = 19,
+    DATA_FLAG_MFLB = 20,
+    DATA_FLAG_MF1E = 21,
+    DATA_FLAG_MFC0 = 22,
+    DATA_FLAG_MFC1 = 23,
+    DATA_FLAG_MFC2 = 24,
+    DATA_FLAG_MFC3 = 25,
+    DATA_FLAG_MFC4 = 26,
+};
+
+EMaterialFlag MapMaterialFlag(FourCC value)
+{
+    switch (value) {
+    case "MFTR":
+        return DATA_FLAG_MFTR;
+    case "MFMT":
+        return DATA_FLAG_MFMT;
+    case "MFSR":
+        return DATA_FLAG_MFSR;
+    case "MFSK":
+        return DATA_FLAG_MFSK;
+    case "MFVC":
+        return DATA_FLAG_MFVC;
+    case "MF1B":
+        return DATA_FLAG_MF1B;
+    case "MFAV":
+        return DATA_FLAG_MFAV;
+    case "MFIN":
+        return DATA_FLAG_MFIN;
+    case "MFCA":
+        return DATA_FLAG_MFCA;
+    case "MFIM":
+        return DATA_FLAG_MFIM;
+    case "MTSM":
+        return DATA_FLAG_MTSM;
+    case "MFRL":
+        return DATA_FLAG_MFRL;
+    case "MFOE":
+        return DATA_FLAG_MFOE;
+    case "MFOT":
+        return DATA_FLAG_MFOT;
+    case "MFCI":
+        return DATA_FLAG_MFCI;
+    case "MFOI":
+        return DATA_FLAG_MFOI;
+    case "MFVA":
+        return DATA_FLAG_MFVA;
+    case "MFSU":
+        return DATA_FLAG_MFSU;
+    case "MFBP":
+        return DATA_FLAG_MFBP;
+    case "MFBL":
+        return DATA_FLAG_MFBL;
+    case "MFLB":
+        return DATA_FLAG_MFLB;
+    case "MF1E":
+        return DATA_FLAG_MF1E;
+    case "MFC0":
+        return DATA_FLAG_MFC0;
+    case "MFC1":
+        return DATA_FLAG_MFC1;
+    case "MFC2":
+        return DATA_FLAG_MFC2;
+    case "MFC3":
+        return DATA_FLAG_MFC3;
+    case "MFC4":
+        return DATA_FLAG_MFC4;
+    }
+}
+
+string ReadMaterialFlag(FourCC value)
+{
+    EMaterialFlag flag = MapMaterialFlag(value);
+    return EnumToString(flag);
+}
+
+enum <uint32> ECachedGraphicsTransform
+{
+    XF_MODEL_TO_WORLD_MTX = 0, // uc_modelToWorldMatrix
+    XF_WORLD_TO_MODEL_MTX = 1, // uc_worldToModelMatrix
+    XF_WORLD_TO_VIEW_MTX = 2, // uc_worldToViewMatrix
+    XF_PROJECTION_MTX = 3, // uc_projectionMatrix
+    XF_MODEL_VIEW_MTX = 4, // uc_modelViewMatrix
+    XF_MODEL_VIEW_PROJECTION_MTX = 5, // uc_modelViewProjectionMatrix
+    XF_PROJECTION_INVERSE_MTX = 6, // uc_projectionInverseMatrix
+    XF_NORMAL_MTX = 7, // uc_normalMatrix
+    XF_CUSTOM_MTX_0 = 8, // uc_customMatrix0
+};
+
+enum <uint32> EVertexComponent
+{
+    VTX_POSITION = 0, // in_position
+    VTX_NORMAL = 1, // in_normal
+    VTX_TANGENT0 = 2, // in_tangent[0]
+    VTX_TANGENT1 = 3, // in_tangent[1]
+    VTX_TANGENT2 = 4, // in_tangent[2]
+    VTX_TEXCOORD0 = 5, // in_texCoord[0]
+    VTX_TEXCOORD1 = 6, // in_texCoord[1]
+    VTX_TEXCOORD2 = 7, // in_texCoord[2]
+    VTX_TEXCOORD3 = 8, // in_texCoord[3]
+    VTX_COLOR = 9, // in_color
+    VTX_BONE_INDICES = 10, // in_boneIndices
+    VTX_BONE_WEIGHTS = 11, // in_boneWeights
+    VTX_BAKED_LIGHTING_COORD = 12, // in_bakedLightingCoord
+    VTX_BAKED_LIGHTING_TANGENT = 13, // in_bakedLightingTangent
+    VTX_VERT_INSTANCE_PARAMS = 14, // in_vertInstanceParams
+    VTX_VERT_INSTANCE_COLOR = 15, // in_vertInstanceColor
+    VTX_VERT_TRANSFORM0 = 16, // in_vertTransform[0]
+    VTX_VERT_TRANSFORM1 = 17, // in_vertTransform[1]
+    VTX_VERT_TRANSFORM2 = 18, // in_vertTransform[2]
+    VTX_CURRENT_POSITION = 19, // in_currentPosition
+    VTX_VERT_INSTANCE_OPACITY_PARAMS = 20, // in_vertInstanceOpacityParams
+    VTX_VERT_INSTANCE_COLOR_INDEXING_PARAMS = 21, // in_vertInstanceColorIndexingParams
+    VTX_VERT_INSTANCE_OPACITY_INDEXING_PARAMS = 22, // in_vertInstanceOpacityIndexingParams
+    VTX_VERT_INSTANCE_PAINT_PARAMS = 23, // in_vertInstancePaintParams
+    VTX_BAKED_LIGHTING_LOOKUP = 24, // in_bakedLightingLookup
+    VTX_MATERIAL_CHOICE0 = 25, // in_materialChoice[0]
+    VTX_MATERIAL_CHOICE1 = 26, // in_materialChoice[1]
+    VTX_MATERIAL_CHOICE2 = 27, // in_materialChoice[2]
+    VTX_MATERIAL_CHOICE3 = 28, // in_materialChoice[3]
+};
+
+enum <uint32> EMaterialDataType
+{
+    DATA_TYPE_NONE = 0,
+    DATA_TYPE_TEXTURE = 1, // TXTR
+    DATA_TYPE_COLOR = 2, // COLR
+    DATA_TYPE_SCALAR = 3, // SCLR
+    DATA_TYPE_INT1 = 4, // INT1
+    DATA_TYPE_COMPLEX = 5, // CPLX
+    DATA_TYPE_INT4 = 6, // INT4
+    DATA_TYPE_MAT4 = 7, // MAT4
+};
+
+EMaterialDataType MapMaterialDataType(FourCC value)
+{
+    switch (value) {
+    case "TXTR":
+        return DATA_TYPE_TEXTURE;
+    case "COLR":
+        return DATA_TYPE_COLOR;
+    case "SCLR":
+        return DATA_TYPE_SCALAR;
+    case "INT1":
+        return DATA_TYPE_INT1;
+    case "CPLX":
+        return DATA_TYPE_COMPLEX;
+    case "INT4":
+        return DATA_TYPE_INT4;
+    case "MAT4":
+        return DATA_TYPE_MAT4;
+    default:
+        return DATA_TYPE_NONE;
+    }
+}
+
+string ReadMaterialDataType(FourCC value)
+{
+    EMaterialDataType type = MapMaterialDataType(value);
+    return EnumToString(type);
+}
+
+typedef struct
+{
+    GUID id;
+    if (id != GUIDZero) { STextureUsageInfo usage; }
+} CMaterialTextureTokenData <optimize=false>;
+
+struct CLayeredTextureBaseData
+{
+    uint unk;
+    float color1[4];
+    float color2[4];
+    float color3[4];
+    byte flags;
+};
+
+struct CLayeredTextureData
+{
+    CLayeredTextureBaseData base;
+    CMaterialTextureTokenData textures[3];
+};
+
+typedef struct {
+    FourCC id <read=ReadMaterialDataId>;
+    FourCC type <read=ReadMaterialDataType>;
+
+    switch (MapMaterialDataType(type)) {
+    case DATA_TYPE_TEXTURE:
+        CMaterialTextureTokenData texture;
         break;
-        case "COLR":
-            float color[4];
+    case DATA_TYPE_COLOR:
+        float color[4]; // CColor4f
         break;
-        case "SCLR":
-            float scalar;
+    case DATA_TYPE_SCALAR:
+        float scalar;
         break;
-        case "INT ":
-            int int1;
+    case DATA_TYPE_INT1:
+        int int1;
         break;
-        case "INT4":
-            int int4[4];
+    case DATA_TYPE_INT4:
+        int int4[4]; // CVector4i
         break;
-        case "CPLX":
-            uint unk;
-            float color1[4];
-            float color2[4];
-            float color3[4];
-            byte flags;
-            GUID texture1ID;
-            if (texture1ID != GUIDZero) CMaterialTextureTokenData texture1;
-            GUID texture2ID;
-            if (texture2ID != GUIDZero) CMaterialTextureTokenData texture2;
-            GUID texture3ID;
-            if (texture3ID != GUIDZero) CMaterialTextureTokenData texture3;
-    
+    case DATA_TYPE_MAT4:
+        float mtx[16]; // CMatrix4f
         break;
-   }
+    case DATA_TYPE_COMPLEX:
+        local EMaterialDataId dataId <hidden=true> = MapMaterialDataId(id);
+        if (IsTextureLayeredMaterialDataId(dataId)) {
+            CLayeredTextureData data;
+        } else if (IsTextureMaterialDataId(dataId)) {
+            // TODO
+        }
+        break;
+    }
 } CMaterialData <read=CMaterialDataRead>;
 
-/* MaterialID Mappings:
-    MFTR  = 0,
-    MFMT  = 1,
-    TXTR  = 1,
-    CBUF  = 1,    
-    ZBUF  = 2,
-    COLR  = 2,
-    MFSR  = 2,
-    SCLR  = 3,
-    GBUF  = 3,
-    MFSK  = 3,
-    INT1  = 4,
-    GFLG  = 4,
-    MFVC  = 4,
-    CPLX  = 5,
-    TCPO  = 5,
-    MF1B  = 5,
-    DIFT  = 6,
-    INT4  = 6,
-    MFAV  = 6,
-    MAT4  = 7,
-    ICAN  = 7,
-    MFIN  = 7,
-    SINC  = 8,
-    MFCA  = 8,
-    NMAP  = 9,
-    MFIN  = 9,
-    MNMP  = 10,
-    MTSM  = 10,
-    REFL  = 11,
-    MFRL  = 11,
-    REFS  = 12,
-    MFOE  = 12,
-    REFV  = 13,
-    MFOT  = 13,
-    SPCT  = 14,
-    MFCI  = 14,
-    LIDB  = 15,
-    MFOI  = 15,
-    LIBS  = 16,
-    MFVA  = 16,
-    FOGR  = 17,
-    MFSU  = 17,
-    INDI  = 18,
-    MFBP  = 18,
-    OTMP  = 19,
-    MFBL  = 19,
-    CGMP  = 20,
-    MFLB  = 20,
-    OGMP  = 21,
-    MF1E  = 21,
-    VAND  = 22,
-    MFC0  = 22,
-    MFC1  = 23,
-    BLAT  = 23,
-    BCLR  = 24,
-    MFC2  = 24,
-    MFC3  = 25,
-    METL  = 25,
-    MFC4  = 26,
-    TCH0  = 26,
-    TCH1  = 27,
-    TCH2  = 28,
-    TCH3  = 29,
-    TCH4  = 30,
-    TCH5  = 31,
-    DIFC  = 32,
-    SHRC  = 33,
-    SPCC  = 34,
-    ICNC  = 35,
-    ICMC  = 36,
-    ODAT  = 37,
-    MDCI  = 38,
-    MODI  = 39,
-    LODC  = 40,
-    LODP  = 41,
-    VANP  = 42,
-    BLAL  = 43,
-    BLCM  = 44,
-    INDP  = 45,
-    PVLO  = 46,
-    PSXT  = 47,
-    PTAI  = 48,
-    PCMD  = 49,
-    BSAO  = 50,
-    CCH0  = 51,
-    CCH1  = 52,
-    CCH2  = 53,
-    CCH3  = 54,
-    CCH4  = 55,
-    CCH5  = 56,
-    CCH6  = 57,
-    BKLT  = 58,
-    BKLB  = 59,
-    BKLA  = 60,
-    BKGL  = 61,
-    DYIN  = 62,
-    CLP0  = 63,
-    HOTP  = 64,
-    SHID  = 65,
-    GBFF  = 66,
-    PMOD  = 67,
-    PFLG  = 68,
-    BLPI  = 69,
-    ICH0  = 70,
-    ICH1  = 71,
-    ICH2  = 72,
-    AUVI  = 73,
-    ECH0  = 74,
-    OPCS  = 75,
-    SPCP  = 76,
-    INDS  = 77,
-    BLSM  = 78,
-    LITS  = 79,
-    MDOE  = 80,
-    VANF  = 81,
-    OTHS  = 82,
-    PZSO  = 83,
-    RCH0  = 84,
-    RCH1  = 85,
-    RCH2  = 86,
-    PXFM  = 87,
-    MCH0  = 88,
-    SHDD  = 89,
-    BCLR  = 89,
-    SKIN  = 90,
-    MTLL  = 90,
-    NRML  = 91,
-    DIMD  = 94,
-   "TIL " = 95,
-    ALLD  = 96,
-    DLLD  = 97,
-    DLLC  = 98,
-    AUXF  = 99,
-    WIND  = 100,
-    WATR  = 101,
-    DFXS  = 102,
-    DXFN  = 103,
-    MCDD  = 104,
-    CAUS  = 105,
-    PLDB  = 106,
-    BLPT  = 107,
-    FOGS  = 108,
-    VOLF  = 109,
-    VFXB  = 110,
-    VFXD  = 111,
-    REFP  = 112,
-    RAIN  = 113,
-    XCH0  = 114,
-    XCH1  = 115,
-*/
-
-string CMaterialDataRead(CMaterialData &mat)
-{
-	string s;
-	
-   switch (mat.format)
-   {
-        case "TXTR": SPrintf(s, "Texture: %s = %s", mat.type, GUIDToString(mat.texture.id)); break;
-        case "COLR": SPrintf(s, "Color %s = %f %f %f %f", mat.type, mat.color[0], mat.color[1], mat.color[2], mat.color[3]); break;
-        case "SCLR": SPrintf(s, "Scalar %s = %f", mat.type, mat.scalar); break;
-        case "INT ": SPrintf(s, "Int %s = %f", mat.type, mat.int1); break;
-        case "INT4": SPrintf(s, "Int4 %s = %u %u %u %u", mat.type, mat.int4[0], mat.int4[1], mat.int4[2], mat.int4[3]); break;
-        case "CPLX": SPrintf(s, "Complex: %s", mat.type); break;
-   }
-	return s;
+string CMaterialDataRead(CMaterialData &mat) {
+    switch (MapMaterialDataType(mat.type)) {
+    case DATA_TYPE_TEXTURE:
+        return Str("Texture %s = %s", mat.id, GUIDToString(mat.texture.id));
+    case DATA_TYPE_COLOR:
+        return Str("Color %s = %f %f %f %f", mat.id, mat.color[0], mat.color[1], mat.color[2], mat.color[3]);
+    case DATA_TYPE_SCALAR:
+        return Str("Scalar %s = %f", mat.id, mat.scalar);
+    case DATA_TYPE_INT1:
+        return Str("Int %s = %f", mat.id, mat.int1);
+    case DATA_TYPE_INT4:
+        return Str("Int4 %s = %u %u %u %u", mat.id, mat.int4[0], mat.int4[1], mat.int4[2], mat.int4[3]);
+    case DATA_TYPE_COMPLEX:
+        return Str("Complex %s", mat.id);
+    }
 }
 
 typedef struct {
@@ -317,7 +776,7 @@ typedef struct {
     //material type list (can be 0)
     uint typeCount;
   }
-  uint types[typeCount];
+  struct { FourCC type; } types[typeCount];
   if (isDKCTF == 1)
   {
     uint flags;
@@ -348,6 +807,81 @@ typedef struct {
 struct SMeshLoadInformation {
     uint meshCount;
     CRenderMesh meshes[meshCount];
+};
+
+enum <uint32> EVertexDataFormat {
+    FMT_R8_UNORM = 0,
+    FMT_R8_UINT = 1,
+    FMT_R8_SNORM = 2,
+    FMT_R8_SINT = 3,
+    FMT_R16_UNORM = 4,
+    FMT_R16_UINT = 5,
+    FMT_R16_SNORM = 6,
+    FMT_R16_SINT = 7,
+    FMT_R16_FLOAT = 8,
+    FMT_RG8_UNORM = 9,
+    FMT_RG8_UINT = 10,
+    FMT_RG8_SNORM = 11,
+    FMT_RG8_SINT = 12,
+    FMT_R32_UINT = 13,
+    FMT_R32_SINT = 14,
+    FMT_R32_FLOAT = 15,
+    FMT_RG16_UNORM = 16,
+    FMT_RG16_UINT = 17,
+    FMT_RG16_SNORM = 18,
+    FMT_RG16_SINT = 19,
+    FMT_RG16_FLOAT = 20,
+    FMT_RGBA8_UNORM = 21,
+    FMT_RGBA8_UINT = 22,
+    FMT_RGBA8_SNORM = 23,
+    FMT_RGBA8_SINT = 24,
+    FMT_RGB10A2_UNORM = 25,
+    FMT_RGB10A2_UINT = 26,
+    FMT_RG32_UINT = 27,
+    FMT_RG32_SINT = 28,
+    FMT_RG32_FLOAT = 29,
+    FMT_RGBA16_UNORM = 30,
+    FMT_RGBA16_UINT = 31,
+    FMT_RGBA16_SNORM = 32,
+    FMT_RGBA16_SINT = 33,
+    FMT_RGBA16_FLOAT = 34,
+    FMT_RGB32_UINT = 35,
+    FMT_RGB32_SINT = 36,
+    FMT_RGB32_FLOAT = 37,
+    FMT_RGBA32_UINT = 38,
+    FMT_RGBA32_SINT = 39,
+    FMT_RGBA32_FLOAT = 40,
+};
+
+struct SVertexDataComponent {
+    uint32 bufferIndex;
+    uint32 offset;
+    uint32 stride;
+    EVertexDataFormat format;
+    EVertexComponent component;
+};
+
+struct SVertexBufferInfo {
+    uint32 vertexCount;
+    uint32 numAttributes;
+    SVertexDataComponent component[numAttributes];
+    byte unk;
+};
+
+struct CGraphicsVertexBufferToken {
+    uint32 count;
+    SVertexBufferInfo info[count] <optimize=false>;
+};
+
+enum <uint32> EBufferType {
+    INDEX_U8 = 0, // ?
+    INDEX_U16 = 1,
+    INDEX_U32 = 2,
+};
+
+struct CGraphicsIndexBufferToken {
+    uint32 count;
+    EBufferType type[count];
 };
 
 typedef struct {
@@ -383,6 +917,12 @@ typedef struct {
   case "MESH":
     SMeshLoadInformation loadInformation;
     break;
+    case "VBUF":
+        CGraphicsVertexBufferToken data;
+        break;
+    case "IBUF":
+        CGraphicsIndexBufferToken data;
+        break;
   }
   FSeek(pos + chunk.size);
 } ModelChunk <name=(Str("%s chunk", chunk.id))>;
@@ -394,5 +934,33 @@ typedef struct(uint64 size) {
     }
 } ModelFile <name="Model chunks">;
 
+// NModelFormat::SReadBufferInfo
+struct SModelReadBufferInfo
+{
+    uint32 size <format=hex>;
+    uint32 offset <format=hex>;
+};
+
+// NModelFormat::SBufferInfo
+struct SModelBufferInfo
+{
+    uint32 index; // SModelReadBufferInfo index
+    uint32 offset <format=hex>;
+    uint32 size <format=hex>;
+    uint32 destSize <format=hex>;
+};
+
+// NModelFormat::SMetaData
+struct SModelMetaData(uint64 fileStart)
+{
+    uint32 unk;
+    uint32 gpuOffset <format=hex>;
+    uint32 readInfoCount;
+    SModelReadBufferInfo readInfo[readInfoCount];
+    uint32 vtxInfoCount;
+    SModelBufferInfo vtxBufferInfo[vtxInfoCount];
+    uint32 idxInfoCount;
+    SModelBufferInfo idxBufferInfo[idxInfoCount];
+};
 
 #endif// _CGRAPHICSMODEL
