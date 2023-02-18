@@ -1,0 +1,25 @@
+#ifndef _CAUDIOSAMPLEBANK
+#define _CAUDIOSAMPLEBANK
+
+#include "Common.bt"
+
+typedef struct {
+    GUID guid;
+    uchar unk1;
+    uchar unk2;
+    uchar unk3;
+    uchar unk4;
+    uchar unk5;
+    uchar unk6;
+    uint unk7;
+} CAudioSampleBankEntry;
+
+typedef struct {
+    uint unk1;
+    uint unk2;
+    uchar unk3;
+    uint entryCount;
+    CAudioSampleBankEntry entries[entryCount];
+} CAudioSampleBank;
+
+#endif// _CAUDIOSAMPLEBANK

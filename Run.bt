@@ -1,113 +1,116 @@
 // Common
 if (!exists(isDKCTF)) {
-    local uint isDKCTF <hidden=true> = false;
-    LittleEndian();
+  local uint isDKCTF<hidden = true> = false;
+  LittleEndian();
 }
 
-#include "Common.bt"
 #include "CChunkDescriptor.bt"
 #include "CFormDescriptor.bt"
+#include "Common.bt"
 
 // Meta
-#include "NTextureFormat.bt"
 #include "CGraphicsModel.bt"
 #include "Meta.bt"
+#include "NTextureFormat.bt"
 
 // Files
-#include "CCharInfo.bt"
 #include "CAudioBusHierarchy.bt"
+#include "CAudioSampleBank.bt"
+#include "CCharInfo.bt"
+#include "CCollisionTree.bt"
 #include "CDataEnumObject.bt"
+#include "CLegacyStateMachine.bt"
 #include "CLightProbeData.bt"
 #include "CPakFile.bt"
-#include "MessageStudioBinaryText.bt"
-#include "MaterialArchive.bt"
-#include "CVectorField.bt"
-#include "CCollisionTree.bt"
 #include "CReflectionProbeData.bt"
-#include "CLegacyStateMachine.bt"
-//#include "CRuleSet.bt"
+#include "CVectorField.bt"
+#include "MaterialArchive.bt"
+#include "MessageStudioBinaryText.bt"
+// #include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
 // Custom footer
 #include "Footer.bt"
 
-typedef struct
-{
-    FormDescriptor form;
-    local uint64 start <format=hex, hidden=true> = FTell();
-    switch (form.id)
-    {
-        case "MTRL":
-            if (form.readerVersion == 168) {
-                byte MTRLRaw [form.size]; //For now
-            } else if (form.readerVersion == 22) {
-                MaterialArchive materialArchive(form.size);
-            } else {
-                Assert(false, "Invalid version!");
-            }
-            break;
-        case "CABH":
-            CAudioBusHierarchy audioBusHierarchy;
-            break;
-        case "ENUM":
-            CDataEnumObject dataEnum;
-            break;
-        case "LTPB":
-            CLightProbeData lightProbe(form.size);
-            break;
-        case "LFSM":
-            if (!isDKCTF)
-                BigEndian();
-            CLegacyStateMachine legacyStateMachine;
-            if (!isDKCTF)
-                LittleEndian();
-            break;
-        case "DCLN":
-            CCollisionTree obboxCollisionTree(form.size, kCOL_OBBox);
-        break;
-        case "CLSN":
-            CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
-            break;
-        case "CHPR":
-            FCharInf charInfo;
-            break;
-        case "CMDL":
-        case "SMDL":
-        case "WMDL":
-            ModelFile model(form.size);
-            break;
-        case "MSBT":
-            MessageStudioBinaryText text;
-            break;
-        case "PACK":
-            CPakFile pak;
-            break;
-        case "TXTR":
-            NTextureFormat texture(form.size);
-            break;
-        case "REFL":
-            CReflectionProbeData probeData;
-            break;
-        /*case "RULE":
-            CRuleSet rulesetconfig(form.size);
-            break;*/
-        case "GFXL":
-            CScaleformFlashLibrary scaleformflashlibrary;
-            break;
-        /*case "GFX ":
-            CFlashMovieResource flashmovieresource(form.size);
-            break;*/
-        case "VECF":
-            CVectorField vectorField;
-            break;
+typedef struct {
+  FormDescriptor form;
+  local uint64 start<format = hex, hidden = true> = FTell();
+  switch (form.id) {
+  case "MTRL":
+    if (form.readerVersion == 168) {
+      byte MTRLRaw[form.size]; // For now
+    } else if (form.readerVersion == 22) {
+      MaterialArchive materialArchive(form.size);
+    } else {
+      Assert(false, "Invalid version!");
     }
-    FSeek(start + form.size);
-} File <open=true, bgcolor=cSilver>;
+    break;
+  case "CBNK":
+    CAudioSampleBank audioSampleBank;
+    break;
+  case "CABH":
+    CAudioBusHierarchy audioBusHierarchy;
+    break;
+  case "ENUM":
+    CDataEnumObject dataEnum;
+    break;
+  case "LTPB":
+    CLightProbeData lightProbe(form.size);
+    break;
+  case "LFSM":
+    if (!isDKCTF)
+      BigEndian();
+    CLegacyStateMachine legacyStateMachine;
+    if (!isDKCTF)
+      LittleEndian();
+    break;
+  case "DCLN":
+    CCollisionTree obboxCollisionTree(form.size, kCOL_OBBox);
+    break;
+  case "CLSN":
+    CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
+    break;
+  case "CHPR":
+    FCharInf charInfo;
+    break;
+  case "CMDL":
+  case "SMDL":
+  case "WMDL":
+    ModelFile model(form.size);
+    break;
+  case "MSBT":
+    MessageStudioBinaryText text;
+    break;
+  case "PACK":
+    CPakFile pak;
+    break;
+  case "TXTR":
+    NTextureFormat texture(form.size);
+    break;
+  case "REFL":
+    CReflectionProbeData probeData;
+    break;
+  /*case "RULE":
+      CRuleSet rulesetconfig(form.size);
+      break;*/
+  case "GFXL":
+    CScaleformFlashLibrary scaleformflashlibrary;
+    break;
+  /*case "GFX ":
+      CFlashMovieResource flashmovieresource(form.size);
+      break;*/
+  case "VECF":
+    CVectorField vectorField;
+    break;
+  }
+  FSeek(start + form.size);
+} File<open = true, bgcolor = cSilver>;
 
-File file <bgcolor=cGray, name=(Str("%s rv%d wv%d file", form.id, form.readerVersion, form.writerVersion))>;
+File
+    file<bgcolor = cGray, name = (Str("%s rv%d wv%d file", form.id,
+                                      form.readerVersion, form.writerVersion))>;
 
 // Custom footer for extracted files
-if (ReadString(FTell(), 4) == "RFRM")
-{
-    Footer footer(file.form.id) <bgcolor=cLtBlue>;
+if (ReadString(FTell(), 4) == "RFRM") {
+  Footer footer(file.form.id)<bgcolor = cLtBlue>;
 }

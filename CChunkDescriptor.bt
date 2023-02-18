@@ -1,5 +1,7 @@
 #ifndef _CCHUNKDESCRIPTOR
 #define _CCHUNKDESCRIPTOR
+#include "Common.bt"
+
 typedef struct
 {
     FourCC id;

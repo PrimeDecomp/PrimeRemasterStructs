@@ -1,5 +1,7 @@
 #ifndef _META
 #define _META
+#include "NTextureFormat.bt"
+
 typedef struct(FourCC type, uint64 size, uint64 fileStart)
 {
   local uint64 start <format=hex, hidden=true> = FTell();
