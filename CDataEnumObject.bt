@@ -1,14 +1,20 @@
 #ifndef _CDATAENUMOBJECT
 #define _CDATAENUMOBJECT
 
+typedef struct {
+    uint unk1 <format = hex>;
+    GUID unk2;
+    uint unk3 <format = hex>;
+    GUID unk4;
+} CDataEnumValue;
 typedef struct  {
     uint id;
     uint value;
-} CDataEnumValue;
+} Unk;
 
 typedef struct {
     uint unkCount;
-    CDataEnumValue enums[unkCount];
+    Unk enums[unkCount];
     uint objectIdCount;
     GUID objectIds[objectIdCount];
 } CDataEnumObject;
