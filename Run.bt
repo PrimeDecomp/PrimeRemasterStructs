@@ -111,6 +111,9 @@ typedef struct {
   case "VECF":
     CVectorField vectorField;
     break;
+  case "ROOM":
+    CGameAreaResource room;
+    break;
   }
   FSeek(start + form.size);
 } File<open = true, bgcolor = cSilver>;
