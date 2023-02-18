@@ -26,6 +26,7 @@ if (!exists(isDKCTF)) {
 #include "CVectorField.bt"
 #include "MaterialArchive.bt"
 #include "MessageStudioBinaryText.bt"
+#include "CUniverseInfo.bt"
 // #include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
@@ -53,6 +54,9 @@ typedef struct {
     break;
   case "ENUM":
     CDataEnumObject dataEnum;
+    break;
+  case "UINF":
+    CUniverseInfo universeInfo(form.size);
     break;
   case "LTPB":
     CLightProbeData lightProbe(form.size);

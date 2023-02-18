@@ -1,0 +1,38 @@
+#ifndef _CUNIVERSEINFO
+#define _CUNIVERSEINFO
+
+#include "CChunkDescriptor.bt"
+#include "Common.bt"
+
+typedef struct {
+  ChunkDescriptor chunk;
+  GUID guid;
+  uint nameLen;
+  if (nameLen) {
+    char name[nameLen];
+  }
+  uint unk1;
+  uint unk2;
+  GUID unk3;
+  GUID unk4;
+  uint unk5;
+  if (unk5) {
+    struct {
+      GUID guid;
+    } guids[unk5];
+  }
+} CAreaInfo;
+
+typedef struct CUniverseInfo(uint64 size) {
+  local uint64 start = FTell();
+  GUID guid1;
+  GUID guid2;
+  ChunkDescriptor chunk;
+  GUID guid3;
+  while (FTell() < start + size) {
+    CAreaInfo areaInfo;
+  }
+
+} CUniverseInfo;
+
+#endif // _CUNIVERSEINFO
