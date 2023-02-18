@@ -1,0 +1,28 @@
+#ifndef _CGUIMAP
+#define _CGUIMAP
+
+#include "Common.bt"
+#include "CTransform4f.bt"
+#include "CVector3f.bt"
+#include "CCollisionTree.bt"
+
+typedef struct {
+  typedef struct {
+    GUID guid;
+    uint nameLen;
+    char name[nameLen];
+    uint areaIdx;
+    uint unk2;
+    CTransform4f xf;
+    CVector3f offset;
+    uint64 collisionDataSize;
+    CCollisionTree data(collisionDataSize, kCOL_AABox);
+  } SAreaMapData;
+
+  uint nameLen;
+  char name[nameLen];
+  uint areaMapDataCount;
+  SAreaMapData areaMapData[areaMapDataCount] <optimize = false>;
+} CGuiMap;
+
+#endif// _CGUIMAP

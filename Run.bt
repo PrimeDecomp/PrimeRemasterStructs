@@ -19,14 +19,15 @@ if (!exists(isDKCTF)) {
 #include "CCharInfo.bt"
 #include "CCollisionTree.bt"
 #include "CDataEnumObject.bt"
+#include "CGuiMap.bt"
 #include "CLegacyStateMachine.bt"
 #include "CLightProbeData.bt"
 #include "CPakFile.bt"
 #include "CReflectionProbeData.bt"
+#include "CUniverseInfo.bt"
 #include "CVectorField.bt"
 #include "MaterialArchive.bt"
 #include "MessageStudioBinaryText.bt"
-#include "CUniverseInfo.bt"
 // #include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
 
@@ -70,6 +71,9 @@ typedef struct {
     break;
   case "DCLN":
     CCollisionTree obboxCollisionTree(form.size, kCOL_OBBox);
+    break;
+  case "CMAP":
+    CGuiMap guiMap;
     break;
   case "CLSN":
     CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);

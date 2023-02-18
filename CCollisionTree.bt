@@ -79,6 +79,7 @@ struct ModConData {
   ushort unk;
 };
 
+local int idx =0;
 typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
   local CollisionPrimitiveType tmpType <hidden = true> = type;
   local uint64 start<format = hex, hidden = true> = FTell();
@@ -107,7 +108,7 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
       } data;
     } chunks;
   }
-  /*
+  if (idx == 0) {
     local int i = 0;
     for (i = 0; i < chunks[0].data.vertices.count; ++i) {
       Printf("v %f  %f %f\n", chunks[0].data.vertices.vertices[i].x,
@@ -132,7 +133,7 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
              chunks[2].data.triangles.tris[i].idx2 + 1,
              chunks[2].data.triangles.tris[i].idx3 + 1);
     }
-  */
+  }
   /*
     for (i = 0; i < chunks[2].data.triangles.count; ++i) {
       Printf("%i->%i: orientation=%08X, materialType=%08X, worldType=%08X, "
@@ -160,7 +161,7 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
                  .filterList);
     }
     */
-}
-CCollisionTree;
+    ++idx;
+} CCollisionTree;
 
 #endif // _CAABOXCOLLISIONTREE
