@@ -14,11 +14,26 @@ struct SModelAnimatedUVData {
   CVector4i vec4is[vec4iCount];
   uint unkCount;
   char unk[unkCount];
-  uchar unk2;
+  if (!isDKCTF)
+  {
+    uchar unk2;
+  }
 };
 
 struct DataSourceLoader {
-  FourCC type;
+  if (ReadByte() == 0)
+  {
+    uint32 tmpFormatI32;
+    switch (tmpFormatI32)
+    {
+      case 0:
+        local FourCC type = "ANUV";
+    }
+  }
+  else
+  {
+    FourCC type;
+  }
   switch (type) {
   case "ANUV":
     SModelAnimatedUVData animatedUvs;
@@ -80,13 +95,16 @@ struct STextureUsageInfo {
 
 struct SSkinnedModelHeader {
     uint unk;
-    uint unk;
-    uint unk;
-    uint unk;
-    uint uintsCount;
-    uint uints[uintsCount];
-    uint dataCount;
-    uint data[dataCount];
+    if (!isDKCTF)
+    {
+        uint unk;
+        uint unk;
+        uint unk;
+        uint uintsCount;
+        uint uints[uintsCount];
+        uint dataCount;
+        uint data[dataCount];
+    }
 };
 
 struct SWorldModelHeader {
@@ -285,18 +303,26 @@ typedef struct {
 } CMaterialCache <name=(Str("%s %s", this.name.text, GUIDToString(this.shaderID)))>;
 
 typedef struct {
+  if (isDKCTF)
+  {
+    uint32 PrimitiveMode;
+  }
   ushort MaterialIndex;
   byte VertexBufferIndex;
   byte IndexBufferIndex;
   uint IndexStart;
   uint IndexCount;
   ushort field_C;
+  if (isDKCTF)
+  {
+     byte unk;
+  }
   ushort field_E; //0x4000
 } CRenderMesh;
 
 struct SMeshLoadInformation {
     uint meshCount;
-    CRenderMesh meshes[meshCount];
+    CRenderMesh meshes[meshCount]<optimize=false>;
 };
 
 enum <uint32> EVertexDataFormat {
@@ -355,7 +381,10 @@ struct SVertexBufferInfo {
     uint32 vertexCount;
     uint32 numAttributes;
     SVertexDataComponent component[numAttributes];
-    byte unk;
+    if (!isDKCTF)
+    {
+        byte unk;
+    }
 };
 
 struct CGraphicsVertexBufferToken {
