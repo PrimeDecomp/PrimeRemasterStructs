@@ -33,7 +33,7 @@ struct SModelWindData {
 };
 
 struct DataSourceLoader {
-  if (ReadByte() == 0)
+  if (ReadByte() == 0) //Type for WiiU is an I32
   {
     uint32 tmpFormatI32;
     switch (tmpFormatI32)
@@ -241,37 +241,61 @@ typedef struct {
     FourCC id <read=ReadMaterialDataId>;
     if (ReadByte() == 0) //Fix DKCTF WiiU models
     {
-        
+      uint32 tmpFormatI32; //Do this so we can get the fancy struct names
+      switch (tmpFormatI32)
+      {
+         case 0:
+             local char format[4] = "TXTR";
+             CMaterialTextureTokenData texture;
+         break;
+         case 1:
+             local char format[4] = "COLR";
+             float color[4];
+         break;
+         case 2:
+             local char format[4] = "SCLR";
+             float scalar;
+         break;
+         case 4:
+             local char format[4] = "CPLX";
+             byte unk[141];
+         break;
+         case 5:
+             local char format[4] = "INT4";
+             int int4[4];
+         }
     }
-    FourCC type <read=ReadMaterialDataType>;
-
-    switch (MapMaterialDataType(type)) {
-    case DATA_TYPE_TEXTURE:
-        CMaterialTextureTokenData texture;
-        break;
-    case DATA_TYPE_COLOR:
-        float color[4]; // CColor4f
-        break;
-    case DATA_TYPE_SCALAR:
-        float scalar;
-        break;
-    case DATA_TYPE_INT1:
-        int int1;
-        break;
-    case DATA_TYPE_INT4:
-        int int4[4]; // CVector4i
-        break;
-    case DATA_TYPE_MAT4:
-        float mtx[16]; // CMatrix4f
-        break;
-    case DATA_TYPE_COMPLEX:
-        local EMaterialDataId dataId <hidden=true> = MapMaterialDataId(id);
-        if (IsTextureLayeredMaterialDataId(dataId)) {
-            CLayeredTextureData data;
-        } else if (IsTextureMaterialDataId(dataId)) {
-            // TODO
+    else
+    {
+        FourCC type <read=ReadMaterialDataType>;
+        switch (MapMaterialDataType(type)) {
+        case DATA_TYPE_TEXTURE:
+            CMaterialTextureTokenData texture;
+            break;
+        case DATA_TYPE_COLOR:
+            float color[4]; // CColor4f
+            break;
+        case DATA_TYPE_SCALAR:
+            float scalar;
+            break;
+        case DATA_TYPE_INT1:
+            int int1;
+            break;
+        case DATA_TYPE_INT4:
+            int int4[4]; // CVector4i
+            break;
+        case DATA_TYPE_MAT4:
+            float mtx[16]; // CMatrix4f
+            break;
+        case DATA_TYPE_COMPLEX:
+            local EMaterialDataId dataId <hidden=true> = MapMaterialDataId(id);
+            if (IsTextureLayeredMaterialDataId(dataId)) {
+                CLayeredTextureData data;
+            } else if (IsTextureMaterialDataId(dataId)) {
+                // TODO
+            }
+            break;
         }
-        break;
     }
 } CMaterialData <read=CMaterialDataRead>;
 
@@ -293,7 +317,7 @@ string CMaterialDataRead(CMaterialData &mat) {
 }
 
 typedef struct {
-  if (ReadByte() == 0)
+  if (ReadByte() == 0) //NS
   {
     local uint useMaterialTypeChunk <hidden=true> = 1;
     CStringFixed name;
