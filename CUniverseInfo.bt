@@ -7,19 +7,27 @@
 typedef struct {
   ChunkDescriptor chunk;
   GUID guid;
-  uint nameLen;
-  if (nameLen) {
-    char name[nameLen];
+  CStringFixed tname;
+  if (!isDKCTF)
+  {
+    uint unk1;
+    uint unk2;
+    GUID unk3;
+    GUID unk4;
+    uint unk5;
+    if (unk5) {
+      struct {
+        GUID guid;
+      } guids[unk5];
+    }
   }
-  uint unk1;
-  uint unk2;
-  GUID unk3;
-  GUID unk4;
-  uint unk5;
-  if (unk5) {
-    struct {
-      GUID guid;
-    } guids[unk5];
+  else
+  {
+    byte WorldNumber;
+    byte ActNumber;
+    byte LevelType; //0: Standard, 1: Boss, 2: KONG Letter Bonus
+    uint16 PuzzlePieces; //Puzzle Pieces for display
+    uint32 unkn[5];
   }
 } CAreaInfo;
 
@@ -27,7 +35,10 @@ typedef struct CUniverseInfo(uint64 size) {
   local uint64 start = FTell();
   GUID guid1;
   GUID guid2;
-  ChunkDescriptor chunk;
+  if (!isDKCTF)
+  {
+    ChunkDescriptor chunk;
+  }
   GUID guid3;
   while (FTell() < start + size) {
     CAreaInfo areaInfo;
