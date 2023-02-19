@@ -23,6 +23,7 @@ if (!exists(isDKCTF)) {
 #include "CGuiMap.bt"
 #include "CLegacyStateMachine.bt"
 #include "CLightProbeData.bt"
+#include "CMaterialInstanceResource.bt"
 #include "CPakFile.bt"
 #include "CReflectionProbeData.bt"
 #include "CUniverseInfo.bt"
@@ -48,6 +49,9 @@ typedef struct {
     } else {
       Assert(false, "Invalid version!");
     }
+    break;
+  case "MATI":
+    CMaterialInstanceResource materialInstance;
     break;
   case "CBNK":
     CAudioSampleBank audioSampleBank;

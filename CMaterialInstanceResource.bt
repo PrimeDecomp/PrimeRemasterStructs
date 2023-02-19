@@ -1,0 +1,28 @@
+#ifndef _CMATERIALINSTANCERESOURCE
+#define _CMATERIALINSTANCERESOURCE
+
+#include "CChunkDescriptor.bt"
+#include "NGraphicsMaterial.bt";
+
+typedef struct CVariableDesc {
+  FourCC type;
+  FourCC id;
+  uchar unk1;
+  uchar unk2;
+};
+
+typedef struct {
+  ChunkDescriptor chunk;
+  GUID guid1;
+  GUID guid2;
+  uint unk1;
+  uchar unk2;
+  uint unk3;
+  uint unk4;
+  uint variableDescCount;
+  CVariableDesc varibleDescs[variableDescCount];
+  uint dataCount;
+
+} CMaterialInstanceResource;
+
+#endif// _CMATERIALINSTANCERESOURCE
