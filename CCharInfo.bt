@@ -12,14 +12,14 @@ struct CAssetHeader
     ushort version;
 };
 
-struct NodeSet
+struct NameHashList
 {
     uint count;
     uint hash[count];
     uint stringIDs[count];
 };
 
-struct CNamePool
+struct StringList
 {
     uint stringTableSize;
     local uint pos <format=hex> = FTell();
@@ -31,31 +31,29 @@ struct CNamePool
 
         CString text;
     }
-
     FSeek(pos + stringTableSize);
+};
 
+struct CPooledNameData
+{
+    StringList stringList;
+    ushort unkCount1;
+    ushort hashListCount;
+    uint counters1[unkCount1];
+    uint nameHashCounts[hashListCount];
+    uint unk;
+    //List of string hashes + indices
+    NameHashList hashList[hashListCount]<optimize=false>;
 };
 
 struct CCharInfo
 {
-    CNamePool namePool;
+    CPooledNameData namePool;
     byte unk;
     byte unk; //boolean
 
     byte unk;
     byte unk;
-
-    //counts match first 3 node sets
-    uint count1;
-    uint count2;
-    uint count3;
-
-    uint count4;
-    uint count5;
-
-    NodeSet boneBind;
-    NodeSet bones;
-    NodeSet animations;
 
 };
 
