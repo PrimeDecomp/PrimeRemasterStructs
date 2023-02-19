@@ -29,7 +29,7 @@ if (!exists(isDKCTF)) {
 #include "CUniverseInfo.bt"
 #include "CVectorField.bt"
 #include "MaterialArchive.bt"
-#include "MessageStudioBinaryText.bt"
+#include "MessageTable.bt"
 // #include "CRuleSet.bt"
 #include "CGameAreaResource.bt"
 #include "CScaleformFlashLibrary.bt"
@@ -42,9 +42,9 @@ typedef struct {
   local uint64 start<format = hex, hidden = true> = FTell();
   switch (form.id) {
   case "MTRL":
-    if (form.readerVersion == 168) {
+    if (form.readerVersion == 168 || form.readerVersion == 12) {
       byte MTRLRaw[form.size]; // For now
-    } else if (form.readerVersion == 22) {
+    } else if (form.readerVersion == 22 || form.readerVersion == 10) {
       MaterialArchive materialArchive(form.size);
     } else {
       Assert(false, "Invalid version!");

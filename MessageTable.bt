@@ -1,18 +1,16 @@
 #ifndef _MESSAGESTUDIOBINARYTEXT
 #define _MESSAGESTUDIOBINARYTEXT
-struct LanguageHeader(string expectedLanguage) {
-    char magic[4];
-    Assert(magic == expectedLanguage);
-    uint fileSize;
-    uint unk[4];
-};
 
 struct MSBTHeader {
     char magic[8];
     Assert(magic == "MsgStdBn");
     ushort bom <format=hex>;
-    //Todo add a meaningful check for endian, this works for LE/DKCTF NS/MP1R for now
-    Assert(bom == 0xFEFF); // Big-Endian byte order
+    //Assert(bom == 0xFEFF); // Big-Endian byte order
+    //Let's check
+    if (bom == 0xFFFE && isDKCTF)
+    {
+        LittleEndian();
+    }
     ushort unk1;
     ubyte maybeMajorVersion;
     ubyte maybeMinorVersion;
@@ -20,6 +18,10 @@ struct MSBTHeader {
     ushort unk3;
     uint fileSize;
     byte padding[10]<hidden=true>;
+    if (isDKCTF) //Swap back
+    {
+        BigEndian();
+    }
 };
 
 struct TableHeader(string expectedMagic) {
@@ -126,7 +128,7 @@ struct TextsSection {
 };
 
 struct Language (string expectedLanguage) {
-    LanguageHeader languageHeader(expectedLanguage);
+    ChunkDescriptor languageChunkHeader;
     // Each section here is heavily referenced from https://zeldamods.org/wiki/Msbt
     struct MSBTContents {
         MSBTHeader header;
