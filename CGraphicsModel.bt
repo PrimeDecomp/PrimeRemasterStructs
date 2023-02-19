@@ -200,7 +200,7 @@ string ReadMaterialDataType(FourCC value)
 typedef struct
 {
     GUID id;
-    if (id != GUIDZero || isDKCTF) { STextureUsageInfo usage; }
+    if (id != GUIDZero) { STextureUsageInfo usage; }
 } CMaterialTextureTokenData <optimize=false>;
 
 struct CLayeredTextureBaseData
