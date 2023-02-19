@@ -29,7 +29,7 @@ if (!exists(isDKCTF)) {
 #include "CUniverseInfo.bt"
 #include "CVectorField.bt"
 #include "MaterialArchive.bt"
-#include "MessageStudioBinaryText.bt"
+#include "MessageTable.bt"
 // #include "CRuleSet.bt"
 #include "CGameAreaResource.bt"
 #include "CScaleformFlashLibrary.bt"
