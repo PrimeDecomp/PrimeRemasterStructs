@@ -220,19 +220,22 @@ struct ScriptData {
       } connections;
     }
   }
-  //uint propertiesCount;
-  //uint instanceDataCount;
-  uint dataLen;
-  char data[dataLen * 0x18];
-  struct {
-    ChunkDescriptor chunk;
-    char data[chunk.size];
-  } properties[propertiesCount] <optimize = false>;
-
-  struct {
-    ChunkDescriptor chunk;
-    char data[chunk.size];
-  } instanceData[instanceDataCount] <optimize = false>;
+  else
+  {
+      uint propertiesCount;
+      uint instanceDataCount;
+      uint dataLen;
+      char data[dataLen * 0x18];
+      struct {
+        ChunkDescriptor chunk;
+        char data[chunk.size];
+      } properties[propertiesCount] <optimize = false>;
+    
+      struct {
+        ChunkDescriptor chunk;
+        char data[chunk.size];
+      } instanceData[instanceDataCount] <optimize = false>;
+  }
 };
 
 struct LayerHeader {
@@ -242,11 +245,9 @@ struct LayerHeader {
   {
     uint16 unk;
     ushort count;
-    if (count) {
-      struct {
+    struct {
         GUID guid;
-      } guids[count+1];
-    }
+    } guids[count+1];
     bool unk2;
   }
   else
@@ -283,11 +284,10 @@ struct CGameAreaResource {
   else
   {
     //while (FTell() != start + form.size) {
-      LoadUnit load_unit[6]<optimize=false>;
+      LoadUnit load_unit[7]<optimize=false>;
     //}
   }
   Layer layer;
-  ScriptData script_data;
 };
 
 #endif // _CGAMEAREARESOURCE
