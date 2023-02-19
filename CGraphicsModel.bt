@@ -289,7 +289,14 @@ string CMaterialDataRead(CMaterialData &mat) {
 }
 
 typedef struct {
-  CStringFixed name;
+  if (ReadByte() == 0)
+  {
+    CStringFixed name;
+  }
+  else
+  {
+    CString name;
+  }
   GUID shaderID;
   if (isDKCTF == 1)
   {
