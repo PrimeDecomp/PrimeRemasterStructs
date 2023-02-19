@@ -200,7 +200,7 @@ string ReadMaterialDataType(FourCC value)
 typedef struct
 {
     GUID id;
-    if (id != GUIDZero) { STextureUsageInfo usage; }
+    if (id != GUIDZero || isDKCTF) { STextureUsageInfo usage; }
 } CMaterialTextureTokenData <optimize=false>;
 
 struct CLayeredTextureBaseData
@@ -414,10 +414,13 @@ typedef struct {
     uint aaboxCount;
     CAABox aaboxes[aaboxCount];
     uint floatCount;
-    float floats[floatCount];
-    ushort unk;
-    uint shortCount;
-    ushort shorts[shortCount];
+    if (!isDKCTF)
+    {
+        float floats[floatCount];
+        ushort unk;
+        uint shortCount;
+        ushort shorts[shortCount];
+    }
     break;
   case "HEAD":
     ModelHeader header;
