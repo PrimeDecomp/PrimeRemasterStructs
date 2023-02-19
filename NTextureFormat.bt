@@ -2,7 +2,10 @@
 #define _NTEXTUREFORMAT
 struct STextureReadInfo
 {
-    byte index;
+    if (!isDKCTF)
+    {
+        byte index; //MP1R has this byte
+    }
     uint32 offset <format=hex>;
     uint32 size <format=hex>;
 };
@@ -34,7 +37,7 @@ struct STextureMetaData(uint64 fileStart)
     uint32 decompressedSize <format=hex>; // Total size decompressed
     uint32 infoCount;
     if (infoCount != 0) {
-        STextureReadInfo info[infoCount];
+        STextureReadInfo info[infoCount]<optimize=false>; //Do this so isDKCTF doesn't kill 010
     }
     uint32 bufferCount;
     if (bufferCount != 0) {
