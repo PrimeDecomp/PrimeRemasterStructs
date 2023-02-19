@@ -239,6 +239,10 @@ struct CLayeredTextureData
 
 typedef struct {
     FourCC id <read=ReadMaterialDataId>;
+    if (ReadByte() == 0) //Fix DKCTF WiiU models
+    {
+        
+    }
     FourCC type <read=ReadMaterialDataType>;
 
     switch (MapMaterialDataType(type)) {
@@ -291,14 +295,16 @@ string CMaterialDataRead(CMaterialData &mat) {
 typedef struct {
   if (ReadByte() == 0)
   {
+    local uint useMaterialTypeChunk <hidden=true> = 1;
     CStringFixed name;
   }
   else
   {
+    local uint useMaterialTypeChunk <hidden=true> = 0;
     CString name;
   }
   GUID shaderID;
-  if (isDKCTF == 1)
+  if (isDKCTF)
   {
     local uint typeCount <hidden=true> = 1; //Hack it to 1
   }
@@ -323,7 +329,10 @@ typedef struct {
   }
   //material data types
   uint dataCount;
-  MaterialType dataTypes2[dataCount];
+  if (useMaterialTypeChunk || !isDKCTF)
+  {
+    MaterialType dataTypes2[dataCount];
+  }
   //data parse
   CMaterialData data[dataCount] <optimize=false>;
 } CMaterialCache <name=(Str("%s %s", this.name.text, GUIDToString(this.shaderID)))>;
