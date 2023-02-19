@@ -15,7 +15,8 @@
 #define _CSCALEFORMFLASHLIBRARY
 
 typedef struct
-{   ChunkDescriptor chunk;
+{   
+    ChunkDescriptor chunk;
     struct CScaleformFlashLibraryChunk
     {
         uint32 referencedTextures;
@@ -24,10 +25,24 @@ typedef struct
             struct ReferencedTxtr
 		    {
 		        GUID texRef;
-                CStringFixed texName;
+                if (ReadByte() == 0)
+                {
+                    CStringFixed texName;
+                }
+                else
+                {
+                    CString texName;
+                }
 		    } rtxtr[referencedTextures] <optimize = false>;
 	    } rtxrs;
-	    CStringFixed theSWFName;
+	    if (ReadByte() == 0)
+        {
+            CStringFixed theSWFName;
+        }
+        else
+        {
+            CString theSWFName;
+        }
 	    FSkip(4); //Skip ahead to see the SWF size
 	    LittleEndian(); //temp swap endian
 	    uint32 swfSize<hidden=true>; //Pull SWF size

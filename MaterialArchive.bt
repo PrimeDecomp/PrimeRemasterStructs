@@ -1,8 +1,8 @@
 #ifndef _MATERIALARCHIVE
 #define _MATERIALARCHIVE
 struct SBufferTOCEntry {
-    uint unk1;
-    uint unk2;
+    uint align;
+    uint size;
 };
 
 struct CPermutation {
@@ -54,8 +54,15 @@ struct SShaderSource {
 
 struct CShaderDefines {
     struct Name {
-        uint str1Len;
-        char str1[str1Len];
+        if (isDKCTF)
+        {
+            CString str1;
+        }
+        else
+        {
+            uint str1Len;
+            char str1[str1Len];
+        }
     };
 
     uint namesCount;
@@ -68,12 +75,25 @@ struct CShaderVariable {
 
 };
 struct SShaderImportDesc {
-    CShaderIdentifier ident;
+    if (!isDKCTF)
+    {
+        CShaderIdentifier ident;
+    }
     uint64 shaderID;
     int vertexProgramIndex;
-    int pixelProgramIndex;
+    if (!isDKCTF)
+    {
+        int pixelProgramIndex;
+    }
+    else
+    {
+        int fragProgramIndex;
+    }
     int geomProgramIndex;
-    int computeProgramIndex;
+    if (!isDKCTF)
+    {
+        int computeProgramIndex;
+    }
     uint unk;
     CShaderDefines defines;
     uint dataSize;
@@ -216,10 +236,17 @@ struct SOverrideState {
     CGraphicsState state;  
 };
 struct SMaterialImportDesc {
-    GUID guid;
-    uint shaderHash;
-    uint nameLen;
-    char name[nameLen];
+    if (!isDKCTF)
+    {
+        GUID guid;
+        uint shaderHash;
+        uint nameLen;
+        char name[nameLen];
+    }
+    else
+    {
+        FourCC name;
+    }
     ushort unk2;
     uint shaderImportCount;
     SShaderImportDesc shaderImportDescs[shaderImportCount] <optimize = false>;
@@ -248,13 +275,19 @@ struct MaterialBackend {
         uint tocSize;
         uint bufferEntryCount;
         SBufferTOCEntry bufferEntries[bufferEntryCount];
-        uint materialEntryCount;
-        SMaterialTOCEntry materialEntries[materialEntryCount] <optimize = false>;
+        if (!isDKCTF)
+        {
+            uint materialEntryCount;
+            SMaterialTOCEntry materialEntries[materialEntryCount] <optimize = false>;
+        }
     }
     
-	uint shaderSourceCount;
-	SShaderSource shaderSources[shaderSourceCount]  <optimize = false>;
-	
+    if (!isDKCTF)
+    {
+	    uint shaderSourceCount;
+	    SShaderSource shaderSources[shaderSourceCount]  <optimize = false>;
+	}
+
 	uint materialImportDescCount;
 	SMaterialImportDesc materialImportDescs[materialImportDescCount] <optimize = false>;
 
