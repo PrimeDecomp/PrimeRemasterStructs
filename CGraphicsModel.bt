@@ -20,6 +20,18 @@ struct SModelAnimatedUVData {
   }
 };
 
+struct SModelWindData {
+  uint32 windSets;
+  struct WindSet
+  {
+    CVector3f WindMin;
+    CVector3f WindMax;
+    float unk;
+  } windset[windSets];
+  uint32 unkD;
+  byte unkData[unkD];
+};
+
 struct DataSourceLoader {
   if (ReadByte() == 0)
   {
@@ -28,6 +40,10 @@ struct DataSourceLoader {
     {
       case 0:
         local FourCC type = "ANUV";
+        break;
+      case 1:
+        local FourCC type = "WIND";
+        break;
     }
   }
   else
@@ -37,6 +53,9 @@ struct DataSourceLoader {
   switch (type) {
   case "ANUV":
     SModelAnimatedUVData animatedUvs;
+    break;
+  case "WIND":
+    SModelWindData wind;
     break;
   }
 };
