@@ -19,6 +19,7 @@ if (!exists(isDKCTF)) {
 #include "CCharInfo.bt"
 #include "CCollisionTree.bt"
 #include "CDataEnumObject.bt"
+#include "CGuiFrame.bt"
 #include "CGuiMap.bt"
 #include "CLegacyStateMachine.bt"
 #include "CLightProbeData.bt"
@@ -113,6 +114,9 @@ typedef struct {
     break;
   case "ROOM":
     CGameAreaResource room;
+    break;
+  case "GUIF":
+    CGuiFrame frame;
     break;
   }
   FSeek(start + form.size);

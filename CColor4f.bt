@@ -1,0 +1,9 @@
+#ifndef _CCOLOR4F
+#define _CCOLOR4F
+
+
+typedef struct  {
+  float r, g, b, a;
+} CColor4f;
+
+#endif// _CCOLOR4F

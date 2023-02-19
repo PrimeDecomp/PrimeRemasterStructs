@@ -1,0 +1,182 @@
+#ifndef _CGUIFRAME
+#define _CGUIFRAME
+
+#include "CVector2i.bt"
+#include "CColor4f.bt"
+#include "CTransform4f.bt"
+
+typedef enum {
+  kGWT_BaseWidget,
+  kGWT_Camera,
+  kGWT_AuiEnergyBar,
+  kGWT_Group,
+  kGWT_HeadWidget,
+  kGWT_AuiImagePane,
+  kGWT_Light,
+  kGWT_MapWindow,
+  kGWT_AuiMeter,
+  kGWT_Model,
+  kGWT_SliderGroup,
+  kGWT_TableGroup,
+  kGWT_TextPane,
+} EGuiWidgetType;
+
+typedef struct {
+  uint projectionType;
+  if (projectionType) {
+    float unk1;
+    float unk2;
+    float unk3;
+    float unk3;
+  } else {
+    float unk1;
+    float unk2;
+  }
+} CGuiCamera;
+
+typedef struct {
+  uint unk;
+} CAuiEnergyBarT01;
+
+typedef struct {
+  uint unk;
+} CGuiGroup;
+
+typedef struct {
+} CGuiHeadWidget;
+
+typedef struct {
+  uint unkIntCount;
+  uint unkInts[unkIntCount];
+  uint vecCount;
+  CVector3f vecs[vecCount];
+} CAuiImagePane;
+
+typedef struct {
+} CGuiLight;
+
+typedef struct {
+  uint vecCount;
+  CVector3f vecs[vecCount];
+} CGuiMapWindow;
+
+typedef struct {
+  CGuiGroup group;
+  uint unk;
+} CAuiMeter;
+
+typedef struct {
+  uint intCount;
+  if (intCount) {
+    uint ints[intCount];
+  }
+  uint unk;
+} CGuiModel;
+
+typedef struct {
+  uint unk1;
+  float unk2;
+  uint unk3;
+  float unk4;
+} CGuiSliderGroup;
+
+typedef struct {
+  uint unk1;
+  uint unk2;
+  uchar unk3;
+} CGuiTableGroup;
+
+typedef struct {
+  uint fontLen;
+  char font[fontLen];
+  uchar unk1;
+  uchar unk2;
+  uint unk3;
+  uint unk4;
+  float unk5;
+  CColor4f col1;
+  CColor4f col2;
+  CColor4f col3;
+  uint unk6;
+  CVector2i unk7;
+  CVector2i unk8;
+  CVector2i unk9;
+  uchar unk10;
+} CGuiTextProperties;
+
+typedef struct {
+    CGuiTextProperties properties;
+} CGuiTextSupport;
+
+typedef struct {
+  uint unkIntCount;
+  uint unkInts[unkIntCount];
+  float unk2;
+  float unk3;
+  CVector3f unk4;
+  CGuiTextSupport textSupport;
+} CGuiTextPane;
+
+typedef struct {
+  EGuiWidgetType type;
+  uint unk1;
+  uint unk2;
+  uint unk3;
+  uint nameLen;
+  char name[nameLen];
+  uchar unk4;
+  uchar unk5;
+  uchar unk6;
+  CColor4f color;
+  uint unk7;
+  uint unk8;
+  CTransform4f xf;
+
+  switch (type) {
+  case 0:
+    break;
+  case 1:
+    CGuiCamera camera;
+    break;
+  case 2:
+    CAuiEnergyBarT01 energyBar01;
+    break;
+  case 3:
+    CGuiGroup group;
+    break;
+  case 4:
+    //CGuiHeadWidget headWidget;
+    break;
+  case 5:
+    CAuiImagePane imagePane;
+    break;
+  case 6:
+    //CGuiLight light;
+    break;
+  case 7:
+    CGuiMapWindow mapWindow;
+    break;
+  case 8:
+    CAuiMeter meter;
+    break;
+  case 9:
+    CGuiModel model;
+    break;
+  case 10:
+    CGuiSliderGroup sliderGroup;
+    break;
+  case 11:
+    CGuiTableGroup tableGroup;
+    break;
+  case 12:
+    CGuiTextPane textPane;
+  }
+
+} CGuiWidget;
+typedef struct {
+  GUID guid;
+  uint widgetCount;
+  CGuiWidget widgets[widgetCount] <optimize = false>;
+} CGuiFrame;
+
+#endif // _CGUIFRAME

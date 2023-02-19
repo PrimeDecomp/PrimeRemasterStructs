@@ -1,0 +1,8 @@
+#ifndef _CVECTOR2I
+#define _CVECTOR2I
+
+typedef struct {
+  int x, y;
+} CVector2i;
+
+#endif// _CVECTOR2I
