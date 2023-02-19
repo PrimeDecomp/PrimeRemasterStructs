@@ -18,10 +18,6 @@ struct MSBTHeader {
     ushort unk3;
     uint fileSize;
     byte padding[10]<hidden=true>;
-    if (isDKCTF) //Swap back
-    {
-        BigEndian();
-    }
 };
 
 struct TableHeader(string expectedMagic) {
@@ -135,6 +131,10 @@ struct Language (string expectedLanguage) {
         LabelsSection labels;
         AttributesSection attributes;
         TextsSection texts;
+        if (isDKCTF) //Swap back
+        {
+            BigEndian();
+        }
     } contents;
 };
 
