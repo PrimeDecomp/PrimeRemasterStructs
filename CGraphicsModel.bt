@@ -239,35 +239,79 @@ struct CLayeredTextureData
 
 typedef struct {
     FourCC id <read=ReadMaterialDataId>;
-    FourCC type <read=ReadMaterialDataType>;
-
-    switch (MapMaterialDataType(type)) {
-    case DATA_TYPE_TEXTURE:
-        CMaterialTextureTokenData texture;
+    if (ReadByte() == 0) //Fix DKCTF WiiU models
+    {
+      uint32 tmpFormatI32; //Do this so we can get the fancy struct names
+      switch (tmpFormatI32)
+      {
+        case 0:
+            local FourCC type = "TXTR";
+            CMaterialTextureTokenData texture;
         break;
-    case DATA_TYPE_COLOR:
-        float color[4]; // CColor4f
+        case 1:
+            local FourCC type = "COLR";
+            float color[4];
         break;
-    case DATA_TYPE_SCALAR:
-        float scalar;
+        case 2:
+            local FourCC type = "SCLR";
+            float scalar;
         break;
-    case DATA_TYPE_INT1:
-        int int1;
+        case 3:
+            local FourCC type = "INT1"; //Not sure if in DKCTF but need to dcheck
+            int int1;
         break;
-    case DATA_TYPE_INT4:
-        int int4[4]; // CVector4i
+        case 4:
+            local FourCC type = "CPLX";
+            byte unk[141];
         break;
-    case DATA_TYPE_MAT4:
-        float mtx[16]; // CMatrix4f
+        case 5:
+            local FourCC type = "INT4";
+            int int4[4];
         break;
-    case DATA_TYPE_COMPLEX:
-        local EMaterialDataId dataId <hidden=true> = MapMaterialDataId(id);
-        if (IsTextureLayeredMaterialDataId(dataId)) {
-            CLayeredTextureData data;
-        } else if (IsTextureMaterialDataId(dataId)) {
-            // TODO
+        case 6:
+            local FourCC type = "MAT4"; //Not sure if in DKCTF but need to dcheck
+            float mtx[16];
+        break;
         }
-        break;
+    }
+    else
+    {
+        FourCC type <read=ReadMaterialDataType>;
+        switch (MapMaterialDataType(type)) {
+        case DATA_TYPE_TEXTURE:
+            CMaterialTextureTokenData texture;
+            break;
+        case DATA_TYPE_COLOR:
+            float color[4]; // CColor4f
+            break;
+        case DATA_TYPE_SCALAR:
+            float scalar;
+            break;
+        case DATA_TYPE_INT1:
+            int int1;
+            break;
+        case DATA_TYPE_INT4:
+            int int4[4]; // CVector4i
+            break;
+        case DATA_TYPE_MAT4:
+            float mtx[16]; // CMatrix4f
+            break;
+        case DATA_TYPE_COMPLEX:
+            if (isDKCTF)
+            {
+                byte unk[141];
+            }
+            else
+            {
+                local EMaterialDataId dataId <hidden=true> = MapMaterialDataId(id);
+                if (IsTextureLayeredMaterialDataId(dataId)) {
+                    CLayeredTextureData data;
+                } else if (IsTextureMaterialDataId(dataId)) {
+                        // TODO
+                }
+            }
+            break;
+        }
     }
 } CMaterialData <read=CMaterialDataRead>;
 
