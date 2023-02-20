@@ -5,9 +5,9 @@
 
 typedef struct CReflectionProbeData {
     ChunkDescriptor chunkHeader;
-    uint unk1;
+    uint unused;
     GUID textureId;
-    float unk2;
+    float intensity;
 } CReflectionProbeData;
 
 #endif// _CREFLECTIONPROBE

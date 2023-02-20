@@ -290,8 +290,7 @@ typedef struct {
   byte IndexBufferIndex;
   uint IndexStart;
   uint IndexCount;
-  ushort field_C;
-  ushort field_E; //0x4000
+  uint Flags;
 } CRenderMesh;
 
 struct SMeshLoadInformation {
