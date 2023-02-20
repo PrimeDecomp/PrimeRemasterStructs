@@ -387,12 +387,11 @@ typedef struct {
   byte IndexBufferIndex;
   uint IndexStart;
   uint IndexCount;
-  ushort field_C;
+  uint Flags;
   if (isDKCTF)
   {
      byte unk;
   }
-  ushort field_E; //0x4000
 } CRenderMesh;
 
 struct SMeshLoadInformation {
