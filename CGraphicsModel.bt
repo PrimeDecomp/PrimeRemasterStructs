@@ -32,6 +32,11 @@ struct SModelWindData {
   byte unkData[unkD];
 };
 
+struct SCausticData {
+  uint32 unkD;
+  uint32 unkData[unkD];
+};
+
 struct DataSourceLoader {
   if (ReadByte() == 0) //Type for WiiU is an I32
   {
@@ -43,6 +48,9 @@ struct DataSourceLoader {
         break;
       case 1:
         local FourCC type = "WIND";
+        break;
+      case 2:
+        local FourCC type = "CAUS";
         break;
     }
   }
@@ -56,6 +64,9 @@ struct DataSourceLoader {
     break;
   case "WIND":
     SModelWindData wind;
+    break;
+  case "CAUS":
+    SCausticData caustic;
     break;
   }
 };
@@ -219,7 +230,7 @@ string ReadMaterialDataType(FourCC value)
 typedef struct
 {
     GUID id;
-    if (id != GUIDZero) { STextureUsageInfo usage; }
+    if (id != GUIDZero || isDKCTF) { STextureUsageInfo usage; } //Detect isDKCTF to force it on NS models
 } CMaterialTextureTokenData <optimize=false>;
 
 struct CLayeredTextureBaseData
@@ -333,7 +344,7 @@ string CMaterialDataRead(CMaterialData &mat) {
 }
 
 typedef struct {
-  if (ReadByte() == 0) //NS
+  if (ReadByte() == 0 || !isDKCTF) //NS, use anti isDKCTF so MP1R models don't break
   {
     local uint useMaterialTypeChunk <hidden=true> = 1;
     CStringFixed name;
@@ -387,12 +398,11 @@ typedef struct {
   byte IndexBufferIndex;
   uint IndexStart;
   uint IndexCount;
-  ushort field_C;
+  uint Flags;
   if (isDKCTF)
   {
      byte unk;
   }
-  ushort field_E; //0x4000
 } CRenderMesh;
 
 struct SMeshLoadInformation {
@@ -488,10 +498,13 @@ typedef struct {
     CRenderOctree renderOctree;
     uint aaboxCount;
     CAABox aaboxes[aaboxCount];
-    uint floatCount;
+    if (form.readerVersion > 52 && form.writerVersion > 52)
+    {
+        uint floatCount;
+        float floats[floatCount];
+    }
     if (!isDKCTF)
     {
-        float floats[floatCount];
         ushort unk;
         uint shortCount;
         ushort shorts[shortCount];
