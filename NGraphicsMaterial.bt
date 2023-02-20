@@ -127,6 +127,7 @@ enum<uint32> EMaterialDataId {
   DATA_ID_RAIN = 113,
   DATA_ID_XCH0 = 114,
   DATA_ID_XCH1 = 115,
+  DATA_ID_BLND = 116, //Maybe move this idk
 };
 
 // NMaterialFeatures::is_debug_material_data_id

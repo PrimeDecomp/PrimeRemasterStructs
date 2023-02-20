@@ -43,7 +43,7 @@ string AssetDirectoryEntryName(AssetDirectoryEntry& entry)
 {
     if (isDKCTF) {
         // Read the chunk ver and subver from form descriptor
-        return Str("%s v%d.%d %s", entry.type, entry.data.form.readerVersion, entry.data.form.writerVersion, GUIDToString(entry.id));
+        return Str("%s v%d.%d %s", entry.type, entry.data.form.readerVersion, entry.data.form.writerVersion, GUIDToString(entry.id)); //Fix broken DKCTF version display
     } else {
         return Str("%s v%d.%d %s", entry.type, entry.versionA, entry.versionB, GUIDToString(entry.id));
     }
