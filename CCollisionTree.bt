@@ -110,10 +110,11 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
   }
   if (idx == 0) {
     local int i = 0;
+    //Hack, do this so DCLN doesn't break the printouts
     local int vertChunk = 0;
     local int triangleChunk = 2;
     local int materialChunk = 1;
-    if (form.id == "DCLN")
+    if (form.id == "DCLN") 
     {
         vertChunk = 1;
         materialChunk = 2;
