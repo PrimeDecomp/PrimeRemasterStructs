@@ -112,22 +112,17 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
     local int i = 0;
     local int vertChunk = 0;
     local int triangleChunk = 2;
+    local int materialChunk = 1;
     if (form.id == "DCLN")
     {
         vertChunk = 1;
+        materialChunk = 2;
+        triangleChunk = 3;
     }
     for (i = 0; i < chunks[vertChunk].data.vertices.count; ++i) {
       Printf("v %f  %f %f\n", chunks[vertChunk].data.vertices.vertices[i].x,
              chunks[vertChunk].data.vertices.vertices[i].y,
              chunks[vertChunk].data.vertices.vertices[i].z);
-    }
-    if (form.id == "DCLN")
-    {
-        triangleChunk = 3;
-    }
-    else
-    {
-        triangleChunk = 2;
     }
     local int t;
     local int y;
@@ -136,13 +131,13 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
 
       if (chunks[triangleChunk].data.triangles.tris[i].material != prevMat) {
         Printf("o mat_%i_%08X\n", chunks[triangleChunk].data.triangles.tris[i].material,
-               chunks[1]
+               chunks[materialChunk]
                    .data.materials
                    .collisionMaterials[chunks[triangleChunk].data.triangles.tris[i].material]
                    .filterList);
         prevMat = chunks[triangleChunk].data.triangles.tris[i].material;
       }
-      Printf("f %i %i %i\n", chunks[targetChunk].data.triangles.tris[i].idx1 + 1,
+      Printf("f %i %i %i\n", chunks[triangleChunk].data.triangles.tris[i].idx1 + 1,
              chunks[triangleChunk].data.triangles.tris[i].idx2 + 1,
              chunks[triangleChunk].data.triangles.tris[i].idx3 + 1);
     }
