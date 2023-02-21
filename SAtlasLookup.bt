@@ -1,0 +1,11 @@
+#ifndef _SATLASLOOKUP
+#define _SATLASLOOKUP
+
+struct SAtlasLookup {
+  float unkA;
+  float unkB;
+  float unkC;
+  float unkD;
+};
+
+#endif// _SATLASLOOKUP

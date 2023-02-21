@@ -1,0 +1,45 @@
+#ifndef _CAUDIOSAMPLE
+#define _CAUDIOSAMPLE
+
+#include "CChunkDescriptor.bt"
+
+typedef struct SPCMFormatInfo {
+  ushort unk1;
+  uchar unk2;
+} SPCMFormatInfo;
+
+typedef struct CSampleEnvelopeData {
+  uint unk1;
+  uchar unk2;
+  uint unk3;
+  if (unk3) {
+    char unkData[unk3];
+  }
+} CSampleEnvelopeData;
+
+typedef struct CAudioSample(uint64 size) {
+  local uint64 start<hidden = true> = FTell();
+
+  while (FTell() < start + size) {
+    ChunkDescriptor chunk;
+    switch (chunk.id) {
+    case "FMT\x20":
+      uchar unk1;
+      SPCMFormatInfo pcmFormatInfo;
+      break;
+    case "FMTA":
+      uchar unk1;
+      uint unk2;
+      break;
+    case "CRMS":
+      CSampleEnvelopeData envelopeData;
+      break;
+    case "DATA":
+      char pcmData[chunk.size];
+      break;
+    }
+  }
+}
+CAudioSample;
+
+#endif // _CAUDIOSAMPLE

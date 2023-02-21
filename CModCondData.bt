@@ -1,0 +1,128 @@
+#ifndef _CMODCONDDATA
+#define _CMODCONDDATA
+
+#include "CCollisionTree.bt"
+#include "CColor4f.bt"
+#include "CRenderOctree.bt"
+#include "SAtlasLookup.bt"
+
+typedef struct {
+  typedef struct {
+    ChunkDescriptor mchd;
+    uint unk;
+  } SModCondHeader;
+
+  SModCondHeader header;
+  ChunkDescriptor mcvd;
+  uint modelGuidCount;
+  if (modelGuidCount) {
+    struct {
+      GUID guid;
+    } modelGuids[modelGuidCount];
+  }
+  uint unkGuidCount;
+  if (unkGuidCount) {
+    struct {
+      GUID guid;
+    } unkGuids[unkGuidCount];
+  }
+  uint colorCount;
+  if (colorCount) {
+    CColor4f colors[colorCount];
+  }
+
+  uint transformCount;
+  if (transformCount) {
+    CTransform4f transforms[transformCount];
+  }
+
+  uint guidXfCount;
+  if (guidXfCount) {
+    struct {
+      GUID guid;
+      CTransform4f xf;
+    } guidXf[guidXfCount];
+  }
+
+  uint dataCount1;
+  if (dataCount1) {
+    char data1[dataCount1];
+  }
+  uint shortCount1;
+  if (shortCount1) {
+    ushort shorts1[shortCount1];
+  }
+  uint shortCount2;
+  if (shortCount2) {
+    ushort shorts2[shortCount2];
+  }
+
+  uint dataCount2;
+  if (dataCount2) {
+    char data2[dataCount2];
+  }
+
+  uint dataCount3;
+  if (dataCount3) {
+    char data3[dataCount3];
+  }
+
+  uint atlasLookupCount1;
+  if (atlasLookupCount1) {
+    SAtlasLookup atlasLookups1[atlasLookupCount1];
+  }
+
+  uint atlasLookupCount2;
+  if (atlasLookupCount2) {
+    SAtlasLookup atlasLookups2[atlasLookupCount2];
+  }
+
+  uint hasRenderOctree;
+  if (hasRenderOctree) {
+    CRenderOctree renderOctree;
+  }
+
+  typedef struct SModelVertexBlendData {
+    uint unk1;
+    uint intCount;
+    if (intCount) {
+      uint ints[intCount];
+    }
+
+    uint shortCount;
+    if (shortCount) {
+      ushort shorts[shortCount];
+    }
+  } SModelVertexBlendData;
+  if (ReadInt(FTell()) == 0x4D435642) {
+    typedef struct SNodeVertexBlendData {
+      uint unkDataCount;
+      if (unkDataCount) {
+        char unkData[unkDataCount];
+      }
+      uint unkIntCount;
+      if (unkIntCount) {
+        uint unkInts[unkIntCount];
+      }
+
+      uint modelVertexBlendDataCount;
+      if (modelVertexBlendDataCount) {
+        SModelVertexBlendData
+            modelVertexBlendData[modelVertexBlendDataCount]<optimize = false>;
+      }
+    } SNodeVertexBlendData;
+    
+    uint vertexBlendDataCount;
+    if (vertexBlendDataCount) {
+      SNodeVertexBlendData vertexBlendData[vertexBlendData]<optimize = false>;
+    }
+  }
+
+  if (ReadInt(FTell()) == 0x4443434D) {
+    ChunkDescriptor mccd;
+    CCollisionTree aaboxCollision(mccd.size, kCOL_AABox);
+  }
+  FourCC PEEK;
+} CModCondData;
+
+#endif // _CMODCONDDATA
