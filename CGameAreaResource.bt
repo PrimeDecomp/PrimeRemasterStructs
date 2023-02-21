@@ -36,23 +36,27 @@ struct ProductionWorkStages {
 
 struct GameAreaHeader {
   ChunkDescriptor chunk;
-  GUID id_a;
-  ushort unk1;
-  ushort unk2;
-  bool unk3;
-  GUID id_b;
-  GUID id_c;
-  GUID id_d;
-  GUID id_e;
-  GUID id_f;
-  ProductionWorkStages workStages;
+  if (isDKCTF)
+  {
+    uint16 unk;
+  }
+  else
+  {
+    GUID id_a;
+    ushort unk1;
+    ushort unk2;
+    bool unk3;
+    GUID id_b;
+    GUID id_c;
+    GUID id_d;
+    GUID id_e;
+    GUID id_f;
+    ProductionWorkStages workStages;
+  }
 };
 
 struct ScriptPerformanceGroupResourceData {
-  uint unk1;
-  if (unk1) {
-    char unkData[unk1];
-  }
+  CStringFixed name;
   GUID unk2;
   uchar unk3;
   ushort count;
@@ -130,18 +134,23 @@ struct LoadUnit {
   FormDescriptor form;
   local int start<hidden = true> = FTell();
   ChunkDescriptor chunk;
-  uint unk1;
-  if (unk1)
-    char unkData[unk1];
-  GUID id1;
-  GUID id2;
-  ushort unk2;
-  uint unk3;
-  if (unk3)
-    char unkData2[unk3];
-  uint unk4;
-  if (unk4)
-    char unkData3[unk4];
+  CStringFixed name;
+  GUID id;
+  if (isDKCTF)
+  {
+    uint16 unk;
+  }
+  else
+  {
+    GUID id2;
+    ushort unk2;
+    uint unk3;
+    if (unk3)
+      char unkData2[unk3];
+      uint unk4;
+    if (unk4)
+      char unkData3[unk4];
+  }
   ChunkDescriptor lresChunk;
   uint guidCount;
   if (guidCount) {
@@ -181,32 +190,78 @@ struct STRP {
 
 struct ScriptData {
   FormDescriptor form;
+  if (isDKCTF)
+  {
+    FormDescriptor form2;
+  }
   ChunkDescriptor chunk;
-  uint propertiesCount;
-  uint instanceDataCount;
-  uint dataLen;
-  char data[dataLen * 0x18];
-  struct {
-    ChunkDescriptor chunk;
-    char data[chunk.size];
-  } properties[propertiesCount] <optimize = false>;
-
-  struct {
-    ChunkDescriptor chunk;
-    char data[chunk.size];
-  } instanceData[instanceDataCount] <optimize = false>;
+  if (isDKCTF)
+  {
+    uint32 componentTypeHash;
+    GUID componentGUID;
+    CStringFixed componentNmae;
+    uint16 connectionCount;
+    if (connectionCount) {
+      struct {
+          GUID connection1;
+          GUID connection2;
+          GUID componentID;
+          uint16 unk;
+          bool unk2;
+          bool unk3;
+      } connections;
+    }
+    uint16 scriptLinkCount;
+    if (scriptLinkCount) {
+      struct {
+          GUID linkID;
+          GUID componentID;
+          bool unk;
+      } connections;
+    }
+  }
+  else
+  {
+      uint propertiesCount;
+      uint instanceDataCount;
+      uint dataLen;
+      char data[dataLen * 0x18];
+      struct {
+        ChunkDescriptor chunk;
+        char data[chunk.size];
+      } properties[propertiesCount] <optimize = false>;
+    
+      struct {
+        ChunkDescriptor chunk;
+        char data[chunk.size];
+      } instanceData[instanceDataCount] <optimize = false>;
+  }
 };
 
 struct LayerHeader {
-  int name_length;
-  char name[name_length];
+  CStringFixed name;
   GUID id;
-  int unk;
+  if (isDKCTF)
+  {
+    uint16 unk;
+    ushort count;
+    struct {
+        GUID guid;
+    } guids[count+1];
+    bool unk2;
+  }
+  else
+  {
+    int unk;
+  }
 };
 
 struct Layer {
   FormDescriptor layers_form;
-  FormDescriptor form;
+  if (!isDKCTF)
+  {
+    FormDescriptor form;
+  }
   ChunkDescriptor header_chunk;
   LayerHeader header;
 };
@@ -216,13 +271,22 @@ struct CGameAreaResource {
   GameAreaHeader game_area_header;
   PerformanceGroups performance_groups;
   GeneratedObjectMap generated_object_map;
-  Docks docks;
-  BakedLightning baked_lighting;
-  ChunkDescriptor load_unit_chunk;
-  short num_load_units;
-  LoadUnit load_units[num_load_units]<optimize = false>;
-  STRP strp;
-  ScriptData script_data;
+  if (!isDKCTF)
+  {
+    Docks docks;
+    BakedLightning baked_lighting;
+    ChunkDescriptor load_unit_chunk;
+    short num_load_units;
+    LoadUnit load_units[num_load_units]<optimize = false>;
+    STRP strp;
+    ScriptData script_data;
+  }
+  else
+  {
+    //while (FTell() != start + form.size) {
+      LoadUnit load_unit[7]<optimize=false>;
+    //}
+  }
   Layer layer;
 };
 

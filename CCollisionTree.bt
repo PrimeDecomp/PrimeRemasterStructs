@@ -42,8 +42,11 @@ struct CIndexedTriangle {
   uint idx1;
   uint idx2;
   uint idx3;
-  ushort material;
-  ushort unk2;
+  if (form.readerVersion > 2 && form.writerVersion > 2) //Fix reading test collisions from DKCTF
+  {
+    ushort material;
+    ushort unk2;
+  }
 };
 
 struct CollisionMaterialVector {
@@ -58,7 +61,7 @@ struct VertexVector {
 
 struct IndexedTriangleVector {
   uint count;
-  CIndexedTriangle tris[count];
+  CIndexedTriangle tris[count]<optimize=false>;
 };
 
 struct TreeNodeVector(CollisionPrimitiveType type) {
@@ -110,28 +113,52 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
   }
   if (idx == 0) {
     local int i = 0;
-    for (i = 0; i < chunks[0].data.vertices.count; ++i) {
-      Printf("v %f  %f %f\n", chunks[0].data.vertices.vertices[i].x,
-             chunks[0].data.vertices.vertices[i].y,
-             chunks[0].data.vertices.vertices[i].z);
+    //Hack, do this so DCLN doesn't break the printouts, seems to work on MP1R DCLN but haven't tested CLSN
+    local int vertChunk = 0;
+    local int triangleChunk = 2;
+    local int materialChunk = 1;
+    if (form.id == "DCLN") 
+    {
+        vertChunk = 1;
+        if (form.readerVersion > 2 && form.writerVersion > 2) //Read legacy CLSNs
+        {
+            materialChunk = 2;
+            triangleChunk = 3;
+        }
+        else
+        {
+            triangleChunk = 2;
+            materialChunk = 0;
+        }
     }
-
+    else if (form.id == "CLSN" && (form.readerVersion == 2 && form.writerVersion == 2))
+    {
+        materialChunk = 0;
+        triangleChunk = 1;
+    }   
+    for (i = 0; i < chunks[vertChunk].data.vertices.count; ++i) {
+      Printf("v %f  %f %f\n", chunks[vertChunk].data.vertices.vertices[i].x,
+             chunks[vertChunk].data.vertices.vertices[i].y,
+             chunks[vertChunk].data.vertices.vertices[i].z);
+    }
     local int t;
     local int y;
     local int prevMat = -1;
-    for (i = 0; i < chunks[2].data.triangles.count; ++i) {
-
-      if (chunks[2].data.triangles.tris[i].material != prevMat) {
-        Printf("o mat_%i_%08X\n", chunks[2].data.triangles.tris[i].material,
-               chunks[1]
-                   .data.materials
-                   .collisionMaterials[chunks[2].data.triangles.tris[i].material]
-                   .filterList);
-        prevMat = chunks[2].data.triangles.tris[i].material;
+    for (i = 0; i < chunks[triangleChunk].data.triangles.count; ++i) {
+    if (materialChunk != 0)
+    {
+        if (chunks[triangleChunk].data.triangles.tris[i].material != prevMat && (form.readerVersion > 2 && form.writerVersion > 2)) {
+            Printf("o mat_%i_%08X\n", chunks[triangleChunk].data.triangles.tris[i].material,
+                   chunks[materialChunk]
+                       .data.materials
+                       .collisionMaterials[chunks[triangleChunk].data.triangles.tris[i].material]
+                       .filterList);
+            prevMat = chunks[triangleChunk].data.triangles.tris[i].material;
+          }
       }
-      Printf("f %i %i %i\n", chunks[2].data.triangles.tris[i].idx1 + 1,
-             chunks[2].data.triangles.tris[i].idx2 + 1,
-             chunks[2].data.triangles.tris[i].idx3 + 1);
+      Printf("f %i %i %i\n", chunks[triangleChunk].data.triangles.tris[i].idx1 + 1,
+             chunks[triangleChunk].data.triangles.tris[i].idx2 + 1,
+             chunks[triangleChunk].data.triangles.tris[i].idx3 + 1);
     }
   }
   /*
