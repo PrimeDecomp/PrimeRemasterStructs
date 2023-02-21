@@ -42,8 +42,11 @@ struct CIndexedTriangle {
   uint idx1;
   uint idx2;
   uint idx3;
-  ushort material;
-  ushort unk2;
+  if (form.readerVersion > 2 && form.writerVersion > 2) //Fix reading test collisions from DKCTF
+  {
+    ushort material;
+    ushort unk2;
+  }
 };
 
 struct CollisionMaterialVector {
@@ -58,7 +61,7 @@ struct VertexVector {
 
 struct IndexedTriangleVector {
   uint count;
-  CIndexedTriangle tris[count];
+  CIndexedTriangle tris[count]<optimize=false>;
 };
 
 struct TreeNodeVector(CollisionPrimitiveType type) {
@@ -118,7 +121,14 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
     {
         vertChunk = 1;
         materialChunk = 2;
-        triangleChunk = 3;
+        if (form.readerVersion > 2 && form.writerVersion > 2)
+        {
+            triangleChunk = 3;
+        }
+    }
+    if (form.id == "CLSN" && (form.readerVersion > 2 && form.writerVersion > 2))
+    {
+        triangleChunk = 1;
     }
     for (i = 0; i < chunks[vertChunk].data.vertices.count; ++i) {
       Printf("v %f  %f %f\n", chunks[vertChunk].data.vertices.vertices[i].x,
@@ -130,7 +140,7 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
     local int prevMat = -1;
     for (i = 0; i < chunks[triangleChunk].data.triangles.count; ++i) {
 
-      if (chunks[triangleChunk].data.triangles.tris[i].material != prevMat) {
+      if (chunks[triangleChunk].data.triangles.tris[i].material != prevMat && (form.readerVersion > 2 && form.writerVersion > 2)) {
         Printf("o mat_%i_%08X\n", chunks[triangleChunk].data.triangles.tris[i].material,
                chunks[materialChunk]
                    .data.materials

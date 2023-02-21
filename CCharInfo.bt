@@ -1,6 +1,8 @@
 #ifndef _CCHARINFO
 #define _CCHARINFO
 
+local int charinfoi = 0;
+
 struct SAnimContext
 {
   
@@ -48,21 +50,107 @@ struct CPooledNameData
 
 struct CCharInfo
 {
-    CPooledNameData namePool;
+    if (!isDKCTF)
+    {
+        CPooledNameData namePool;
+    }
     byte unk;
     byte unk; //boolean
 
     byte unk;
     byte unk;
+    if (isDKCTF)
+    {
+        byte unk2[12];
+        byte flags1;
+        uint16 flags2;
+    }
 
+};
+
+struct CAnimationIdMap
+{
+    uint32 hashnodes;
+    uint32 hash[hashnodes];
+};
+
+struct CCharacterModelSet
+{
+    if (ReadByte() == 0)
+    {
+        CStringFixed name;
+    }
+    else
+    {
+        CString name;
+    }
+    GUID skeletonID;
+    CAABox aabox;
+};
+
+struct CAnimationInfo
+{
+    if (ReadByte() == 0)
+    {
+        CStringFixed name;
+    }
+    else
+    {
+        CString name;
+    }
+    GUID skeletonID;
+    FourCC chunkID;
+    uint32 unk;
+    uint16 unk2[2];
+    bool unk3;
+    CAABox aabox;
 };
 
 struct FCharInf
 {
     CAssetHeader assetHeader;
-
-    byte count;
-    CCharInfo charInfo[count] <optimize=false>;
+    if (isDKCTF)
+    {
+        CCharInfo charInfo<optimize=false>;
+        if (ReadByte() == 0)
+        {
+           CStringFixed name;
+        }
+        else
+        {
+          CString name;
+        }
+        GUID skeletonID;
+        uint32 modelSets;
+        for (charinfoi = 0; charinfoi < modelSets; charinfoi++)
+        {
+            CCharacterModelSet cms;
+        }
+        uint32 animInfos;
+        for (charinfoi = 0; charinfoi < animInfos; charinfoi++)
+        {
+            CAnimationInfo cai;
+        }
+        if (charInfo.flags1 && charInfo.flags2 && 2000)
+        {
+            CAnimationIdMap caim;
+        }
+        if (charInfo.flags1 && charInfo.flags2 && 8000)
+        {
+            //CTransitionInfo cti;
+        }
+        if (charInfo.flags1 && charInfo.flags2 && 4000)
+        {
+            //uint32 ctis;
+            //CCharacterTransformBits cti[ctis];
+        }
+        //CAABox endaabox;
+    }
+    else
+    {
+        byte count;
+        CCharInfo charInfo[count] <optimize=false>;
+    }
 };
 
 

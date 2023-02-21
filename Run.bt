@@ -87,6 +87,9 @@ typedef struct {
   case "CHPR":
     FCharInf charInfo;
     break;
+  case "CHAR":
+    FCharInf charInfo;
+    break;
   case "CMDL":
   case "SMDL":
   case "WMDL":
