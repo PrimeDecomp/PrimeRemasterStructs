@@ -120,16 +120,22 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
     if (form.id == "DCLN") 
     {
         vertChunk = 1;
-        materialChunk = 2;
-        if (form.readerVersion > 2 && form.writerVersion > 2)
+        if (form.readerVersion > 2 && form.writerVersion > 2) //Read legacy CLSNs
         {
+            materialChunk = 2;
             triangleChunk = 3;
         }
+        else
+        {
+            triangleChunk = 2;
+            materialChunk = 0;
+        }
     }
-    if (form.id == "CLSN" && (form.readerVersion > 2 && form.writerVersion > 2))
+    else if (form.id == "CLSN" && (form.readerVersion == 2 && form.writerVersion == 2))
     {
+        materialChunk = 0;
         triangleChunk = 1;
-    }
+    }   
     for (i = 0; i < chunks[vertChunk].data.vertices.count; ++i) {
       Printf("v %f  %f %f\n", chunks[vertChunk].data.vertices.vertices[i].x,
              chunks[vertChunk].data.vertices.vertices[i].y,
@@ -139,14 +145,16 @@ typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
     local int y;
     local int prevMat = -1;
     for (i = 0; i < chunks[triangleChunk].data.triangles.count; ++i) {
-
-      if (chunks[triangleChunk].data.triangles.tris[i].material != prevMat && (form.readerVersion > 2 && form.writerVersion > 2)) {
-        Printf("o mat_%i_%08X\n", chunks[triangleChunk].data.triangles.tris[i].material,
-               chunks[materialChunk]
-                   .data.materials
-                   .collisionMaterials[chunks[triangleChunk].data.triangles.tris[i].material]
-                   .filterList);
-        prevMat = chunks[triangleChunk].data.triangles.tris[i].material;
+    if (materialChunk != 0)
+    {
+        if (chunks[triangleChunk].data.triangles.tris[i].material != prevMat && (form.readerVersion > 2 && form.writerVersion > 2)) {
+            Printf("o mat_%i_%08X\n", chunks[triangleChunk].data.triangles.tris[i].material,
+                   chunks[materialChunk]
+                       .data.materials
+                       .collisionMaterials[chunks[triangleChunk].data.triangles.tris[i].material]
+                       .filterList);
+            prevMat = chunks[triangleChunk].data.triangles.tris[i].material;
+          }
       }
       Printf("f %i %i %i\n", chunks[triangleChunk].data.triangles.tris[i].idx1 + 1,
              chunks[triangleChunk].data.triangles.tris[i].idx2 + 1,
