@@ -101,15 +101,19 @@ typedef struct CAudioSoundEffect {
   float unk1;
   // Loaded by CAudioSoundEffect::FinishConstructing
   float unk2;
-  uint unk3<format = binary>;
+  uint unk3 <format = binary>;
+  local uint useUnk3 <format = hex> = (unk3 & 0xffffff80) | (unk3 & 7) | ((unk3 >> 1) & 8) | (((unk3 >> 3) & 1)) << 4 | ((unk3 >> 5) & 1) << 6 | ((unk3 >> 1) & 32);
+
   if (((unk3 << 1) >> 6) & 1) {
-    ubyte unk4;
-    float unk5;
-  } else if ((unk3 & 4)) {
+    uchar unk4;
+    if ((useUnk3 >> 2) & 1) {
+      float unk5;
+    }
+  } else if (unk3 & 4) {
     float unk5;
   }
 
-  if ((unk3 >> 3) & 1) {
+  if ((useUnk3 >> 3) & 1) {
     float unk6;
   }
 
