@@ -1,0 +1,32 @@
+#ifndef _CMAYASPLINE
+#define _CMAYASPLINE
+
+#include "Common.bt"
+#include "CVector2f.bt"
+
+typedef struct CMayaSplineKnot {
+  float unk1;
+  float unk2;
+  byte unk3;
+  byte unk4;
+
+  if (unk3 == 5) {
+    CVector2f tangentA; 
+  }
+
+  if (unk4 == 5) {
+    CVector2f tangentB;
+  }
+} CMayaSplineKnot;
+
+typedef struct CMayaSpline {
+  uint knotCount;
+  CMayaSplineKnot knots[knotCount] <optimize = false>;
+  float minAmplitudeTime;
+  float maxAmplitudeTime;
+  byte unk1;
+  byte unk2;
+  byte unk3;
+} CMayaSpline;
+
+#endif// _CMAYASPLINE

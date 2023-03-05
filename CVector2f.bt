@@ -1,0 +1,10 @@
+#ifndef _CVECTOR2F
+#define _CVECTOR2F
+
+typedef struct {
+  float x, y;
+} CVector2f;
+
+
+
+#endif// _CVECTOR2F

@@ -17,7 +17,7 @@ struct CVectorField {
     Printf("v %f %f %f\n", vectors[i].x, vectors[i].y, vectors[i].z);
     Printf("v %f %f %f\n", vectors[i].x + 0.00005, vectors[i].y + 0.00005, vectors[i].z + 0.00005);
   }
-  for (i = 0; i < vectorCount; ++i) {
+  for (i = 0; i < vectorCount * 3; i += 3) {
     Printf("f %i %i %i\n", i + 1, i + 2, i + 3);
   }
 };

@@ -16,6 +16,7 @@ if (!exists(isDKCTF)) {
 // Files
 #include "CAudioBusHierarchy.bt"
 #include "CAudioSampleBank.bt"
+#include "CAudioSoundEffect.bt"
 #include "CCharInfo.bt"
 #include "CCollisionTree.bt"
 #include "CDataEnumObject.bt"
@@ -52,6 +53,9 @@ typedef struct {
     break;
   case "MATI":
     CMaterialInstanceResource materialInstance;
+    break;
+  case "CAUD":
+    CAudioSoundEffect audioSoundEffect;
     break;
   case "CBNK":
     CAudioSampleBank audioSampleBank;

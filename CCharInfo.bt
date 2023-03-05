@@ -54,16 +54,27 @@ struct CCharInfo
     {
         CPooledNameData namePool;
     }
-    byte unk;
-    byte unk; //boolean
-
-    byte unk;
-    byte unk;
+    byte unk1;
+    byte unk2; //boolean
+    char data[(unk1 & 0x7FFF) * 2];
+    byte unk3;
+    byte unk4;
     if (isDKCTF)
     {
         byte unk2[12];
         byte flags1;
         uint16 flags2;
+    } else {
+        uint16 unk5;
+        uint16 unk6;
+        uint16 unk7;
+        char animData1[unk3 * 6];
+        char animData2[unk5];
+        byte unk8;
+        uint16 unk9;
+        uint16 unk10;
+        uint16 unk11;
+        uint16 unk12;
     }
 
 };

@@ -1,0 +1,141 @@
+#ifndef _CAUDIOSOUNDEFFECT
+#define _CAUDIOSOUNDEFFECT
+
+#include "CMayaSpline.bt"
+#include "CVector3f.bt"
+#include "Common.bt"
+
+typedef struct STimelineEvent {
+  uint unk1;
+  float unk2;
+} STimelineEvent;
+
+typedef struct SFilterSettings {
+  ubyte type;
+  switch (type) {
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+    uint unk1;
+    uint unk2;
+    break;
+  case 5:
+    uint unk1;
+    uint unk2;
+    break;
+  case 6:
+  case 7:
+    uint unk;
+    break;
+  case 8:
+    uint unk;
+    break;
+  case 0xFF:
+  case 9:
+    break;
+  default:
+    uint unk;
+    break;
+  }
+} SFilterSettings;
+
+typedef struct CAudioMetaSample {
+  GUID csmp;
+  float unk1;
+  uint unk2;
+  float unk3;
+  float unk4;
+  float unk5;
+  float unk6;
+  float unk7;
+  float unk8;
+  float unk9;
+  float unk10;
+  float unk11;
+  float unk12;
+  int unk13;
+  float unk14;
+  int unk15;
+  float unk16;
+  float unk17;
+  float unk18;
+  float unk19;
+  float unk20;
+  float unk21;
+  bool unk22;
+  bool unk23;
+  bool unk24;
+  bool unk25;
+  bool unk26;
+  CMayaSpline spline1<optimize = false>;
+  CMayaSpline spline2<optimize = false>;
+  CMayaSpline spline3<optimize = false>;
+  CMayaSpline spline4<optimize = false>;
+  uint timelineEventCount;
+  STimelineEvent timelineEvents[timelineEventCount];
+  uint unk27;
+  float unk28;
+  CMayaSpline spline5<optimize = false>;
+  CVector3f unk29;
+  SFilterSettings filterSettings1;
+  SFilterSettings filterSettings2;
+} CAudioMetaSample;
+
+typedef struct STimelineEventPairs {
+  uint unk1;
+  uint timelineEventCount;
+  STimelineEvent timelineEvents[timelineEventCount];
+} STimelineEventPairs;
+
+typedef struct CAudioSoundEffectEvent {
+  GUID guid;
+  uint unk1;
+  uint unk2;
+  char unk3[unk2];
+} CAudioSoundEffectEvent;
+
+typedef struct CAudioSoundEffect {
+  uint nameLen;
+  char name[nameLen];
+  float unk1;
+  // Loaded by CAudioSoundEffect::FinishConstructing
+  float unk2;
+  uint unk3<format = binary>;
+  if (((unk3 << 1) >> 6) & 1) {
+    ubyte unk4;
+    float unk5;
+  } else if ((unk3 & 4)) {
+    float unk5;
+  }
+
+  if ((unk3 >> 3) & 1) {
+    float unk6;
+  }
+
+  uchar unk7;
+  GUID objectId;
+  uint gobCount;
+  typedef struct CGobData {
+    byte unk1;
+    byte unk2;
+    float unk3;
+    uint metaSampleCount;
+    CAudioMetaSample metaSamples[metaSampleCount]<optimize = false>;
+    uint timelineEventPairCount;
+    STimelineEventPairs
+        timelineEventPairs[timelineEventPairCount]<optimize = false>;
+    if (unk1 != 0) {
+      uint eventDataCount;
+      typedef struct CEventData {
+        CAudioSoundEffectEvent effectEvent;
+        uint timelineEventCount;
+        STimelineEvent timelineEvents[timelineEventCount];
+      } CEventData;
+      CEventData eventData[eventDataCount]<optimize = false>;
+    }
+  } CGobData;
+  CGobData gobs[gobCount]<optimize = false>;
+} CAudioSoundEffect;
+
+#endif // _CAUDIOSOUNDEFFECT
