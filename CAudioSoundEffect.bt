@@ -6,7 +6,7 @@
 #include "Common.bt"
 
 typedef struct STimelineEvent {
-  uint unk1;
+  float unk1;
   float unk2;
 } STimelineEvent;
 
@@ -52,8 +52,8 @@ typedef struct CAudioMetaSample {
   float unk8;
   float unk9;
   float unk10;
-  float unk11;
-  float unk12;
+  int unk11;
+  int unk12;
   int unk13;
   float unk14;
   int unk15;
@@ -102,18 +102,16 @@ typedef struct CAudioSoundEffect {
   // Loaded by CAudioSoundEffect::FinishConstructing
   float unk2;
   uint unk3 <format = binary>;
-  local uint useUnk3 <format = hex> = (unk3 & 0xffffff80) | (unk3 & 7) | ((unk3 >> 1) & 8) | (((unk3 >> 3) & 1)) << 4 | ((unk3 >> 5) & 1) << 6 | ((unk3 >> 1) & 32);
 
-  if (((unk3 << 1) >> 6) & 1) {
+  if (unk3 & (1 << 1)) {
     uchar unk4;
-    if ((useUnk3 >> 2) & 1) {
-      float unk5;
-    }
-  } else if (unk3 & 4) {
+  } 
+
+  if (unk3 & (1 << 2)) {
     float unk5;
   }
 
-  if ((useUnk3 >> 3) & 1) {
+  if (unk3 & (1 << 4)) {
     float unk6;
   }
 

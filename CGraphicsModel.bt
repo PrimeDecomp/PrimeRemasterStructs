@@ -133,7 +133,7 @@ struct SSkinnedModelHeader {
         uint uintsCount;
         uint uints[uintsCount];
         uint dataCount;
-        uint data[dataCount];
+        char data[dataCount];
     }
 };
 
