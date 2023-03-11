@@ -10,6 +10,7 @@ if (!exists(isDKCTF)) {
 
 // Meta
 #include "CGraphicsModel.bt"
+#include "MaterialArchive.bt"
 #include "Meta.bt"
 #include "NTextureFormat.bt"
 
@@ -29,7 +30,6 @@ if (!exists(isDKCTF)) {
 #include "CReflectionProbeData.bt"
 #include "CUniverseInfo.bt"
 #include "CVectorField.bt"
-#include "MaterialArchive.bt"
 #include "MessageTable.bt"
 // #include "CRuleSet.bt"
 #include "CGameAreaResource.bt"

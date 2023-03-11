@@ -13,6 +13,9 @@ typedef struct(FourCC type, uint64 size, uint64 fileStart)
       case "CMDL":
           SModelMetaData meta(fileStart);
           break;
+      case "MTRL":
+          SMaterialMetaData meta(fileStart);
+          break;
       default:
           byte data[size];
           break;

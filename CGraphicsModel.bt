@@ -37,6 +37,7 @@ struct SCausticData {
   uint32 unkData[unkD];
 };
 
+// CModelDataSource
 struct DataSourceLoader {
   if (ReadByte() == 0) //Type for WiiU is an I32
   {
@@ -60,19 +61,27 @@ struct DataSourceLoader {
   }
   switch (type) {
   case "ANUV":
+    // NModelCustomData::sAnimUvDataSourceLoader
     SModelAnimatedUVData animatedUvs;
     break;
   case "WIND":
+    // NModelCustomData::sWindModelDataSourceLoader
     SModelWindData wind;
     break;
   case "CAUS":
+    // NModelCustomData::sCausticDataSourceLoader
     SCausticData caustic;
     break;
   }
+  // NModelCustomData::sSkinnedModelAnimUvDataSourceLoader
+  // NModelCustomData::sVertAnimModelDataSourceLoader
 };
 
 struct CustomDataLoader {
   FourCC type;
+  // CModelCustomDataMPT
+  // byte b;
+  // if (b) CModelSurfaceMetaDataMPT
 };
 
 struct ModelHeader {
@@ -367,7 +376,9 @@ typedef struct {
     //material type list (can be 0)
     uint typeCount;
   }
-  struct { FourCC type; } types[typeCount];
+    if (typeCount != 0) {
+        struct { FourCC type; } types[typeCount];
+    }
   if (isDKCTF == 1)
   {
     uint flags;
@@ -376,13 +387,15 @@ typedef struct {
   {
     //material data types (with extra value)
     uint renderTypeCount;
-    MaterialRenderTypes renderTypes[renderTypeCount];
+    if (renderTypeCount != 0) {
+        MaterialRenderTypes renderTypes[renderTypeCount];
+    }
   }
   //material data types
   uint dataCount;
   if (useMaterialTypeChunk || !isDKCTF)
   {
-    MaterialType dataTypes2[dataCount];
+    MaterialType dataTypes[dataCount];
   }
   //data parse
   CMaterialData data[dataCount] <optimize=false>;
@@ -407,7 +420,24 @@ typedef struct {
 
 struct SMeshLoadInformation {
     uint meshCount;
-    CRenderMesh meshes[meshCount]<optimize=false>;
+    CRenderMesh meshes[meshCount] <optimize=false>;
+    byte unk[(meshCount + 3) / 4];
+    byte unk2[(meshCount + 7) / 8];
+    uint shortCount;
+    if (shortCount > 0) {
+        uint16 shorts[shortCount];
+    }
+    byte lodCount;
+    struct {
+        struct {
+            uint32 a;
+            uint32 b;
+        } inner[5];
+    } outer[lodCount];
+    uint32 hasLodRule;
+    if (hasLodRule == 1) {
+        float lodRule[lodCount];
+    }
 };
 
 enum <uint32> EVertexDataFormat {

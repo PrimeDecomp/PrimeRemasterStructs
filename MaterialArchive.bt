@@ -303,5 +303,17 @@ struct MaterialArchive(uint64 size) {
     }
 };
 
+struct SMaterialMetaData(uint64 fileStart) {
+    uint32 count;
+    uint32 version;
+    uint32 compressedSize;
+    uint32 decompressedSize;
+    uint32 fileOffset;
+
+    local uint64 pos <format=hex, hidden=true> = FTell();
+    FSeek(fileStart + fileOffset);
+    byte zlibData[compressedSize];
+    FSeek(pos);
+};
 
 #endif// _MATERIALARCHIVE
