@@ -1,7 +1,7 @@
 #ifndef _CCHARINFO
 #define _CCHARINFO
 
-local int charinfoi = 0;
+local int charinfoi <hidden=true> = 0;
 
 struct SAnimContext
 {

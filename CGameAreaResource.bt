@@ -35,7 +35,6 @@ struct ProductionWorkStages {
 };
 
 struct GameAreaHeader {
-  ChunkDescriptor chunk;
   if (isDKCTF)
   {
     uint16 unk;
@@ -68,13 +67,11 @@ struct ScriptPerformanceGroupResourceData {
 };
 
 struct PerformanceGroups {
-  ChunkDescriptor chunk;
   ushort dataCount;
   ScriptPerformanceGroupResourceData data[dataCount] <optimize = false>;
 };
 
 struct GeneratedObjectMap {
-  ChunkDescriptor chunk;
   ushort guidCount;
   if (guidCount) {
     struct {
@@ -94,7 +91,6 @@ struct Dock {
 };
 
 struct Docks {
-  ChunkDescriptor chunk;
   ushort dockCount;
   if (dockCount) {
     Dock docks[dockCount];
@@ -109,7 +105,6 @@ struct SAtlasLookup {
 };
 
 struct BakedLightning {
-  ChunkDescriptor chunk;
   uint flags;
   if (flags & 1) {
     GUID guid1;
@@ -130,10 +125,7 @@ struct BakedLightning {
   }
 };
 
-struct LoadUnit {
-  FormDescriptor form;
-  local int start<hidden = true> = FTell();
-  ChunkDescriptor chunk;
+struct LoadUnitHeader {
   CStringFixed name;
   GUID id;
   if (isDKCTF)
@@ -151,14 +143,18 @@ struct LoadUnit {
     if (unk4)
       char unkData3[unk4];
   }
-  ChunkDescriptor lresChunk;
+};
+
+struct LoadUnitResources {
   uint guidCount;
   if (guidCount) {
     struct {
       GUID guids;
     } resIds[guidCount];
   }
-  ChunkDescriptor llyrChunk;
+};
+
+struct LoadUnitLayers {
   uint guidCount2;
   if (guidCount2) {
     struct {
@@ -175,8 +171,8 @@ struct StringPool {
         char data[poolLen];
     }
 };
+
 struct STRP {
-  ChunkDescriptor form;
   uint unk1;
   uint numStrings1;
   if (numStrings1) {
@@ -188,15 +184,14 @@ struct STRP {
   StringPool pool;
 };
 
-struct ScriptData {
-  FormDescriptor form;
-  if (isDKCTF)
-  {
-    FormDescriptor form2;
-  }
-  ChunkDescriptor chunk;
-  if (isDKCTF)
-  {
+struct ScriptDataHeader {
+    uint32 propertiesCount;
+    uint32 instanceDataCount;
+    uint32 dataLen;
+    char data[dataLen * 0x18];
+};
+
+struct Component {
     uint32 componentTypeHash;
     GUID componentGUID;
     CStringFixed componentNmae;
@@ -219,23 +214,6 @@ struct ScriptData {
           bool unk;
       } connections;
     }
-  }
-  else
-  {
-      uint propertiesCount;
-      uint instanceDataCount;
-      uint dataLen;
-      char data[dataLen * 0x18];
-      struct {
-        ChunkDescriptor chunk;
-        char data[chunk.size];
-      } properties[propertiesCount] <optimize = false>;
-    
-      struct {
-        ChunkDescriptor chunk;
-        char data[chunk.size];
-      } instanceData[instanceDataCount] <optimize = false>;
-  }
 };
 
 struct LayerHeader {
@@ -256,38 +234,80 @@ struct LayerHeader {
   }
 };
 
-struct Layer {
-  FormDescriptor layers_form;
-  if (!isDKCTF)
-  {
-    FormDescriptor form;
-  }
-  ChunkDescriptor header_chunk;
-  LayerHeader header;
-};
+struct RoomChunk;
+typedef struct {
+    if (ReadString(FTell(), 4) == "RFRM") {
+        FormDescriptor desc;
+    } else {
+        ChunkDescriptor desc;
+    }
+    local uint64 start <hidden = true> = FTell();
+    switch (desc.id) {
+    case "HEAD":
+    case "LUNT":
+    case "SDTA":
+    case "LYRS":
+    case "LAYR":
+    case "GSRP":
+    case "SRIP":
+        while (FTell() < start + desc.size) {
+          RoomChunk chunk;
+        }
+        break;
+    case "RMHD":
+        GameAreaHeader data;
+        break;
+    case "PGRP":
+        PerformanceGroups data;
+        break;
+    case "LGEN":
+        GeneratedObjectMap data;
+        break;
+    case "DOCK":
+        Docks data;
+        break;
+    case "BLIT":
+        BakedLightning data;
+        break;
+    case "LUNS":
+        uint16 loadUnitCount;
+        break;
+    case "LUHD":
+        LoadUnitHeader data;
+        break;
+    case "LRES":
+        LoadUnitResources data;
+        break;
+    case "LLYR":
+        LoadUnitLayers data;
+        break;
+    case "STRP":
+        STRP data;
+        break;
+    case "LHED":
+        LayerHeader data;
+        break;
+    case "SDHR":
+        ScriptDataHeader data;
+        break;
+    case "COMP":
+        Component data;
+        break;
+    default:
+        byte data[desc.size];
+        break;
+    }
+    FSeek(start + desc.size);
+} RoomChunk <
+    name=(Str("%s chunk", desc.id)),
+    comment=(SizeComment(desc.size))
+>;
 
-struct CGameAreaResource {
-  FormDescriptor form;
-  GameAreaHeader game_area_header;
-  PerformanceGroups performance_groups;
-  GeneratedObjectMap generated_object_map;
-  if (!isDKCTF)
-  {
-    Docks docks;
-    BakedLightning baked_lighting;
-    ChunkDescriptor load_unit_chunk;
-    short num_load_units;
-    LoadUnit load_units[num_load_units]<optimize = false>;
-    STRP strp;
-    ScriptData script_data;
-  }
-  else
-  {
-    //while (FTell() != start + form.size) {
-      LoadUnit load_unit[7]<optimize=false>;
-    //}
-  }
-  Layer layer;
+struct CGameAreaResource(uint64 size) {
+    local uint64 start <hidden = true> = FTell();
+    while (FTell() < start + size) {
+        RoomChunk data;
+    }
 };
 
 #endif // _CGAMEAREARESOURCE

@@ -20,7 +20,7 @@ string StringRead(CString &str)
         return str.text;
     }
 
-    return "";
+    return "<empty>";
 }
 
 string StringReadFixed(CStringFixed &str)
@@ -29,7 +29,7 @@ string StringReadFixed(CStringFixed &str)
         return str.text;
     }
     
-    return "";
+    return "<empty>";
 }
 
 typedef char FourCC[4] <fgcolor=cLtGreen>;

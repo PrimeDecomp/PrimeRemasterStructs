@@ -82,7 +82,7 @@ struct ModConData {
   ushort unk;
 };
 
-local int idx =0;
+local int idx <hidden=true> =0;
 typedef struct CCollisionTree(uint64 size, CollisionPrimitiveType type) {
   local CollisionPrimitiveType tmpType <hidden = true> = type;
   local uint64 start<format = hex, hidden = true> = FTell();

@@ -125,7 +125,7 @@ typedef struct {
     CVectorField vectorField;
     break;
   case "ROOM":
-    CGameAreaResource room;
+    CGameAreaResource room(form.size);
     break;
   case "GUIF":
     CGuiFrame frame;
