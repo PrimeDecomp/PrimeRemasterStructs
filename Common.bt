@@ -16,12 +16,20 @@ typedef struct
 
 string StringRead(CString &str)
 {
-    return str.text;
+    if (exists(str.text)) {
+        return str.text;
+    }
+
+    return "";
 }
 
 string StringReadFixed(CStringFixed &str)
 {
-    return str.text;
+    if (exists(str.text)) {
+        return str.text;
+    }
+    
+    return "";
 }
 
 typedef char FourCC[4] <fgcolor=cLtGreen>;
