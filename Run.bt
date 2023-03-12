@@ -11,6 +11,7 @@ if (!exists(isDKCTF)) {
 // Meta
 #include "CGraphicsModel.bt"
 #include "MaterialArchive.bt"
+#include "CGameAreaResource.bt"
 #include "Meta.bt"
 #include "NTextureFormat.bt"
 
@@ -33,7 +34,6 @@ if (!exists(isDKCTF)) {
 #include "MessageTable.bt"
 #include "NShaderHint.bt"
 // #include "CRuleSet.bt"
-#include "CGameAreaResource.bt"
 #include "CScaleformFlashLibrary.bt"
 
 // Custom footer

@@ -10,8 +10,10 @@ typedef struct
 
 typedef struct
 {
-    uint size;
-    char text[size];
+    uint32 size;
+    if (size > 0) {
+        char text[size];
+    }
 } CStringFixed <bgcolor=0xCDE6FF, read=StringReadFixed>;
 
 string StringRead(CString &str)
@@ -80,6 +82,15 @@ string SizeComment(uint64 size)
 }
 
 local GUID GUIDZero <hidden=true>;
+
+// Struct wrapper for GUID
+// Allows array usage
+typedef struct {
+  GUID inner;
+} CGuid <
+  read=(GUIDToString(inner)),
+  fgcolor=(cLtAqua)
+>;
 
 typedef enum <byte>
 {

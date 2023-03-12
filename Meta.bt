@@ -16,6 +16,9 @@ typedef struct(FourCC type, uint64 size, uint64 fileStart)
       case "MTRL":
           SMaterialMetaData meta(fileStart);
           break;
+      case "ROOM":
+          SGameAreaMetaData meta(fileStart);
+          break;
       default:
           byte data[size];
           break;

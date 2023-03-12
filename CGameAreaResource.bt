@@ -3,13 +3,711 @@
 
 #include "CDataEnumObject.bt"
 
+
+typedef enum <uint32> {
+    EntityProperties = 0x749749f1,
+    FakePlayerControls = 0x4ec5fa3a,
+    StaticCollision = 0x57153aa4,
+    RenderWorld = 0x41956904,
+    ActorCollision = 0xb4361e7b,
+    LightStatic = 0x2be8bc19,
+    LightDynamic = 0x9ee5541d,
+    Effect = 0xcd098f70,
+    Relay = 0x8fe0bfc9,
+    Counter = 0xa7db53c1,
+    Timer = 0x9e8a4940,
+    ControllerAction = 0xd616ee8b,
+    Waypoint = 0xd898656d,
+    PathControl = 0xf0240d23,
+    CameraHint = 0x4fe57689,
+    TouchableTrigger = 0x97e65ddd,
+    Touch = 0x1a4117ab,
+    TriggerLogic = 0xc49d730e,
+    CustomInterpolation = 0x1349e5ac,
+    CameraTarget = 0xc1f64515,
+    Generator = 0xde522669,
+    SplineMotion = 0x2c4f2d31,
+    DynamicActorCollision = 0x21c57d2b,
+    Render = 0xdf31ec16,
+    TakeDamage = 0xbde4ab05,
+    AnimationMountRider = 0x5453c979,
+    TimerSequence = 0x46fad23,
+    ApplyDamage = 0x3175df36,
+    RelayRandom = 0x65e2349b,
+    RelayConditional = 0xabbcfc6a,
+    SpawnPoint = 0xea30e0b1,
+    ActorKeyframe = 0x1fb9af22,
+    ObjectFollow = 0x10ea9ec8,
+    Pickup = 0x481ea5af,
+    CameraManager = 0xbc9a60ae,
+    ColorModifier = 0xb85d6790,
+    Explosion = 0x21c14b0,
+    ReloadSetLoader = 0x16702f15,
+    Checkpoint = 0x660fc7c1,
+    PlayerRespawn = 0x8c2ccfac,
+    ImpulseDriver = 0xc0281ae7,
+    Health = 0x6e89be7,
+    Respawn = 0x9373fec0,
+    ActorInteraction = 0xc7b43da6,
+    CameraTargetPlayer = 0x78d8893a,
+    PoiObject = 0xce22001e,
+    Sound = 0xfdd83489,
+    PerformanceGroupController = 0xccad4bd9,
+    TouchSet = 0x502506d6,
+    LiquidVolume = 0xe1e1c49c,
+    NearVisible = 0x6c5d597d,
+    LiquidInhabitant = 0x3449a5df,
+    CharacterPrimitivesCollision = 0x591d8f55,
+    TriggerForce = 0xbd4cfa2f,
+    GroupSpawn = 0x2131c235,
+    AnimationGridController = 0x2751ebf2,
+    TimerAnimationGridParamProvider = 0x18b96d29,
+    CameraShaker = 0x343a47f7,
+    PlayerActor = 0x7e6063c8,
+    Tippy = 0x91f22dcf,
+    CinematicCameraShot = 0x89f426f2,
+    ConveyorModifier = 0x1eb2749f,
+    FogVolume = 0x73aecd92,
+    Retronome = 0x845e492a,
+    WaterRenderVolume = 0x23c5dff4,
+    CinematicSkipHandler = 0x55f80cce,
+    InventoryItem = 0xf34edd1f,
+    EndGame = 0x18c0ad0f,
+    UVTransform = 0x6302bbb3,
+    MusicData = 0x25899782,
+    MusicStateController = 0x1ac8c8fd,
+    MusicSystemTransport = 0x47a60dc3,
+    AdapterManager = 0x5cf17bfe,
+    RelayAutoFire = 0x7f6d1cba,
+    GraphicalTransition = 0xd745dc42,
+    RetronomeDriver = 0xfa3899c,
+    CausticVolume = 0xa7d1c922,
+    Playlist = 0xba796fef,
+    VoiceEffect = 0x24d9d323,
+    DSP = 0xf7602744,
+    RoomSettings = 0x160e9af9,
+    DynamicActorControl = 0x5746a908,
+    TimeKeyframe = 0xf442a668,
+    RelayProbabilityGameMode = 0xb6040870,
+    SimpleShadow = 0x212bcdf5,
+    AudioBusController = 0x655c5175,
+    PlayerKeyframe = 0xf6751a5d,
+    SurfaceControl = 0xbe7fc29,
+    SimpleSound = 0xb6ec1a51,
+    LightGroupProxy = 0xd2cac9a5,
+    LevelDarkener = 0xbd040603,
+    RenderGroup = 0xa72a9926,
+    SkinSwap = 0x3abcff68,
+    StreamedMovie = 0xbff963d2,
+    BloomEffect = 0x7dcaf170,
+    ProjectedSimpleShadowReceiver = 0x1243c3e3,
+    LoadUnitController = 0x4c53a836,
+    DynamicLoadManager = 0xee0d6fd4,
+    AudioBusMixer = 0x62913993,
+    FSMManager = 0x8832ea4d,
+    RoomController = 0x83cc17aa,
+    PathFind = 0xd0368513,
+    OrbitTarget = 0xceafd99c,
+    NavigationMesh = 0x49bd721e,
+    NavigationMeshHint = 0x4490513e,
+    NavigationOffMeshLink = 0x85298bea,
+    Tonemap = 0xddea916d,
+    ScreenSpaceAO = 0x8061e045,
+    TextPane = 0x38acaaf1,
+    InventoryTextPane = 0x79738030,
+    ContextInteraction = 0x59cfbbd7,
+    DetectionPlane = 0x69091b92,
+    CameraFilter = 0xb0c9b2f9,
+    AnimatedMeter = 0xad2098fa,
+    ModCon = 0x451740eb,
+    GlobalStateMonitor = 0xecd265d2,
+    RelayMemory = 0x91c301a5,
+    EnvironmentVarModifier = 0xf05bc9c3,
+    Terrain = 0x2ba4912d,
+    ControllerAnalogShapeAction = 0x998ffc9,
+    UICamera = 0xb35b0375,
+    Drivable = 0x244019eb,
+    Occlusion = 0xf6a30345,
+    AnimatedSprite = 0xd8726471,
+    PlayerEventListener = 0xf06bbe92,
+    EnvironmentVarQuery = 0x4c183ebb,
+    ControllerAnalogMovement = 0xc6f6f28c,
+    TriggerInhabitant = 0x91f73d69,
+    CameraTargetCreature = 0x9e806c4,
+    UIButton = 0x13daaac,
+    ControllerAnalogInputDriver = 0xb7332353,
+    GradientAmbient = 0x87efbcf0,
+    CameraSystemHint = 0x59372fe6,
+    CollisionProbe = 0xa3b90913,
+    HUDSuppressor = 0xa02cf18f,
+    UIProxy = 0xc80ddc,
+    GameFlowRelay = 0x70292d3d,
+    SettingsMenuManager = 0x91666769,
+    AnalogDriver = 0xdec78ecb,
+    EnvironmentVarSender = 0xc26abe1a,
+    EnvironmentVarListener = 0x2f0c8179,
+    ControlCommandDisabler = 0x29b7e32a,
+    ControlCommandSpoofer = 0xf0d1bcc7,
+    AiTarget = 0x9e20d0af,
+    UIRelay = 0x2376de64,
+    TriggerProgressionVolume = 0x780e031e,
+    Projectile = 0xb692d28b,
+    FrontEndManager = 0x8f472283,
+    RelayFrameDelay = 0x455285e2,
+    GameFlowHub = 0x46b12081,
+    NavigationAreaLink = 0x676a5ac4,
+    DamageResponderVulnerability = 0x736dd919,
+    GameFlowProxy = 0x10be69f9,
+    ObjectSelector = 0xed02de02,
+    AIGeneratorSelector = 0x55960d16,
+    AIGenerator = 0xac073df4,
+    Label = 0x78add45f,
+    RelayAttackTypePayload = 0xf20f2698,
+    Faction = 0xafd50f72,
+    ParticleVolume = 0x3fcf5a88,
+    PeriodicAdditiveAnimationDriver = 0xb793d90a,
+    AnimVisibilityStateGroupManager = 0xd34ab306,
+    PlayerDeathFall = 0xcba2fc47,
+    SaveSlot = 0x8b306e38,
+    CameraAdditiveFOV = 0x8666855a,
+    TriggerDeathFall = 0xfd46f49e,
+    RelayOriginatorFilter = 0x5959db91,
+    ObjectTeleport = 0xe1c825c9,
+    PlayerTeleport = 0x238467f5,
+    CameraPredictivePitchHint = 0x514043dd,
+    PlayerInventoryEffects = 0xc338fd04,
+    CameraPredictiveYawHint = 0x322f85e1,
+    ToneData = 0x67598be,
+    UIMenu = 0x7edf6b2,
+    UIWidget = 0x3cfffc01,
+    RhythmMatcher = 0x3dfd89f7,
+    ToneSelectorSequence = 0x8f4a3a35,
+    ToneSelectorScriptDriven = 0xd0e99272,
+    CinematicActor = 0xd298fc35,
+    SlideShow = 0x7a6ed813,
+    BoostPad = 0x854924d1,
+    SetInventory = 0x7a38cc26,
+    ToneSelectorHint = 0x4adc88b7,
+    PathGenerator = 0xb3b55602,
+    UIListView = 0x5445f685,
+    MIDINoteAdaptor = 0x84bb17fa,
+    NavigationMeshDynamicObstruction = 0x3536e079,
+    CameraPointOfInterest = 0xc16b7565,
+    AITeleportProxy = 0x41ad2545,
+    Cinematic = 0xc9eebc83,
+    AABoxMagnet = 0xd09fbbe7,
+    FlowPath = 0xf9f62fd4,
+    MIDISequence = 0x18e10190,
+    MIDIRetronome = 0x76aac155,
+    ToneSelectorMIDI = 0x49d039cd,
+    Dock = 0xa10baa67,
+    NavigationMeshDock = 0xf190a097,
+    GibManager = 0x6221a411,
+    ScreenShot = 0xd3e0d14,
+    MIDIMatcher = 0x2249de78,
+    ControllerMotionDriver = 0xae579212,
+    SetAnimVisibilityState = 0xd2bcb71a,
+    RenderClipPlane = 0x21a978d3,
+    IncandescenceModulator = 0x1955e30c,
+    UISlider = 0x5f0fa37c,
+    SampleBankHint = 0xcf9e2373,
+    AudioSamplerProxy = 0xfc397b56,
+    SubtitleSequence = 0x57ab06b5,
+    PhaseToEvents = 0x921362,
+    SplineMotionPhaseResponder = 0xc6c04116,
+    ActorKeyframePhaseResponder = 0x35fa03a6,
+    SimpleSoundPhaseResponder = 0xf3bc4ee8,
+    MIDINoteEmitter = 0x4ca2e586,
+    Boolean = 0x5dd288e,
+    LogicGate = 0x9340932c,
+    RenderDecal = 0xd7b10efd,
+    PatternMatcher = 0xdf279c9b,
+    MIDIControllerMessageEmitter = 0x9d97d9c1,
+    SoundVolumeModifier = 0xc03cd39d,
+    Reactivator = 0xf75add4d,
+    SampleBankData = 0x8be6648a,
+    ActionControlPoint = 0xe795d2b1,
+    MusicStateTransitionData = 0xa86001c4,
+    Footprint = 0x74bd547a,
+    SamplerVoiceBankData = 0x61ef47c6,
+    PlayerSpawnTeleporter = 0x916f072f,
+    AudioSampleBank = 0x17982019,
+    AudioSampler = 0xdc777c06,
+    HardwareProxy = 0xea6d58e8,
+    RoomPreloader = 0xb2da6936,
+    BroadcastSpatialListener = 0xef9abe4,
+    BroadcastSpatial = 0x9aafcb03,
+    AudioBusDriver = 0xd515e89d,
+    AudioBusDriverInteractor = 0x2c9918ae,
+    CombatStateProxy = 0x1a4bc6bd,
+    MIDITransmitter = 0xe6a64862,
+    MIDIReceiver = 0x4f10becb,
+    MIDIResponderSampler = 0xf12e9c71,
+    RuleSetManager = 0x3325a532,
+    MIDIResponderArpeggiator = 0xd9c9a3f5,
+    MIDIResponderChordMaker = 0xba249e78,
+    TemplateManager = 0xd645278a,
+    MIDIResponderPatternMatcher = 0x11f81321,
+    AddActorEntityFlag = 0xd813a35a,
+    ColorSampler = 0x12931ce3,
+    PickupManager = 0x57dc20f,
+    SoundPitchModifier = 0xd3fd952c,
+    ActorVertexAnimationPlayList = 0x75560ce3,
+    ActorVertexAnimationPhaseResponder = 0x412e0d82,
+    BGMHint = 0x5cb0de9c,
+    LightShafts = 0x37e758da,
+    Choreographer = 0x8ce59f27,
+    RelayChoreography = 0xd7c7e6f9,
+    AudioSamplerPhaseResponder = 0xd54b0dcc,
+    PhaseLooper = 0x8ce6e4f6,
+    CameraLetterBox = 0x945e0902,
+    ReflectionProbe = 0x27807e39,
+    HeatDistortionHint = 0xd008829f,
+    CameraProxy = 0x5e3f39ee,
+    LavaFlowSurface = 0xf75ea7ef,
+    FogShape = 0x92561a4a,
+    DockDoor = 0xae371a20,
+    GenericSplineControl = 0xcc8f9ff2,
+    ControlSplineMappingsDefinition = 0x682591,
+    Scannable = 0x157533dd,
+    PhaseRelay = 0xc04d4753,
+    Skybox = 0x5112a065,
+    ControlSchemesDefinition = 0x637e29a,
+    ControlSchemeAccessor = 0x60e107e0,
+    AudioObstruction = 0xece8e32e,
+    BroadcastGlobal = 0xa482e214,
+    BroadcastGlobalListener = 0x3e9f6170,
+    CreatureBase = 0x986ad9ea,
+    PickupDropper = 0x720a3ac5,
+    AnimationController = 0xbca078f7,
+    FSMController = 0x8f6c4769,
+    CollisionLogic = 0x4368e960,
+    PhysicsDriver = 0xa3b4fd2,
+    CreatureMovement = 0xa60a6693,
+    CreatureHealth = 0x81519976,
+    RegisterEntity = 0xcb54e84d,
+    ProxyRegisteredEntity = 0x6654ca01,
+    CharacterPrimitives = 0x6548cfcc,
+    Steering = 0x2c9d30b,
+    WorldTransition = 0x564dee0f,
+    CreatureRules = 0x4a8d8e14,
+    CreatureTargeting = 0x2095a979,
+    TerrainAlignment = 0x2d0f036c,
+    CreatureLeashBehavior = 0xe9b9f6ee,
+    CreatureChangePostureBehavior = 0x97422c3f,
+    CreatureTurnBehavior = 0x8bb84eb1,
+    CreatureNavigateBehavior = 0x228a335d,
+    CreaturePatrolBehavior = 0xfc76d74c,
+    CreatureDeployActionBehavior = 0x949e5bbe,
+    CreatureWanderBehavior = 0x24eb1a32,
+    CreatureSpawnBehavior = 0xc1c02476,
+    CreatureRangedCombatBehavior = 0x834cf41d,
+    CreatureMeleeCombatBehavior = 0x45924f80,
+    CreatureHitReactionBehavior = 0xcdb24fad,
+    CreatureHecklerBehavior = 0x2e8a5117,
+    CreatureDespawnBehavior = 0x52bfd9ad,
+    CreatureFallBehavior = 0x1b1ebdd,
+    CreatureActionBroadcaster = 0xa3fe9467,
+    CreatureAttackPathBehavior = 0xf3133cdf,
+    CreatureScriptedAnimationBehavior = 0xabe969d,
+    CreatureAmbushBehavior = 0x6b3cdb28,
+    CreatureEvadeBehavior = 0xc062fd1a,
+    CameraTargetProxy = 0x2bc6608a,
+    VolumetricFog = 0x1b9cd84f,
+    CreatureFlinch = 0x874aa246,
+    VolumetricFogRegion = 0xaffe9cf9,
+    ResetObject = 0x7db10f4c,
+    Scoring = 0x7d3512d7,
+    ScorableTarget = 0x3254e042,
+    DynamicControlScriptedRealDefinition = 0x40f9629d,
+    InventoryInitializer = 0x24d8fdd0,
+    GameOptionsDefinition = 0xb28e4996,
+    GameOptionsAccessor = 0xa190eaa2,
+    CreatureWaitAtPositionBehavior = 0xa38743d1,
+    CreatureContextInteractionBehavior = 0x81718106,
+    CreatureContextInteraction = 0x931b692f,
+    BoolToRealMap = 0xde3024e9,
+    EnumToRealMap = 0x69504acb,
+    IntToRealMap = 0x8c9b8856,
+    RealToRealMap = 0xecffb88f,
+    CoverPoint = 0xc0366dc7,
+    CreatureCoverCombatBehavior = 0x9e73eb5d,
+    CreatureArmor = 0x1f969d66,
+    RealNumberFunction = 0x2cdaf986,
+    RealNumber = 0xd855b36e,
+    RealNumberComparison = 0xbc121d69,
+    DebugMenuItemsDefinition = 0x5a82703d,
+    CreatureFleeBehavior = 0x2ab5ef6f,
+    TimeDilation = 0x3ec5d79a,
+    CreatureFireDamage = 0x5904644c,
+    CreatureHeadTracking = 0xdb0310b9,
+    OriginatorProxy = 0x9e219714,
+    FleePoint = 0xc55dc4e,
+    Enumeration = 0x528c1159,
+    CreatureAiming = 0x87cf06df,
+    ProjectileIntersectionHint = 0xfda2465a,
+    CreatureIceDamage = 0x86692789,
+    AIPostOwner = 0x71a1c997,
+    WanderPoint = 0xe262f4af,
+    LineOfSight = 0xb1a9eced,
+    CreatureThunderDamage = 0xd73ebb11,
+    CreatureProjectileLauncher = 0xde991e1e,
+    ChainLightning = 0x6027b2ce,
+    CreatureSecondaryAnimation = 0x16169aea,
+    CreatureSecondaryActions = 0xd1bbf0e7,
+    AudioPluginEffect = 0x57312ed0,
+    AnimationRateModifier = 0x97947f1e,
+    CollisionWithWorld = 0x27568f71,
+    CreatureScriptedJumpBehavior = 0x51422a18,
+    ScriptedJumpData = 0x331613d1,
+    SniperPoint = 0xbc5eb9d5,
+    CreatureSniperBehavior = 0xd8a9f583,
+    GenericAimTarget = 0xfa73d359,
+    ControlCommandMappingPhysical = 0x65823457,
+    ControlCommandMappingNode = 0xecdce2e3,
+    ControlCommandMappingsDefinition = 0x7cdfbc83,
+    ReverbFieldNode = 0x712755e8,
+    InputMacroPlayer = 0x6467b289,
+    InputMacroRecorder = 0x83eb0628,
+    ControlCommandMappingOne = 0x98aacf09,
+    ControlCommandMappingZero = 0x48c1cef7,
+    ControlCommandMappingScriptedReal = 0xe33f78b,
+    ControlCommandMappingAdd = 0x66ad5099,
+    ControlCommandMappingDebugMenuBoolean = 0xdaee1aad,
+    ControlCommandMappingDebugMenuInt = 0xcc5ae725,
+    ControlCommandMappingDebugMenuRealEvaluator = 0xab505eab,
+    ControlCommandMappingDebugMenuRealMultiplier = 0x8b123910,
+    ControlCommandMappingMultiply = 0xee0426d8,
+    ControlCommandMappingAnd = 0xac392770,
+    ControlCommandMappingNot = 0xdb4ab61d,
+    ControlCommandMappingOr = 0x81ec3bb6,
+    ControlCommandMappingSpline = 0x94147bd8,
+    ControlCommandMappingNegate = 0x571f8fd2,
+    ControlCommandMappingNegativeOne = 0x7b8db9c7,
+    HealthPhases = 0xe7c5ba34,
+    AiTargetManager = 0x88e7782,
+    RumbleEffectsDefinition = 0x12d9053f,
+    RumbleSensoryDefinition = 0x1f0afab0,
+    RumbleEmitter = 0x224f782c,
+    FactionManager = 0x3bbbe401,
+    CreatureTurnProcedural = 0x7fcbc2ad,
+    RealNumberPhaseResponder = 0x3713fd4f,
+    CreatureActionPatternBehavior = 0xa619d230,
+    PathMovement = 0x1a828893,
+    CreatureProneBehavior = 0xd36b0797,
+    PathMovementMagnetizationPoint = 0x9c7df587,
+    DistanceCompare = 0x46033f8d,
+    CreatureTargetable = 0xefed81f1,
+    WindWaker = 0x53744d89,
+    AnimationEventListener = 0xc3ccc605,
+    CreaturePositioning = 0xd5dcb013,
+    TriggerDamage = 0xa9584c89,
+    CreaturePositioningManager = 0x5ba03233,
+    AttackManager = 0x3da7da05,
+    AttackManagerTest = 0x6acaa7da,
+    FSMHotSwapper = 0x2ce325,
+    ScriptedAnimationData = 0x80b94fcd,
+    HeightfieldSurfaceDescription = 0x3a080954,
+    AnchorPoint = 0x44ed3d2,
+    CreatureScriptedActionBehavior = 0xfc7d9a11,
+    CreatureSplineFollowBehavior = 0xfb26fd7d,
+    LavaRenderVolume = 0xa7ee9c33,
+    CreatureGrabTarget = 0xf33fd0c8,
+    BossMeterState = 0xd4ac7206,
+    PlayerSpawnPoint_InputMacroRelay = 0xce2470cb,
+    AudioEmitter = 0xeea718b9,
+    NavigationMeshIncludeExcludeHint = 0x20c7601e,
+    AnimationVariableReal = 0x1f8ca08e,
+    CounterPhaseResponder = 0x47e7ee64,
+    AutoExposureHint = 0x98694074,
+    ShockWave = 0xcd85a847,
+    ColorGrade = 0x6b091e44,
+    VolumetricFogHint = 0x84fb5798,
+    PointOfInterest = 0xafb53a8c,
+    ColorGradeHint = 0xa36cd908,
+    EffectVariableDriver = 0xfd5075f3,
+    TimerProgression = 0xef5e0348,
+    ProjectedShadowBlob = 0x414d77ff,
+    CreatureCollisionAvoidance = 0x444959ad,
+    SoundFilterModifier = 0x512a3ee4,
+    DistanceCompareGroup = 0x9f61cd7f,
+    PhaseCombinator = 0xb9fac2df,
+    CollisionAvoidanceManager = 0x536567,
+    BloomEffectHint = 0xf66b9100,
+    AngleCompare = 0xdae5d368,
+    AudioOcclusionVolume = 0xc3049839,
+    AnimationUserEventRouter = 0x917fd37d,
+    AnimatedMeterPhaseResponder = 0xe493532f,
+    Backlight = 0x190d20d7,
+    NavigationPathPoint = 0xce69684b,
+    NavigationPathPointOffMeshLink = 0x37b90174,
+    ChromaticAberration = 0x2b854b47,
+    SoundLevelMeterPhaseDriver = 0x99dc9c6e,
+    AudioPluginEffectCrossfadePhaseResponder = 0x8e881c85,
+    LightHint = 0x56cf02a6,
+    AudioObstructionOcclusionOverride = 0x135c010e,
+    BroadcastAudioEvent = 0x62fc6e51,
+    BroadcastAudioEventListener = 0x458501cf,
+    GameVariableAccess = 0xea33d242,
+    PerformanceHint = 0x6f5a20be,
+    AudioBusPhaseResponder = 0x62c5d8c7,
+    CounterAdapter = 0x4812e080,
+    TimerStopwatch = 0xd81587e0,
+    HealthDisplay = 0x7e394ff2,
+    HealthDisplaySource = 0xad67f77f,
+    SurfaceGenerator = 0x4eebaad3,
+    BlackboardBoolean = 0xa41fc3a9,
+    BlackboardRealNumber = 0x13d0f71d,
+    BlackboardPhaseRelay = 0x25e4d42f,
+    BlackboardBooleanWriter = 0xc8a56ecc,
+    BlackboardPhaseRelayWriter = 0xbfb2c3ae,
+    BlackboardRealNumberWriter = 0x12a1d49f,
+    FSMMessage = 0x7c9b685c,
+    CreatureHurlBehavior = 0xcf272bd6,
+    AudioPluginEffectCrossfadeSend = 0xc5bfd655,
+    TimerSequencePhaseResponder = 0xa623afa1,
+    AmbientParticleEffect = 0xcbe2042d,
+    RealValueRelay = 0x63dd6841,
+    RealNumberDriver = 0xd81ef16f,
+    Beam = 0x392dcdf1,
+    SnapToPath = 0x1d4532db,
+    ScriptedMotion = 0xf78649c8,
+    DamageRelay = 0x75c4e493,
+    POIRoomController = 0x5b5fb670,
+    ScreenCoverageTrigger = 0x12c9e761,
+    VolumetricFogRegionTransition = 0xdf95ac1a,
+    AudioOutputEffects = 0xf6559cea,
+    AnimationPlaybackRate = 0xeb5b364d,
+    Condition = 0x76025bb8,
+    ScriptedMotionPhaseResponder = 0x50b4f3d7,
+    PlayerRoomTeleporter = 0x7fae7590,
+    CreaturePositionLogic_WaypointScripting = 0x2a7e80cc,
+    Credits = 0xa60583cc,
+
+    // MP1
+    ActorMP1 = 0xb6200be6,
+    ColorModulateMP1 = 0xa856f484,
+    CounterMP1 = 0x32aef7dd,
+    DebugActorMP1 = 0x59bc6b3b,
+    WaypointMP1 = 0x8e4c86ec,
+    PlayerMP1 = 0x99ea4919,
+    SpawnPointMP1 = 0x79f02e11,
+    EnergyProjectileMP1 = 0x7003c6aa,
+    ControllerActionMP1 = 0x42a7692d,
+    PlasmaProjectileMP1 = 0xf5ce0e14,
+    BombMP1 = 0xe9f08e02,
+    PowerBombMP1 = 0xd62862ca,
+    NewFlameThrowerMP1 = 0x2ca49de4,
+    WaveBusterMP1 = 0x7191e814,
+    ExplosionMP1 = 0x50e62ae4,
+    ShockWaveMP1 = 0x2cb074d1,
+    FlameThrowerMP1 = 0x618b3777,
+    IceAttackProjectileMP1 = 0xb130ab71,
+    DamageEffectMP1 = 0xdaf49ad2,
+    CollisionActorMP1 = 0x7059aa54,
+    ScriptRelayMP1 = 0x1b78f9a4,
+    TimerMP1 = 0x25c6d2a3,
+    TriggerMP1 = 0xf526fc2a,
+    SwitchMP1 = 0xc0e28b3d,
+    AiJumpPointMP1 = 0xefa09db4,
+    RumbleEffectMP1 = 0xa7c1e08d,
+    ActorKeyframeMP1 = 0x3ce6630a,
+    SteamMP1 = 0xfc64463e,
+    BallTriggerMP1 = 0x50f2f67a,
+    FirstPersonCameraMP1 = 0x1fab791d,
+    BallCameraMP1 = 0x76a6385f,
+    FreeCameraMP1 = 0x4e9f22e,
+    InterpolationCameraMP1 = 0xe44d80f3,
+    SpecialFunctionMP1 = 0x71337f4f,
+    AmbientAIMP1 = 0xa497918d,
+    ActorRotateMP1 = 0x3391e02b,
+    MemoryRelayMP1 = 0x1205609a,
+    PlatformMP1 = 0xa12967fb,
+    EffectMP1 = 0xb421cdcb,
+    HUDMemoMP1 = 0x77e59f98,
+    DamageableTriggerMP1 = 0xdcb49607,
+    WaterMP1 = 0x12db855d,
+    CameraMP1 = 0x2eaec98,
+    VisorFlareMP1 = 0x8bedb563,
+    DebrisExtendedMP1 = 0x6665f6df,
+    DebrisMP1 = 0xe7a0171,
+    WorldTeleporterTooMP1 = 0x2fa104ff,
+    PlayerActorMP1 = 0xdb389155,
+    CameraWaypointMP1 = 0xf649eec3,
+    AreaAttributesMP1 = 0x48f8341d,
+    PointOfInterestMP1 = 0xd5c1882,
+    CameraBlurKeyframeMP1 = 0xcc92b31b,
+    CameraFilterKeyframeMP1 = 0x750702ea,
+    StreamedAudioMP1 = 0x7e1f2807,
+    SoundMP1 = 0x46787ddd,
+    MidiMP1 = 0x3bab18a0,
+    VisorGooMP1 = 0xcb5682c4,
+    CameraShakerOldMP1 = 0x9b0f9c29,
+    CameraShakerNewMP1 = 0x99dfc912,
+    RandomRelayMP1 = 0xdf4fcca3,
+    NotSTD_DockMP1 = 0x3168fe6,
+    PickupMP1 = 0x36386a69,
+    GrapplePointMP1 = 0xeb82e3b,
+    ContraptionMP1 = 0xb5cd58cd,
+    DoorMP1 = 0x564a1641,
+    RoomAcousticsMP1 = 0xcd695064,
+    PlayerHintMP1 = 0x23f1e994,
+    GunTurretMP1 = 0x1704c1f0,
+    CameraHintTriggerMP1 = 0x4ca870ef,
+    GeneratorMP1 = 0x8ee5d87e,
+    WallCrawlerSwarmMP1 = 0x16b8b319,
+    DistanceFogMP1 = 0x2131945e,
+    CameraHintMP1 = 0xad191c7e,
+    EnvFxDensityControllerMP1 = 0x3c832ec7,
+    ElectroMagneticPulseMP1 = 0x7d070ef0,
+    CameraPitchVolumeMP1 = 0x176f6f27,
+    PickupGeneratorMP1 = 0x4ca59eb7,
+    MazeNodeMP1 = 0x47e5d68b,
+    PathCameraMP1 = 0xc6e2de1f,
+    CoverPointMP1 = 0x2b3ad4b6,
+    RadialDamageMP1 = 0x93c5b36d,
+    PhazonPoolMP1 = 0xacc3ce1e,
+    SpiderBallAttractionSurfaceMP1 = 0xd4cd5e63,
+    SpiderBallWaypointMP1 = 0xc7668e15,
+    TargetingPointMP1 = 0x48ae7ca9,
+    IntroBossMP1 = 0x65ee9092,
+    RippleMP1 = 0x3ab7170d,
+    TeamAiMgrMP1 = 0xc30c5758,
+    ThermalHeatFaderMP1 = 0x33d9ffa6,
+    SpindleCameraMP1 = 0x36b8d0d0,
+    SpankWeedMP1 = 0x705b28fc,
+    ShadowProjectorMP1 = 0x17db2246,
+    WorldLightFaderMP1 = 0x7a4bc122,
+    ThardusMP1 = 0xeaa40b01,
+    AThardusRockProjectileMP1 = 0x2249224e,
+    AtomicAlphaMP1 = 0x61653ed2,
+    AtomicBetaMP1 = 0x87412090,
+    GeemerMP1 = 0xb99d2b06,
+    OculusMP1 = 0x9eaf010,
+    PufferMP1 = 0xada0ec66,
+    BouncyGrenadeMP1 = 0xf800eff9,
+    RidleyMP1 = 0x4f9d71ec,
+    BabygothMP1 = 0x254d4d49,
+    TryclopsMP1 = 0x1498ba74,
+    BloodFlowerMP1 = 0x4deb1e3a,
+    FlyingPirateMP1 = 0x6cfa6902,
+    BurrowerMP1 = 0x1c3d435d,
+    ChozoGhostMP1 = 0x84b92d36,
+    DroneMP1 = 0x50b7576d,
+    SpacePirateMP1 = 0xeb1f342,
+    ElitePirateMP1 = 0xf4326a02,
+    OmegaPirateMP1 = 0x7f2845c7,
+    PuddleSporeMP1 = 0x242c3c90,
+    EyeBallMP1 = 0xc963cc17,
+    FireFleaMP1 = 0x52ebc2a7,
+    FlaahgraMP1 = 0x3c669acb,
+    FlaahgraTentacleMP1 = 0x30a6b6de,
+    FlaahgraProjectileMP1Runtime = 0xfffba0c,
+    FlaahgraPlantsMP1Runtime = 0xd2806770,
+    FlaahgraRendererMP1Runtime = 0xdb9430c7,
+    ParasiteMP1 = 0xbe462b0e,
+    FlickerBatMP1 = 0x1a03f50a,
+    GarBeetleMP1 = 0xe8ca3ea0,
+    IceSheegothMP1 = 0xcbe62855,
+    WarWaspMP1 = 0xb6e36fd4,
+    JellyZapMP1 = 0xfe939195,
+    MagdoliteMP1 = 0xb0c4378e,
+    MetareeMP1 = 0x1230fa75,
+    MetroidBetaMP1 = 0x55032cda,
+    SeedlingMP1 = 0xb6b2691,
+    TargetableProjectileMP1 = 0xbcf96c94,
+    RipperMP1 = 0xb5d157db,
+    SnakeWeedSwarmMP1 = 0xac1c4aad,
+    MetroidMP1 = 0x7fc7debc,
+    PuddleToadGammaMP1 = 0x719ee8c2,
+    FishCloudModifierMP1 = 0x41bc06dd,
+    MetroidPrimeRelayMP1 = 0x622f6b23,
+    GrapplePointMP1Runtime = 0x5048d44f,
+    ControlledPlatformMP1Runtime = 0xd909c936,
+    FishCloudMP1 = 0x4e8a3ce2,
+    PhazonHealingNoduleMP1 = 0xa68d2eb5,
+    MetroidPrimeMP1 = 0xae757b71,
+    ProxyPlayerMP1 = 0x5797d3c7,
+    MetroidPrimeStage2MP1 = 0x980ef312,
+    VisorFlareMP1Runtime = 0x9b592020,
+    DroneLaserMP1Runtime = 0xd39988c0,
+    DeathCameraEffectMP1Runtime = 0xdcf9614b,
+    ElitePirateGrenadeLauncherMP1Runtime = 0x27116d98,
+    PoisonProjectileMP1 = 0x7cf4c8c0,
+    MissileTargetMP1 = 0x1e3517fc,
+    DestroyableRockMP1Runtime = 0x42020da4,
+    RoomOcclusionOverrideMP1 = 0x6ea08bad,
+    ElectricBeamProjectileMP1Runtime = 0x82980e58,
+    CameraOverrideMP1 = 0xe5740bfd,
+    AnimatedCameraMP1 = 0xcb3b5bea,
+    ARepulsorMP1 = 0x85e5e721,
+    PlayerStateChangeMP1 = 0x90905f24,
+    AEnergyBallMP1 = 0xae09e5e2,
+    AScriptBeamMP1 = 0x515541d,
+    SustainedPlayerDamageMP1Runtime = 0xeb70cd36,
+    HUDManagerMP1 = 0x104a7116,
+    ScriptHUDBillboardEffectMP1 = 0x7383d6b5,
+    RumbleEventResponderMP1 = 0x333f83d4,
+    CinematicStateProxyMP1 = 0x14d107fe,
+    HUDBillboardFreezeEffectTestMP1 = 0x63b6ecdc,
+    ScriptedOcclusionVolumeMP1 = 0xc1fac87d,
+    MaterialVariableDriverMP1 = 0x8a12a2f9,
+    EffectProxyMP1 = 0xe12aae70,
+    CinematicMP1 = 0xf06785e1,
+    PhazonDriverMP1 = 0x73a6d8f1,
+    AmbientParticleEffectPrimitiveShapeProviderMP1 = 0x55a188f6,
+    XRayHintMP1 = 0x98eea4ca,
+    CameraWaterStateProxyMP1 = 0x6a7a53b0,
+    WaterTransitionMP1 = 0xdf22bd66,
+    AreaOcclusionModifierMP1 = 0x8b8689d,
+    BakedLightingPriorityModifierMP1 = 0x9feab9b3,
+    AutoExposureHintMP1 = 0x451c85b6,
+    ActorIceDarkenerMP1 = 0x427c6c50,
+
+    // MPT
+    FrontEndManagerMPT = 0x72f2a8fe,
+    SaveSlotMPT = 0x983b318f,
+} EGOComponentType <format=hex>;
+
+typedef enum <uint32> {
+    // Complex
+    ApplyDamageAlongPathActionPayload = 0x6afe5850,
+    ArpeggiatorModeActionPayload = 0x58e36260,
+    AttackTypePayload = 0x5e7c44c4,
+    BoolActionPayload = 0x3346656e,
+    ChoreographyColorPayload = 0xb95151fc,
+    ColorActionPayload = 0x3cd78da5,
+    ContextInteractionStatePayload = 0x4cb17288,
+    ControlSchemeCommandIcon = 0x8c9bff9,
+    ConvergenceActionPayload = 0x4ce75ae1,
+    CRC32ActionPayload = 0xce5607a2,
+    DamageInfoPayload = 0x42a85d6f,
+    DataEnumValueActionPayload = 0x2cef3d77,
+    DeleteMySetAfterOneShotsActionPayload = 0x961dd741,
+    DistanceComparePayload = 0x541693ac,
+    DockMessagePayload = 0x88717fcd,
+    FactionPayload = 0xe8133192,
+    FactionResponsePayload = 0xe161f2c2,
+    GameOptionBoolActionPayload = 0x96a29021,
+    // TODO continue adding via XREFs to NScriptLoader::AddComplexPropertyLoadEntry
+
+    // MP1 complex
+    MP1CameraBehaviorData = 0xcceddd28,
+    PlayerVisorMP1EventCriteria = 0x8de0e586,
+    ScanStateEventMP1EventCriteria = 0x9705f9da,
+    DeltaTimeModifier_MP1PlayerSpeed = 0xcf24ede1,
+    MetroidPrimeVulnerabilityCriteria = 0xc015dbdd,
+    PlayerMorphBallStateMP1EventCriteria = 0xfd382654,
+    PerformanceTestPathCameraMP1BehaviorData = 0x8ebcff02,
+} ETypedefInterfaceType <format=hex>;
+
 struct ProductionWorkStages {
-  ushort count;
+  uint16 count;
   local int i<hidden = true>;
   for (i = 0; i < count; ++i) {
     struct {
       uint id<format = hex>;
-      ushort size;
+      uint16 size;
       switch (id) {
       case 0x8333A604:
         CDataEnumValue val;
@@ -34,66 +732,68 @@ struct ProductionWorkStages {
   }
 };
 
-struct GameAreaHeader {
+// NGameArea::SGameAreaHeader
+struct SGameAreaHeader {
   if (isDKCTF)
   {
     uint16 unk;
   }
   else
   {
-    GUID id_a;
-    ushort unk1;
-    ushort unk2;
-    bool unk3;
-    GUID id_b;
-    GUID id_c;
-    GUID id_d;
-    GUID id_e;
-    GUID id_f;
+    CGuid id_a;
+    uint16 unk1;
+    uint16 unk2;
+    uchar unk3;
+    CGuid id_b;
+    CGuid id_c;
+    CGuid id_d;
+    CGuid id_e;
+    CGuid id_f;
+    // SLdrProductionWorkStages
     ProductionWorkStages workStages;
   }
 };
 
-struct ScriptPerformanceGroupResourceData {
+struct CScriptPerformanceGroupResourceData {
   CStringFixed name;
-  GUID unk2;
-  uchar unk3;
-  ushort count;
+  CGuid controllerId;
+  uchar unk;
+  uint16 count;
   if (count) {
-    struct {
-        GUID guid;
-    } guids[count];
+    CGuid guid[count];
   }
 };
 
-struct PerformanceGroups {
-  ushort dataCount;
-  ScriptPerformanceGroupResourceData data[dataCount] <optimize = false>;
+struct CPerformanceGroupManagerResourceData {
+  uint16 count;
+  CScriptPerformanceGroupResourceData data[count] <optimize = false>;
 };
 
 struct GeneratedObjectMap {
-  ushort guidCount;
-  if (guidCount) {
+  uint16 count;
+  if (count) {
     struct {
-      GUID guid1;
-      GUID guid2;
-    } guids[guidCount];
+      CGuid objectId;
+      CGuid layerId;
+    } entry[count];
   }
 };
 
-struct Dock {
-  GUID a;
-  GUID b;
-  GUID c;
-  GUID d;
-  ushort roomTypeA;
-  ushort roomTypeB;
+typedef uint16 ERoomType;
+
+struct DockEntry {
+  CGuid a;
+  CGuid b;
+  CGuid c;
+  CGuid d;
+  ERoomType roomTypeA;
+  ERoomType roomTypeB;
 };
 
 struct Docks {
-  ushort dockCount;
+  uint16 dockCount;
   if (dockCount) {
-    Dock docks[dockCount];
+    DockEntry docks[dockCount];
   }
 };
 
@@ -106,60 +806,53 @@ struct SAtlasLookup {
 
 struct BakedLightning {
   uint flags;
-  if (flags & 1) {
-    GUID guid1;
-    uint guidCount;
-    if (guidCount) {
-      struct {
-        GUID guid;
-      } guids[guidCount];
+  if ((flags & 1) != 0) {
+    CGuid id0;
+    uint idCount;
+    if (idCount) {
+      CGuid id[idCount];
     }
     uint lookupCount;
     if (lookupCount) {
       SAtlasLookup lookups[lookupCount];
     }
   }
-
-  if ((flags >> 1) & 1) {
-    GUID guid2;
+  if ((flags & 2) != 0) {
+    CGuid id1;
   }
 };
 
 struct LoadUnitHeader {
   CStringFixed name;
-  GUID id;
+  CGuid id;
   if (isDKCTF)
   {
     uint16 unk;
   }
   else
   {
-    GUID id2;
-    ushort unk2;
+    CGuid id2;
+    uint16 unk2;
     uint unk3;
     if (unk3)
       char unkData2[unk3];
-      uint unk4;
+    uint unk4;
     if (unk4)
       char unkData3[unk4];
   }
 };
 
 struct LoadUnitResources {
-  uint guidCount;
-  if (guidCount) {
-    struct {
-      GUID guids;
-    } resIds[guidCount];
+  uint32 count;
+  if (count) {
+    CGuid id[count];
   }
 };
 
 struct LoadUnitLayers {
-  uint guidCount2;
-  if (guidCount2) {
-    struct {
-      GUID guids;
-    } resIds2[guidCount2];
+  uint32 count;
+  if (count) {
+    CGuid id[count];
   }
 };
 
@@ -188,114 +881,241 @@ struct ScriptDataHeader {
     uint32 propertiesCount;
     uint32 instanceDataCount;
     uint32 dataLen;
-    char data[dataLen * 0x18];
+    CGuid guids[dataLen];
+    struct {
+      uint32 a;
+      uint32 b;
+    } unk[dataLen];
 };
 
-struct Component {
-    uint32 componentTypeHash;
-    GUID componentGUID;
-    CStringFixed componentNmae;
-    uint16 connectionCount;
-    if (connectionCount) {
-      struct {
-          GUID connection1;
-          GUID connection2;
-          GUID componentID;
-          uint16 unk;
-          bool unk2;
-          bool unk3;
-      } connections;
+typedef struct {
+    EGOComponentType type;
+    if (isDKCTF) {
+        CGuid componentGUID;
+        CStringFixed componentName;
+        uint16 connectionCount;
+        if (connectionCount) {
+          struct {
+              CGuid connection1;
+              CGuid connection2;
+              CGuid componentID;
+              uint16 unk;
+              bool unk2;
+              bool unk3;
+          } connections;
+        }
+        uint16 scriptLinkCount;
+        if (scriptLinkCount) {
+          struct {
+              CGuid linkID;
+              CGuid componentID;
+              bool unk;
+          } connections;
+        }
+    } else {
+        uint32 propertyIdx;
+        uint32 instanceIdx;
     }
-    uint16 scriptLinkCount;
-    if (scriptLinkCount) {
-      struct {
-          GUID linkID;
-          GUID componentID;
-          bool unk;
-      } connections;
-    }
-};
+} CGameObjectComponent <optimize=false>;
 
 struct LayerHeader {
   CStringFixed name;
-  GUID id;
-  if (isDKCTF)
-  {
-    uint16 unk;
-    ushort count;
-    struct {
-        GUID guid;
-    } guids[count+1];
-    bool unk2;
-  }
-  else
-  {
-    int unk;
-  }
+  CGuid id;
+  int unk;
+  uint16 count;
+  CGuid guid[count+1];
+  bool unk2;
+};
+
+struct GeneratedGameObject {
+    CGuid id;
+    uint16 count;
+    if (count > 0) {
+        CGameObjectComponent components[count];
+    }
+};
+
+struct GameObjectComponents(uint64 size) {
+    local uint64 start <hidden = true> = FTell();
+    while (FTell() < start + size) {
+        CGameObjectComponent component;
+    }
+};
+
+struct ComponentProperty;
+
+struct SLdrVector_MP1Typedef {
+    uint16 numProperties;
+    ComponentProperty properties[numProperties];
+};
+
+struct SLdrPatterned_MP1Typedef {
+    uint16 numProperties;
+    ComponentProperty properties[numProperties];
+};
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden = true> = FTell();
+    switch (propertyId) {
+    case 0x934a89f3:
+        SLdrVector_MP1Typedef data;
+        break;
+    case 0x2a1e8ff4:
+        SLdrPatterned_MP1Typedef data;
+        break;
+    // SLdrVector_MP1Typedef
+    case 0x2649e551:
+        float x;
+        break;
+    case 0xd2bb5bc6:
+        float y;
+        break;
+    case 0x7f9499b2:
+        float z;
+        break;
+    // SLdrPatterned_MP1Typedef
+    case 0x88DF29DE:
+        CGuid id;
+        break;
+    default:
+        if (propertySize > 0) {
+            byte data[propertySize];
+        }
+        break;
+    }
+    FSeek(start + propertySize);
+} ComponentProperty <optimize=false>;
+
+struct ComponentProperties {
+    EGOComponentType typeId;
+    switch (typeId) {
+    case GarBeetleMP1:
+        uint16 propertyCount;
+        ComponentProperty properties[propertyCount];
+    default:
+        break;
+    }
+    // TODO
+};
+
+typedef struct {
+    int32 a;
+    uint32 b;
+    if (a == -1 && b > 0) {
+        byte skip[b];
+    }
+} PooledString <read=(Str("%d %d", a, b))>;
+
+// NScriptLoader::SizeofAllocationsForEventCriteriaActionPayloadOrLinkDataSLdrFromStream
+typedef struct {
+    uint32 a;
+    if (a != 0) {
+        // NScriptLoader::CalculateAllocatedMemoryForTypedefInterfaceSLdrFromCRC32
+        uint16 size;
+        if (size > 0) {
+            byte skip[size];
+        }
+        uint32 size2;
+        if (size2 > 0) {
+            byte skip[size2];
+        }
+    }
+} SizeofAllocations <optimize=false>;
+
+typedef struct {
+    // SConnection::ComputeSizeFromStream
+    byte skip0[0x1a];
+    SizeofAllocations eventCriteriaSldr;
+    SizeofAllocations actionPayloadSldr;
+    byte skip1[0x13];
+} SConnection <optimize=false>;
+
+typedef struct {
+    // SScriptLink::ComputeSizeFromStream
+    byte skip0[0x14];
+    SizeofAllocations c;
+    byte skip1[0x12];
+} SScriptLink <optimize=false>;
+
+struct SGOComponentInstanceData {
+    CGuid id;
+    PooledString str;
+    uint16 connectionCount;
+    if (connectionCount > 0) {
+        SConnection connection[connectionCount];
+    }
+    uint16 linkCount;
+    if (linkCount > 0) {
+        SScriptLink link[linkCount];
+    }
 };
 
 struct RoomChunk;
 typedef struct {
     if (ReadString(FTell(), 4) == "RFRM") {
         FormDescriptor desc;
+        local uint64 start <hidden = true> = FTell();
+        while (FTell() < start + desc.size) {
+            RoomChunk chunk;
+        }
     } else {
         ChunkDescriptor desc;
-    }
-    local uint64 start <hidden = true> = FTell();
-    switch (desc.id) {
-    case "HEAD":
-    case "LUNT":
-    case "SDTA":
-    case "LYRS":
-    case "LAYR":
-    case "GSRP":
-    case "SRIP":
-        while (FTell() < start + desc.size) {
-          RoomChunk chunk;
+        local uint64 start <hidden = true> = FTell();
+        switch (desc.id) {
+        case "RMHD":
+            SGameAreaHeader data;
+            break;
+        case "PGRP":
+            CPerformanceGroupManagerResourceData data;
+            break;
+        case "LGEN":
+            GeneratedObjectMap data;
+            break;
+        case "DOCK":
+            Docks data;
+            break;
+        case "BLIT":
+            BakedLightning data;
+            break;
+        case "LUNS":
+            uint16 loadUnitCount;
+            break;
+        case "LUHD":
+            LoadUnitHeader data;
+            break;
+        case "LRES":
+            LoadUnitResources data;
+            break;
+        case "LLYR":
+            LoadUnitLayers data;
+            break;
+        case "STRP":
+            STRP data;
+            break;
+        case "LHED":
+            LayerHeader data;
+            break;
+        case "SDHR":
+            ScriptDataHeader data;
+            break;
+        case "COMP":
+            GameObjectComponents data(desc.size);
+            break;
+        case "GGOB":
+            GeneratedGameObject data;
+            break;
+        case "SDEN":
+            ComponentProperties data;
+            break;
+        case "IDTA":
+            SGOComponentInstanceData data;
+            break;
+        default:
+            byte data[desc.size];
+            break;
         }
-        break;
-    case "RMHD":
-        GameAreaHeader data;
-        break;
-    case "PGRP":
-        PerformanceGroups data;
-        break;
-    case "LGEN":
-        GeneratedObjectMap data;
-        break;
-    case "DOCK":
-        Docks data;
-        break;
-    case "BLIT":
-        BakedLightning data;
-        break;
-    case "LUNS":
-        uint16 loadUnitCount;
-        break;
-    case "LUHD":
-        LoadUnitHeader data;
-        break;
-    case "LRES":
-        LoadUnitResources data;
-        break;
-    case "LLYR":
-        LoadUnitLayers data;
-        break;
-    case "STRP":
-        STRP data;
-        break;
-    case "LHED":
-        LayerHeader data;
-        break;
-    case "SDHR":
-        ScriptDataHeader data;
-        break;
-    case "COMP":
-        Component data;
-        break;
-    default:
-        byte data[desc.size];
-        break;
     }
     FSeek(start + desc.size);
 } RoomChunk <
@@ -307,6 +1127,69 @@ struct CGameAreaResource(uint64 size) {
     local uint64 start <hidden = true> = FTell();
     while (FTell() < start + size) {
         RoomChunk data;
+    }
+};
+
+typedef struct {
+    CGuid idA;
+    CGuid idB;
+    uint16 unk0;
+    uint32 byteCount;
+    if (byteCount > 0) {
+        byte data[byteCount];
+    }
+} SScriptLoadUnitMetaData <optimize=false>;
+
+typedef struct {
+    CGuid id;
+    CStringFixed name;
+    uint32 byteCount;
+    if (byteCount > 0) {
+        byte data[byteCount];
+    }
+    uint32 unk1;
+    uint32 flags;
+    if ((flags & 1) != 0) {
+        uint32 unkFlag0;
+    }
+    if ((flags & 2) != 0) {
+        uint32 unkFlag1;
+    }
+} SEnvironmentVar <optimize=false>;
+
+struct SGameAreaMetaData(uint64 fileStart) {
+    uint16 version;
+    if (version == 0x19) {
+        uint16 unk0;
+        FourCC fcc;
+        CGuid id;
+        uint16 unk1;
+        uchar unk2[3];
+        uint32 persistenceStateCount;
+        if (persistenceStateCount > 0) {
+            // TODO
+        }
+        CAABox bounds;
+        uint32 loadUnitMetaCount;
+        if (loadUnitMetaCount > 0) {
+            SScriptLoadUnitMetaData loadUnitMetaData[loadUnitMetaCount];
+        }
+        uint16 envVarCount;
+        if (envVarCount > 0) {
+            SEnvironmentVar envVar[envVarCount];
+        }
+        uint32 unkCount;
+        if (unkCount > 0) {
+            struct {
+                CGuid id;
+                uint32 count;
+                // TODO
+            } unkStruct[unkCount];
+        }
+        uint32 byteCount;
+        if (byteCount > 0) {
+            byte data[byteCount];
+        }
     }
 };
 
