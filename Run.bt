@@ -11,7 +11,9 @@ if (!exists(isDKCTF)) {
 // Meta
 #include "CGraphicsModel.bt"
 #include "MaterialArchive.bt"
+
 #include "CGameAreaResource.bt"
+
 #include "Meta.bt"
 #include "NTextureFormat.bt"
 
@@ -29,6 +31,7 @@ if (!exists(isDKCTF)) {
 #include "CMaterialInstanceResource.bt"
 #include "CPakFile.bt"
 #include "CReflectionProbeData.bt"
+#include "CModCondData.bt"
 #include "CUniverseInfo.bt"
 #include "CVectorField.bt"
 #include "MessageTable.bt"
@@ -88,6 +91,9 @@ typedef struct {
     break;
   case "CLSN":
     CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
+    break;
+  case "MCON":
+    CModCondData modCond;
     break;
   case "CHPR":
     FCharInf charInfo;

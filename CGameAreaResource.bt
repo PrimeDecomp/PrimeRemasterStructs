@@ -2,6 +2,7 @@
 #define _CGAMEAREARESOURCE
 
 #include "CDataEnumObject.bt"
+#include "SAtlasLookup.bt"
 
 
 typedef enum <uint32> {
@@ -795,13 +796,6 @@ struct Docks {
   if (dockCount) {
     DockEntry docks[dockCount];
   }
-};
-
-struct SAtlasLookup {
-  uint unkA;
-  uint unkB;
-  uint unkC;
-  uint unkD;
 };
 
 struct BakedLightning {
