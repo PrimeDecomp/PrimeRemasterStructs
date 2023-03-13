@@ -1,6 +1,11 @@
 #ifndef _NMODCONFORMAT
 #define _NMODCONFORMAT
 
+#include "CCollisionTree.bt"
+#include "CColor4f.bt"
+#include "CRenderOctree.bt"
+#include "SAtlasLookup.bt"
+
 struct ModConHeader {
     uint32 unk;
 };
@@ -10,18 +15,22 @@ struct ModConVisualData {
     if (count > 0) {
         CGuid modelId[count];
     }
+
     uint32 count2;
     if (count2 > 0) {
         CGuid ids2[count2];
     }
+
     uint32 colorCount;
     if (colorCount > 0) {
         CColor4f color[colorCount];
     }
+
     uint32 transformCount;
     if (transformCount > 0) {
         CTransform4f xf[transformCount];
     }
+
     uint32 objectTransformCount;
     if (objectTransformCount > 0) {
         struct {
@@ -29,42 +38,82 @@ struct ModConVisualData {
             CTransform4f xf;
         } objectXf[objectTransformCount];
     }
+
     uint32 byteCount;
     if (byteCount > 0) {
         byte bytes[byteCount];
     }
+
     uint32 shortCount;
     if (shortCount > 0) {
         uint16 shorts[shortCount];
     }
+
     uint32 shortCount2;
     if (shortCount2 > 0) {
         uint16 shorts2[shortCount2];
     }
+
     uint32 byteCount2;
     if (byteCount2 > 0) {
         byte bytes2[byteCount2];
     }
+
     uint32 byteCount3;
     if (byteCount3 > 0) {
         byte bytes3[byteCount3];
     }
-    uint32 atlasLookupCount;
-    if (atlasLookupCount > 0) {
-        SAtlasLookup atlasLookup[atlasLookupCount];
+
+    uint32 atlasLookupCount1;
+    if (atlasLookupCount1 > 0) {
+        SAtlasLookup atlasLookup1[atlasLookupCount1];
     }
+
     uint32 atlasLookupCount2;
     if (atlasLookupCount2 > 0) {
         SAtlasLookup atlasLookup2[atlasLookupCount2];
     }
+
     uint32 renderOctreeFlags;
     if (renderOctreeFlags != 0) {
         CRenderOctree renderOctree;
     }
 };
 
-struct ModConCollisionData {
-    ChunkDescriptor chunk;
+typedef struct {
+    uint32 unk1;
+    uint32 intCount;
+    if (intCount) {
+        uint32 ints[intCount];
+    }
+
+    uint32 shortCount;
+    if (shortCount) {
+        uint16 shorts[shortCount];
+    }
+} SModelVertexBlendData <optimize = false>;
+
+typedef struct {
+    uint32 unkDataCount;
+    if (unkDataCount) {
+        byte unkData[unkDataCount];
+    }
+    uint32 unkIntCount;
+    if (unkIntCount) {
+        uint32 unkInts[unkIntCount];
+    }
+
+    uint32 modelVertexBlendDataCount;
+    if (modelVertexBlendDataCount) {
+        SModelVertexBlendData modelVertexBlendData[modelVertexBlendDataCount];
+    }
+} SNodeVertexBlendData <optimize = false>;
+
+struct ModConVertexBlendData {
+    uint32 vertexBlendDataCount;
+    if (vertexBlendDataCount) {
+        SNodeVertexBlendData vertexBlendData[vertexBlendData];
+    }
 };
 
 struct ModConChunk;
@@ -86,10 +135,10 @@ typedef struct {
             ModConVisualData data;
             break;
         case "MCCD":
-            // ModConCollisionData
-            while (FTell() < start + desc.size) {
-                ModConChunk chunk;
-            }
+            CCollisionTree data(desc.size, kCOL_AABox);
+            break;
+        case "MCVB":
+            ModConVertexBlendData data;
             break;
         default:
             if (desc.size > 0) {

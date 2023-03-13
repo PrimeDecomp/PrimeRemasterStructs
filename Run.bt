@@ -95,9 +95,6 @@ typedef struct {
   case "CLSN":
     CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
     break;
-  case "MCON":
-    CModCondData modCond;
-    break;
   case "CHPR":
     FCharInf charInfo;
     break;
