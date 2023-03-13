@@ -38,6 +38,9 @@ if (!exists(isDKCTF)) {
 #include "NShaderHint.bt"
 // #include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
+#include "Font.bt"
+#include "DependencyGroup.bt"
+#include "NModConFormat.bt"
 
 // Custom footer
 #include "Footer.bt"
@@ -138,6 +141,15 @@ typedef struct {
     break;
   case "SHNT":
     NShaderHint shaderHints;
+    break;
+  case "FONT":
+    Font font;
+    break;
+  case "DGRP":
+    DependencyGroup data;
+    break;
+  case "MCON":
+    CModConData data(form.size);
     break;
   }
   FSeek(start + form.size);

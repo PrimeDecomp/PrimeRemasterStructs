@@ -1,0 +1,11 @@
+struct Font {
+  uint32 version;
+  uint32 unk;
+  uint32 lineHeight;
+  uint32 verticalOffset;
+  uint32 lineMargin;
+  uchar unkb;
+  uchar unkb;
+  uint32 unk;
+  uint32 fontSize;
+};

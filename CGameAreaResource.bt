@@ -4,7 +4,6 @@
 #include "CDataEnumObject.bt"
 #include "SAtlasLookup.bt"
 
-
 typedef enum <uint32> {
     EntityProperties = 0x749749f1,
     FakePlayerControls = 0x4ec5fa3a,
@@ -741,7 +740,7 @@ struct SGameAreaHeader {
   }
   else
   {
-    CGuid id_a;
+    CGuid roomId; // self ID
     uint16 unk1;
     uint16 unk2;
     uchar unk3;
@@ -749,7 +748,7 @@ struct SGameAreaHeader {
     CGuid id_c;
     CGuid id_d;
     CGuid id_e;
-    CGuid id_f;
+    CGuid pathFindAreaId;
     // SLdrProductionWorkStages
     ProductionWorkStages workStages;
   }
@@ -798,10 +797,10 @@ struct Docks {
   }
 };
 
-struct BakedLightning {
+struct BakedLighting {
   uint flags;
   if ((flags & 1) != 0) {
-    CGuid id0;
+    CGuid lightMapTxtr;
     uint idCount;
     if (idCount) {
       CGuid id[idCount];
@@ -812,7 +811,7 @@ struct BakedLightning {
     }
   }
   if ((flags & 2) != 0) {
-    CGuid id1;
+    CGuid lightProbeId;
   }
 };
 
@@ -839,14 +838,14 @@ struct LoadUnitHeader {
 struct LoadUnitResources {
   uint32 count;
   if (count) {
-    CGuid id[count];
+    CGuid resourceId[count];
   }
 };
 
 struct LoadUnitLayers {
   uint32 count;
   if (count) {
-    CGuid id[count];
+    CGuid layerId[count];
   }
 };
 
@@ -1071,7 +1070,7 @@ typedef struct {
             Docks data;
             break;
         case "BLIT":
-            BakedLightning data;
+            BakedLighting data;
             break;
         case "LUNS":
             uint16 loadUnitCount;
@@ -1107,7 +1106,9 @@ typedef struct {
             SGOComponentInstanceData data;
             break;
         default:
-            byte data[desc.size];
+            if (desc.size > 0) {
+                byte data[desc.size];
+            }
             break;
         }
     }
@@ -1151,17 +1152,33 @@ typedef struct {
     }
 } SEnvironmentVar <optimize=false>;
 
+typedef struct {
+    CStringFixed name;
+    uint32 unk;
+} SGameAreaPersistenceStateEnvVar <optimize=false>;
+
+typedef struct {
+    CGuid id;
+    CStringFixed name;
+    CGuid id2;
+    CGuid id3;
+    uchar flag0;
+    uchar flag1;
+    uint32 envVarCount;
+    SGameAreaPersistenceStateEnvVar envVar[envVarCount];
+} SGameAreaPersistenceState <optimize=false>;
+
 struct SGameAreaMetaData(uint64 fileStart) {
     uint16 version;
     if (version == 0x19) {
         uint16 unk0;
         FourCC fcc;
-        CGuid id;
+        CGuid roomId; // self ID
         uint16 unk1;
         uchar unk2[3];
         uint32 persistenceStateCount;
         if (persistenceStateCount > 0) {
-            // TODO
+            SGameAreaPersistenceState state[persistenceStateCount];
         }
         CAABox bounds;
         uint32 loadUnitMetaCount;

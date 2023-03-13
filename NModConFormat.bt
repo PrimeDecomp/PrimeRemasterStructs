@@ -1,0 +1,114 @@
+#ifndef _NMODCONFORMAT
+#define _NMODCONFORMAT
+
+struct ModConHeader {
+    uint32 unk;
+};
+
+struct ModConVisualData {
+    uint32 count;
+    if (count > 0) {
+        CGuid modelId[count];
+    }
+    uint32 count2;
+    if (count2 > 0) {
+        CGuid ids2[count2];
+    }
+    uint32 colorCount;
+    if (colorCount > 0) {
+        CColor4f color[colorCount];
+    }
+    uint32 transformCount;
+    if (transformCount > 0) {
+        CTransform4f xf[transformCount];
+    }
+    uint32 objectTransformCount;
+    if (objectTransformCount > 0) {
+        struct {
+            CGuid id;
+            CTransform4f xf;
+        } objectXf[objectTransformCount];
+    }
+    uint32 byteCount;
+    if (byteCount > 0) {
+        byte bytes[byteCount];
+    }
+    uint32 shortCount;
+    if (shortCount > 0) {
+        uint16 shorts[shortCount];
+    }
+    uint32 shortCount2;
+    if (shortCount2 > 0) {
+        uint16 shorts2[shortCount2];
+    }
+    uint32 byteCount2;
+    if (byteCount2 > 0) {
+        byte bytes2[byteCount2];
+    }
+    uint32 byteCount3;
+    if (byteCount3 > 0) {
+        byte bytes3[byteCount3];
+    }
+    uint32 atlasLookupCount;
+    if (atlasLookupCount > 0) {
+        SAtlasLookup atlasLookup[atlasLookupCount];
+    }
+    uint32 atlasLookupCount2;
+    if (atlasLookupCount2 > 0) {
+        SAtlasLookup atlasLookup2[atlasLookupCount2];
+    }
+    uint32 renderOctreeFlags;
+    if (renderOctreeFlags != 0) {
+        CRenderOctree renderOctree;
+    }
+};
+
+struct ModConCollisionData {
+    ChunkDescriptor chunk;
+};
+
+struct ModConChunk;
+typedef struct {
+    if (ReadString(FTell(), 4) == "PEEK") {
+        struct {
+            FourCC id;
+            local uint64 size <hidden = true> = 0;
+        } desc;
+        local uint64 start <hidden = true> = FTell();
+    } else {
+        ChunkDescriptor desc;
+        local uint64 start <hidden = true> = FTell();
+        switch (desc.id) {
+        case "MCHD":
+            ModConHeader data;
+            break;
+        case "MCVD":
+            ModConVisualData data;
+            break;
+        case "MCCD":
+            // ModConCollisionData
+            while (FTell() < start + desc.size) {
+                ModConChunk chunk;
+            }
+            break;
+        default:
+            if (desc.size > 0) {
+                byte data[desc.size];
+            }
+            break;
+        }
+    }
+    FSeek(start + desc.size);
+} ModConChunk <
+    name=(Str("%s chunk", desc.id)),
+    comment=(SizeComment(desc.size))
+>;
+
+struct CModConData(uint64 size) {
+    local uint64 start <hidden = true> = FTell();
+    while (FTell() < start + size) {
+        ModConChunk data;
+    }
+};
+
+#endif

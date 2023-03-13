@@ -1,0 +1,14 @@
+#ifndef _DEPENDENCYGROUP
+#define _DEPENDENCYGROUP
+
+struct Dependency {
+    uint32 type <read=FourCCInt>;
+    CGuid id;
+};
+
+struct DependencyGroup {
+    uint32 count;
+    Dependency dep[count];
+};
+
+#endif
