@@ -1,11 +1,57 @@
-struct Font {
-  uint32 version;
-  uint32 unk;
-  uint32 lineHeight;
-  uint32 verticalOffset;
-  uint32 lineMargin;
-  uchar unkb;
-  uchar unkb;
-  uint32 unk;
-  uint32 fontSize;
+typedef struct Kerning{
+    ushort unicodeChar;
+    float  adjust;
+};
+
+typedef struct Glyph{
+        
+    ushort unicodeChar;
+    ushort textureIndex;  
+    int   unknown;
+    float bearingX;
+    float bearingY;
+    float width;
+    float height;
+    float leftUV;
+    float topUV;
+    float rightUV;
+    float bottomUV;
+    float advWidth;
+
+    uint32 kerningCount;
+    if(kerningCount != 0)
+        Kerning kernings[kerningCount];
+        
+};
+
+typedef struct Font{
+    
+    uint32 guidCount;
+    struct {
+        GUID id;
+    } Guids[guidCount];
+    
+    uint32 unknowValue;
+    
+    uint32 floatCount01;
+    float  floatValues01[floatCount01];
+   
+    uint32 floatCount02;
+    float  floatValues02[floatCount02];
+    
+    uint32 unknowDataCount;
+    
+    struct {
+        float unknowValue01;
+        float unknowValue02;
+        float unknowValue03;
+        int unknowValue04;
+    } unknowData[unknowDataCount];
+
+    uint32 glyphCount;
+    uint32 kerningsCount;
+
+    if (glyphCount != 0)
+        Glyph glyphs[glyphCount] <optimize=false>;
+
 };
