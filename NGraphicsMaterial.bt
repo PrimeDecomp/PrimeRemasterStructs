@@ -3,14 +3,43 @@
 
 #include "Common.bt"
 
-enum<uint32> EMaterialDataId {
+// NMaterialInstance::ETrait
+enum <uint32> ETrait {
+    TRAIT_RFBC = 1,
+    TRAIT_RFBD = 2,
+    TRAIT_RFDS = 3,
+    TRAIT_RLTG = 4,
+    TRAIT_BKLT = 5,
+};
+
+ETrait MapTrait(FourCC value) {
+  switch (value) {
+  case "RFBC":
+    return TRAIT_RFBC;
+  case "RFBD":
+    return TRAIT_RFBD;
+  case "RFDS":
+    return TRAIT_RFDS;
+  case "RLTG":
+    return TRAIT_RLTG;
+  case "BKLT":
+    return TRAIT_BKLT;
+  }
+}
+
+string ReadTrait(FourCC value) {
+  ETrait id = MapTrait(value);
+  return EnumToString(id);
+}
+
+enum <uint32> EMaterialDataId {
   DATA_ID_DEBUG = 0,
   // TXTR data IDs
   DATA_ID_CBUF = 1,
-  DATA_ID_ZBUF = 2,
+  DATA_ID_ZBUF = 2, // depth_map
   DATA_ID_GBUF = 3,
   DATA_ID_GFLG = 4,
-  DATA_ID_OPCT = 5,
+  DATA_ID_OPCT = 5, // used in CParticleSceneNode::BuildParticleMaterialInstance
   DATA_ID_DIFT = 6,
   DATA_ID_ICAN = 7,
   DATA_ID_SINC = 8,
@@ -23,17 +52,17 @@ enum<uint32> EMaterialDataId {
   DATA_ID_LIBD = 15,
   DATA_ID_LIBS = 16,
   DATA_ID_FOGR = 17,
-  DATA_ID_INDI = 18,
-  DATA_ID_OTMP = 19,
-  DATA_ID_CGMP = 20,
-  DATA_ID_OGMP = 21,
+  DATA_ID_INDI = 18, // used in CParticleSceneNode::BuildParticleMaterialInstance
+  DATA_ID_OTMP = 19, // CParticleDescription::GetThresholdTexture
+  DATA_ID_CGMP = 20, // CParticleDescription::GetColorGradientTexture
+  DATA_ID_OGMP = 21, // CParticleDescription::GetOpacityGradientTexture
   DATA_ID_VAND = 22,
   DATA_ID_BLAT = 23,
   DATA_ID_BCLR = 24,
   DATA_ID_METL = 25,
-  DATA_ID_TCH0 = 26,
-  DATA_ID_TCH1 = 27,
-  DATA_ID_TCH2 = 28,
+  DATA_ID_TCH0 = 26, // bloom_texture, blur_texture, NMaterialClearRect depth_texture_values
+  DATA_ID_TCH1 = 27, // bloom_texture2, NMaterialGuiMap color_blind_texture, NMaterialTonemap color_grade_lut
+  DATA_ID_TCH2 = 28, // NMaterialToneMap color_accessibility_lut
   DATA_ID_TCH3 = 29,
   DATA_ID_TCH4 = 30,
   DATA_ID_TCH5 = 31,
@@ -52,18 +81,20 @@ enum<uint32> EMaterialDataId {
   DATA_ID_BLAL = 43,
   DATA_ID_BLCM = 44,
   DATA_ID_INDP = 45,
-  DATA_ID_PVLO = 46,
-  DATA_ID_PSXT = 47,
-  DATA_ID_PTAI = 48,
-  DATA_ID_PCMD = 49,
+  DATA_ID_PVLO = 46, // used in CParticleSceneNode::BuildParticleMaterialInstance
+  DATA_ID_PSXT = 47, // used in CParticleSceneNode::BuildParticleMaterialInstance
+  DATA_ID_PTAI = 48, // used in CParticleSceneNode::BuildParticleMaterialInstance
+  DATA_ID_PCMD = 49, // used in CParticleSceneNode::BuildParticleMaterialInstanceCustom
   DATA_ID_BSAO = 50,
-  DATA_ID_CCH0 = 51,
-  DATA_ID_CCH1 = 52,
-  DATA_ID_CCH2 = 53,
+  // blur_sample_param uses CCH0-6
+  // NMaterialClearRect clear_color CCH0-1
+  DATA_ID_CCH0 = 51, // bloom_texture_size_params, NMaterialSimpleColor color_sample, NMaterialDataView_Model color_view, NMaterialReflectionProbe params
+  DATA_ID_CCH1 = 52, // bloom_bright_pass_params, NMaterialGuiMap color, NMaterialLightShafts color_modulate, NMaterialSimpleTexture color_sample, NRenderThermalVisor::NMaterialThermalBlendPassHot::get_hot_params_data_id
+  DATA_ID_CCH2 = 53, // bloom_color_mod, NMaterialClearRect clear_bounds
   DATA_ID_CCH3 = 54,
-  DATA_ID_CCH4 = 55,
-  DATA_ID_CCH5 = 56,
-  DATA_ID_CCH6 = 57,
+  DATA_ID_CCH4 = 55, // NMaterialTonemap color_grade_params
+  DATA_ID_CCH5 = 56, // NMaterialTonemap::get_heatmap_params_data_id0
+  DATA_ID_CCH6 = 57, // NMaterialTonemap::get_heatmap_params_data_id1
   DATA_ID_BKLT = 58,
   DATA_ID_BKLB = 59,
   DATA_ID_BKLA = 60,
@@ -72,17 +103,17 @@ enum<uint32> EMaterialDataId {
   DATA_ID_CLP0 = 63,
   DATA_ID_HOTP = 64,
   // INT1 data IDs
-  DATA_ID_SHID = 65,
+  DATA_ID_SHID = 65, // shader ID?
   DATA_ID_GBFF = 66,
-  DATA_ID_PMOD = 67,
-  DATA_ID_PFLG = 68,
+  DATA_ID_PMOD = 67, // particle_orientation
+  DATA_ID_PFLG = 68, // used in CParticleSceneNode::BuildParticleMaterialInstance
   DATA_ID_BLPI = 69,
-  DATA_ID_ICH0 = 70,
+  DATA_ID_ICH0 = 70, // NMaterialTonemap flags, NMaterialClusteredLightPRePass flags_material
   DATA_ID_ICH1 = 71,
   DATA_ID_ICH2 = 72,
   // INT4 data IDs
   DATA_ID_AUVI = 73,
-  DATA_ID_ECH0 = 74,
+  DATA_ID_ECH0 = 74, // NMaterialLumaUpdate params
   // SCLR data IDs
   DATA_ID_OPCS = 75,
   DATA_ID_SPCP = 76,
@@ -91,14 +122,14 @@ enum<uint32> EMaterialDataId {
   DATA_ID_LITS = 79,
   DATA_ID_MDOE = 80,
   DATA_ID_VANF = 81,
-  DATA_ID_OTHS = 82,
-  DATA_ID_PZSO = 83,
-  DATA_ID_RCH0 = 84,
+  DATA_ID_OTHS = 82, // related to CParticleDescription::GetThresholdTexture
+  DATA_ID_PZSO = 83, // used in CParticleSceneNode::BuildParticleMaterialInstance
+  DATA_ID_RCH0 = 84, // NMaterialClearRect clear_depth, NMaterialSimpleTexture mip_level
   DATA_ID_RCH1 = 85,
   DATA_ID_RCH2 = 86,
   // MAT4 data IDs
-  DATA_ID_PXFM = 87,
-  DATA_ID_MCH0 = 88,
+  DATA_ID_PXFM = 87, // used in CParticleSceneNode::BuildParticleMaterialInstance
+  DATA_ID_MCH0 = 88, // NMaterialNV12 nv12_color_transform
   // CPLX data IDs
   DATA_ID_BCRL = 89, // texture_layered
   DATA_ID_MTLL = 90, // texture_layered
@@ -106,8 +137,8 @@ enum<uint32> EMaterialDataId {
   DATA_ID_SHDD = 92,
   DATA_ID_SKIN = 93,
   DATA_ID_DIMD = 94,
-  DATA_ID_LIT = 95,
-  DATA_ID_ALLD = 96,
+  DATA_ID_LIT = 95, // NMaterialLightPrePass light
+  DATA_ID_ALLD = 96, // ambient_source
   DATA_ID_DLLD = 97,
   DATA_ID_CLLD = 98,
   DATA_ID_AUXF = 99,
@@ -115,7 +146,7 @@ enum<uint32> EMaterialDataId {
   DATA_ID_WATR = 101,
   DATA_ID_DFXS = 102,
   DATA_ID_DFXN = 103,
-  DATA_ID_MCDD = 104,
+  DATA_ID_MCDD = 104, // cascaded_depth
   DATA_ID_CAUS = 105,
   DATA_ID_BLPD = 106,
   DATA_ID_BLPT = 107,
@@ -125,8 +156,8 @@ enum<uint32> EMaterialDataId {
   DATA_ID_VFXD = 111,
   DATA_ID_REFP = 112,
   DATA_ID_RAIN = 113,
-  DATA_ID_XCH0 = 114,
-  DATA_ID_XCH1 = 115,
+  DATA_ID_XCH0 = 114, // blend_params, NMaterialComputeTest compute_test_input_buffer
+  DATA_ID_XCH1 = 115, // NMaterialLumaUpdate lightmap_source, NMaterialComputeTest compute_test_output_buffer
   DATA_ID_BLND = 116, //Maybe move this idk
 };
 

@@ -2,14 +2,14 @@
 #define _CMATERIALINSTANCERESOURCE
 
 #include "CChunkDescriptor.bt"
-#include "NGraphicsMaterial.bt";
+#include "NGraphicsMaterial.bt"
 
-typedef struct CVariableDesc {
+typedef struct {
   FourCC type;
   FourCC id;
   uchar unk1;
   uchar unk2;
-};
+} CVariableDesc <name=(Str("%s %s", type, id))>;
 
 typedef struct {
   ChunkDescriptor chunk;

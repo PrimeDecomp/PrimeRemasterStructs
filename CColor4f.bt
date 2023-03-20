@@ -1,9 +1,14 @@
 #ifndef _CCOLOR4F
 #define _CCOLOR4F
 
+struct CColor4f;
+
+string ColorToString(const CColor4f& color) {
+  return Str("%f %f %f %f", color.r, color.g, color.b, color.a);
+}
 
 typedef struct  {
   float r, g, b, a;
-} CColor4f;
+} CColor4f <read=ColorToString>;
 
 #endif// _CCOLOR4F

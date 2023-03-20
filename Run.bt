@@ -31,7 +31,6 @@ if (!exists(isDKCTF)) {
 #include "CMaterialInstanceResource.bt"
 #include "CPakFile.bt"
 #include "CReflectionProbeData.bt"
-#include "CModCondData.bt"
 #include "CUniverseInfo.bt"
 #include "CVectorField.bt"
 #include "MessageTable.bt"

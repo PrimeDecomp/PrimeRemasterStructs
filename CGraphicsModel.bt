@@ -3,8 +3,10 @@
 #include "CAABox.bt"
 #include "CEvalSystem.bt"
 #include "CVector4i.bt"
+#include "CColor4f.bt"
 #include "CRenderOctree.bt"
 #include "NGraphicsMaterial.bt"
+#include "CMaterialInstanceResource.bt"
 
 struct SModelAnimatedUVData {
   CEvalSystem evalSystem;
@@ -111,13 +113,6 @@ struct ModelHeader {
     }
   }
 };
-
-typedef struct {
-    char type[4];
-    char format[4];
-    byte flag1;
-    byte flag2;
-} MaterialRenderTypes <name=(Str("%s %s", type, format))>;
 
 typedef struct {
     FourCC id <read=ReadMaterialDataId>;
@@ -242,12 +237,18 @@ typedef struct
     if (id != GUIDZero || isDKCTF) { STextureUsageInfo usage; } //Detect isDKCTF to force it on NS models
 } CMaterialTextureTokenData <optimize=false>;
 
+enum <uint32> EBlendControl {
+    // TODO
+};
+
+struct SBlendRegs {
+    CColor4f colors[3];
+};
+
 struct CLayeredTextureBaseData
 {
-    uint unk;
-    float color1[4];
-    float color2[4];
-    float color3[4];
+    EBlendControl blendControl;
+    SBlendRegs regs;
     byte flags;
 };
 
@@ -302,7 +303,7 @@ typedef struct {
             CMaterialTextureTokenData texture;
             break;
         case DATA_TYPE_COLOR:
-            float color[4]; // CColor4f
+            CColor4f color;
             break;
         case DATA_TYPE_SCALAR:
             float scalar;
@@ -311,7 +312,7 @@ typedef struct {
             int int1;
             break;
         case DATA_TYPE_INT4:
-            int int4[4]; // CVector4i
+            CVector4i int4;
             break;
         case DATA_TYPE_MAT4:
             float mtx[16]; // CMatrix4f
@@ -340,13 +341,13 @@ string CMaterialDataRead(CMaterialData &mat) {
     case DATA_TYPE_TEXTURE:
         return Str("Texture %s = %s", mat.id, GUIDToString(mat.texture.id));
     case DATA_TYPE_COLOR:
-        return Str("Color %s = %f %f %f %f", mat.id, mat.color[0], mat.color[1], mat.color[2], mat.color[3]);
+        return Str("Color %s = %s", mat.id, ColorToString(mat.color));
     case DATA_TYPE_SCALAR:
         return Str("Scalar %s = %f", mat.id, mat.scalar);
     case DATA_TYPE_INT1:
         return Str("Int %s = %f", mat.id, mat.int1);
     case DATA_TYPE_INT4:
-        return Str("Int4 %s = %u %u %u %u", mat.id, mat.int4[0], mat.int4[1], mat.int4[2], mat.int4[3]);
+        return Str("Int4 %s = %s", mat.id, Vec4iToString(mat.int4));
     case DATA_TYPE_COMPLEX:
         return Str("Complex %s", mat.id);
     }
@@ -366,18 +367,17 @@ typedef struct {
   GUID shaderID;
   if (isDKCTF)
   {
-    local uint typeCount <hidden=true> = 1; //Hack it to 1
+    local uint traitCount <hidden=true> = 1; //Hack it to 1
   }
   else
   {
     GUID guid2; //unsure
     uint unk1;
     uint unk2;
-    //material type list (can be 0)
-    uint typeCount;
+    uint traitCount;
   }
-    if (typeCount != 0) {
-        struct { FourCC type; } types[typeCount];
+    if (traitCount != 0) {
+        struct { FourCC value; } traits[traitCount] <read=(ReadTrait(value))>;
     }
   if (isDKCTF == 1)
   {
@@ -385,10 +385,9 @@ typedef struct {
   }
   else
   {
-    //material data types (with extra value)
-    uint renderTypeCount;
-    if (renderTypeCount != 0) {
-        MaterialRenderTypes renderTypes[renderTypeCount];
+    uint variableDescCount;
+    if (variableDescCount != 0) {
+        CVariableDesc variableDescs[variableDescCount];
     }
   }
   //material data types

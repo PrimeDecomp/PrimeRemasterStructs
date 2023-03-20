@@ -1,11 +1,17 @@
 #ifndef CVECTOR4I_BT
 #define CVECTOR4I_BT
 
-typedef struct CVector4i {
+struct CVector4i;
+
+string Vec4iToString(const CVector4i& vec) {
+    return Str("%d %d %d %d", vec.x, vec.y, vec.z, vec.w);
+}
+
+typedef struct {
     int x;
     int y;
     int z;
     int w;
-} CVector4i;
+} CVector4i <read=Vec4iToString>;
 
 #endif // CVECTOR4I_BT
