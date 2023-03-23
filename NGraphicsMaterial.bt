@@ -78,7 +78,7 @@ enum <uint32> EMaterialDataId {
   DATA_ID_LODC = 40,
   DATA_ID_LODP = 41,
   DATA_ID_VANP = 42,
-  DATA_ID_BLAL = 43,
+  DATA_ID_BLAL = 43, // CBasedLightingAtlasMaterialLookupData
   DATA_ID_BLCM = 44,
   DATA_ID_INDP = 45,
   DATA_ID_PVLO = 46, // used in CParticleSceneNode::BuildParticleMaterialInstance

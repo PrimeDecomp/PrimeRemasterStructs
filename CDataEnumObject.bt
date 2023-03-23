@@ -19,4 +19,17 @@ typedef struct {
     GUID objectIds[objectIdCount];
 } CDataEnumObject;
 
+typedef struct {
+    uint32 intCount;
+    if (intCount > 0) {
+        uint32 ints[intCount];
+    }
+    uint32 boolCount;
+    if (boolCount > 0) {
+        bool bools[boolCount];
+    }
+    CGuid enumId;
+    CGuid unkId;
+} CDataEnumBitField;
+
 #endif// _CDATAENUMOBJECT
