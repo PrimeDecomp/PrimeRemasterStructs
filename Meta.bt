@@ -19,6 +19,9 @@ typedef struct(FourCC type, uint64 size, uint64 fileStart)
       case "ROOM":
           SGameAreaMetaData meta(fileStart);
           break;
+      case "LTPB":
+          SLightProbeMetaData meta(fileStart);
+          break;
       default:
           byte data[size];
           break;

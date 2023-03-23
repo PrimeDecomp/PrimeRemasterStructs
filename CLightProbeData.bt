@@ -7,54 +7,35 @@
 #include "CVector3f.bt"
 #include "CVector3i.bt"
 
-typedef struct CBakedLightingUniformProbeGridIndex {
-    short x;
-    short y;
-    short z;
+typedef struct {
+    int16 x;
+    int16 y;
+    int16 z;
 } CBakedLightingUniformProbeGridIndex;
 
 struct LightProbeBundleHeader {
-    uint unk1;
-    uint unk2;
+    uint32 unk1;
+    uint32 unk2;
     CVector3f unk3;
     CBakedLightingUniformProbeGridIndex unk4;
     CBakedLightingUniformProbeGridIndex unk5;
 };
 
-struct SReadInfo {
-    uchar unk1;
-    uint unk2;
-    uint unk3;
-};
-
-struct ReadInfoVector {
-    uint count;
-    SReadInfo readInfos[count];
-};
-
-struct SCompressedBufferInfo {
-    uint unk1;
-    uint unk2;
-    uint unk3;
-    uint unk4;
-    uint unk5;
-};
-
-struct SMetaData {
-    uint unk1;
-    uint unk2;
-    uint unk3;
-    uint unk4;
-    uint unk5;
-    uint unk6;
-    uint readInfoCount;
-    SReadInfo readInfos[readInfoCount];
-    uint compressedBufferInfoCount;
-    SCompressedBufferInfo compressedBufferInfos[compressedBufferInfoCount];
+struct SLightProbeMetaData(uint64 fileStart) {
+    uint32 unk1;
+    uint32 unk2;
+    uint32 metaOffsetCount;
+    if (metaOffsetCount > 0) {
+        uint64 metaOffsets[metaOffsetCount];
+    }
+    uint32 txtrOffsetCount;
+    if (txtrOffsetCount > 0) {
+        uint64 txtrOffsets[txtrOffsetCount];
+    }
 };
 
 struct LightProbeBundle {
-    SMetaData metaData;
+    STextureMetaData metaData(FTell() + 0x4D /* start of TXTR */);
     CVector3i unkVector;
     uint unk;
     FormDescriptor textureForm;

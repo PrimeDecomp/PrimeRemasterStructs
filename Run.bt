@@ -13,6 +13,7 @@ if (!exists(isDKCTF)) {
 #include "MaterialArchive.bt"
 
 #include "CGameAreaResource.bt"
+#include "CLightProbeData.bt"
 
 #include "Meta.bt"
 #include "NTextureFormat.bt"
@@ -27,7 +28,6 @@ if (!exists(isDKCTF)) {
 #include "CGuiFrame.bt"
 #include "CGuiMap.bt"
 #include "CLegacyStateMachine.bt"
-#include "CLightProbeData.bt"
 #include "CMaterialInstanceResource.bt"
 #include "CPakFile.bt"
 #include "CReflectionProbeData.bt"
