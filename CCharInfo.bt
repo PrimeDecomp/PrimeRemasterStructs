@@ -3,9 +3,60 @@
 
 local int charinfoi <hidden=true> = 0;
 
-struct SAnimContext
-{
-  
+struct SNodeSet {
+    ushort nodeCount;
+    ushort unk1;
+    if (nodeCount) {
+        uint node[nodeCount] <format = hex>;
+    }
+};
+
+/* Equivelant of SAnimContext::ReadIntoMemory */
+struct SAnimContext(byte unkA, byte unkB, uint16 unkC, uint16 unkD, uint16 unkE) {
+    uchar unkData1[unkA * 6];
+    uchar unkData2[unkC];
+    ushort unkData3[unkB];
+    uchar unkData4[unkD - (unkB * 8)];
+    ushort unkData5[unkA];
+    uchar unkData6[unkE - (unkA * 8)];
+    SNodeSet nodeSet;
+};
+
+/* Equivelant of SAnimContext::Load */
+struct SAnimContextLoad {
+    uchar unk1;
+    uchar unk2;
+    ushort unk3;
+    ushort unk4;
+    ushort unk5;
+    SAnimContext animCtx(unk1, unk2, unk3, unk4, unk5);
+};
+
+/* Equivelant of SAbsContext::ReadIntoMemory */
+struct SAbsContext(byte unkA, uint16 unkB, uint16 unkC, uint16 unkD, uint16 unkE) {
+    char unk1[unkA * 6];
+    char unk2[unkC];
+    if (unkD) {
+        char unk3[unkD];        
+    }
+
+    if (unkE) {
+        char unk4[unkE];
+    }
+
+    SNodeSet nodeSet;
+    char unk5[unkB * 4];
+    uchar unk6;
+};
+
+/* Equivelant of SAbsContextLoad::Load */
+struct SAbsContextLoad {
+    uchar unk1;
+    ushort unk2;
+    ushort unk3;
+    ushort unk4;
+    ushort unk5;
+    SAbsContext absContext(unk1, unk2, unk3, unk4, unk5);
 };
 
 struct CAssetHeader
@@ -17,7 +68,7 @@ struct CAssetHeader
 struct NameHashList
 {
     uint count;
-    uint hash[count];
+    uint hash[count] <format = hex>;
     uint stringIDs[count];
 };
 
@@ -48,6 +99,7 @@ struct CPooledNameData
     NameHashList hashList[hashListCount]<optimize=false>;
 };
 
+
 struct CCharInfo
 {
     if (!isDKCTF)
@@ -57,24 +109,17 @@ struct CCharInfo
     byte unk1;
     byte unk2; //boolean
     char data[(unk1 & 0x7FFF) * 2];
-    byte unk3;
-    byte unk4;
+
     if (isDKCTF)
     {
+        byte unk3;
+        byte unk4;
         byte unk2[12];
         byte flags1;
         uint16 flags2;
     } else {
-        uint16 unk5;
-        uint16 unk6;
-        uint16 unk7;
-        char animData1[unk3 * 6];
-        char animData2[unk5];
-        byte unk8;
-        uint16 unk9;
-        uint16 unk10;
-        uint16 unk11;
-        uint16 unk12;
+        SAnimContextLoad animCtxLoadDummy;
+        SAbsContextLoad absCtxLoadDummy;
     }
 
 };
