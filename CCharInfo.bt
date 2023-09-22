@@ -158,7 +158,63 @@ struct SBaseInfo {
     uint16 unk2;
     ubyte unk3;
     ubyte unk4;
-     
+    if (unk4) {
+        ubyte unk5;
+    }
+    ubyte unk6;
+    if (unk6) {
+        ubyte unk7;
+    }
+    CPooledName pooledName;
+};
+
+struct CAnimCompStream {
+    uint32 unk1;
+    uint16 unk2;
+    uint16 unk3;
+    uint32 unk4;
+    float unk5;
+    uint16 unk6;
+    uint32 unk7;
+    uint16 unk8;
+    char data[unk1 - unk2];
+};
+
+struct CAnimSequence {
+    uint32 unk1;
+    uint32 unk2;
+    ubyte unk3;
+    ubyte unk4;
+    struct {
+        ubyte unk1;
+        ubyte unk2;
+        ubyte unk3;
+        ushort unk4;
+        uint unk5;
+    } unk5[unk1];
+    if (unk2) {
+        char unk6[unk2];
+    }
+    float unk7;
+};
+
+struct CAnimGrid {
+
+};
+
+struct CAnim {
+    SBaseInfo baseInfo;
+    switch(baseInfo.type) {
+    case 0:
+        CAnimCompStream anim;
+        break;
+    case 1:
+        CAnimSequence anim;
+        break;
+    case 2:
+        CAnimGrid anim;
+        break;
+    }
 };
 
 struct CCharInfo
@@ -217,6 +273,10 @@ struct CCharInfo
         uint16 unk10;
         if (unk6 != 0) {
 
+        }
+
+        if (unk6) {
+            CAnim anims[unk6] <optimize = false>;
         }
     }
 
