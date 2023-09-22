@@ -5,9 +5,9 @@ local int charinfoi <hidden=true> = 0;
 
 struct SNodeSet {
     ushort nodeCount;
-    ushort unk1;
+    ushort nameSet;
     if (nodeCount) {
-        uint node[nodeCount] <format = hex>;
+        uint nodeId[nodeCount] <format = hex>;
     }
 };
 
@@ -99,6 +99,67 @@ struct CPooledNameData
     NameHashList hashList[hashListCount]<optimize=false>;
 };
 
+struct SRenderContext {
+    uint16 unk1;
+    uint16 unk2;
+    uint16 unk3;
+    uint16 unk4;
+    int32 unk5;
+    char unk6[(unk5 + (unk4 + unk1) * 0x32 + unk2 * 2 + unk3 * 2) + 0x30];
+};
+
+struct CPooledName {
+    ubyte hasName;
+    if (hasName) {
+        uint nameRef;
+    }
+};
+
+struct SChannel {
+    CPooledName pooledName;
+    uint16 unk2;
+    ubyte unk3;
+    ubyte unk4;
+    CGuid guid;
+};
+
+/* Equivelant of SChannelLoad::Load */
+struct SChannelLoad {
+    ubyte channelCount;
+    if (channelCount) {
+        SChannel channels[channelCount] <optimize = false>;
+    }
+};
+
+
+struct SFragDecode {
+    uint16 unk1;
+    uint16 unk2;
+    char data[unk2 * 2];
+};
+
+struct SStreamFragDecodeData {
+    uint fragDecodeCount;
+    if (fragDecodeCount) {
+        SFragDecode fragDecodes[fragDecodeCount];
+    }
+};
+
+struct SConstPool {
+    uint16 unk1;
+    uint16 unk2;
+    uchar data[unk2 * 4];
+};
+
+
+struct SBaseInfo {
+    ubyte type;
+    ubyte unk1;
+    uint16 unk2;
+    ubyte unk3;
+    ubyte unk4;
+     
+};
 
 struct CCharInfo
 {
@@ -108,7 +169,7 @@ struct CCharInfo
     }
     byte unk1;
     byte unk2; //boolean
-    char data[(unk1 & 0x7FFF) * 2];
+    char data[unk1 * 2];
 
     if (isDKCTF)
     {
@@ -119,7 +180,44 @@ struct CCharInfo
         uint16 flags2;
     } else {
         SAnimContextLoad animCtxLoadDummy;
+        // local int i;
+        // local int id;
+        // Printf("=== ANIM CTX ===\n");
+        // for (i = 0; i < animCtxLoadDummy.animCtx.nodeSet.nodeCount; ++i) {
+        //     id = animCtxLoadDummy.animCtx.nodeSet.nodeId[i];
+        //     Printf("%s -> 0x%08X (0x%04X, 0x%04X)  -> %i\n", namePool.stringList.text[namePool.hashList[animCtxLoadDummy.animCtx.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
+        // }
         SAbsContextLoad absCtxLoadDummy;
+        // Printf("=== ABS CTX ===\n");
+        // for (i = 0; i < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++i) {
+        //     id = absCtxLoadDummy.absContext.nodeSet.nodeId[i];
+        //     Printf("%s -> 0x%08X (0x%04X, 0x%04X) -> %i\n", namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
+        // }
+        SRenderContext renderCtx;
+        SChannelLoad channel;
+        ubyte unk3;
+        ubyte unk4;
+        ubyte unk5;
+        uint16 unk6;
+        uint16 unk7;
+        ubyte unk8;
+
+        if (unk8) {
+            SStreamFragDecodeData streamFragDecodeData;
+        }
+
+        ubyte unk9;
+        if (unk9) {
+            uint constPoolCount;
+            if (constPoolCount) {
+                SConstPool constPools[constPoolCount] <optimize = false>;
+            }
+        }
+
+        uint16 unk10;
+        if (unk6 != 0) {
+
+        }
     }
 
 };
