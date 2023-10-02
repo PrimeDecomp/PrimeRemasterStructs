@@ -37,7 +37,7 @@ if (!exists(isDKCTF)) {
 #include "NShaderHint.bt"
 // #include "CRuleSet.bt"
 #include "CScaleformFlashLibrary.bt"
-#include "Font.bt"
+#include "CFont.bt"
 #include "DependencyGroup.bt"
 #include "NModConFormat.bt"
 
@@ -95,10 +95,10 @@ typedef struct {
     CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
     break;
   case "CHPR":
-    FCharInf charInfo;
+    FCharInfo charInfo;
     break;
   case "CHAR":
-    FCharInf charInfo;
+    FCharInfo charInfo;
     break;
   case "CMDL":
   case "SMDL":
@@ -139,7 +139,7 @@ typedef struct {
     NShaderHint shaderHints;
     break;
   case "FONT":
-    Font font;
+    CFont font;
     break;
   case "DGRP":
     DependencyGroup data;

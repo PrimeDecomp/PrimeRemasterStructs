@@ -1,0 +1,61 @@
+typedef struct Kerning {
+  wchar_t unicodeChar;
+  float adjust;
+};
+
+typedef struct SGlyphSettings {
+  wchar_t unicodeChar;
+  ushort textureIndex;
+  bool unk1;
+  bool unk2;
+  bool unk3;
+  bool unk4;
+};
+
+typedef struct SGlyphInfo {
+
+  CVector2f bearing;
+  CVector2f size;
+  CVector2f topUV;
+  CVector2f bottomUV;
+  float advWidth;
+};
+
+typedef struct SFontMetrics {
+  float unknownValue01;
+  float unknownValue02;
+  float unknownValue03;
+  int unknownValue04;
+};
+
+typedef struct CFont {
+
+  uint32 guidCount;
+  struct {
+    GUID id;
+  } Guids[guidCount];
+
+  uint32 unknowValue;
+
+  uint32 floatCount01;
+  float floatValues01[floatCount01];
+
+  uint32 floatCount02;
+  float floatValues02[floatCount02];
+
+  uint32 fontMetricsCount;
+  SFontMetrics fontMetrics[fontMetricsCount];
+
+  uint32 glyphCount;
+  uint32 kerningsCount;
+
+  if (glyphCount != 0) {
+    struct {
+      SGlyphSettings settings;
+      SGlyphInfo info;
+      uint32 kerningCount;
+      if (kerningCount != 0)
+        Kerning kernings[kerningCount];
+    } key_value_vector_node[glyphCount] <optimize = false>;
+  }
+};
