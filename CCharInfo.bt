@@ -2,6 +2,7 @@
 #define _CCHARINFO
 
 #include <CEvalSystem.bt>
+#include <CTransform4f.bt>
 
 local int charinfoi <hidden=true> = 0;
 
@@ -101,13 +102,29 @@ struct CPooledNameData
     NameHashList hashList[hashListCount]<optimize=false>;
 };
 
+struct Transform {
+    ushort v;
+    CTransform4f x;
+};
 struct SRenderContext {
     uint16 unk1;
     uint16 unk2;
     uint16 unk3;
     uint16 unk4;
     int32 unk5;
-    char unk6[(unk5 + (unk4 + unk1) * 0x32 + unk2 * 2 + unk3 * 2) + 0x30];
+    local int start = FTell();
+    union {
+        struct {
+            ushort unk[unk1];
+            ushort unk2[unk2];
+            ushort unk3[unk3];
+            ushort segIDs[unk4];
+            CTransform4f xfs[unk1 + 1];
+            CTransform4f xfs2[unk4];
+            char unkp[unk5];
+        } data;
+        char raw[(unk5 + (unk4 + unk1) * (sizeof(CTransform4f) + 2) + unk2 * 2 + unk3 * 2) + sizeof(CTransform4f)];
+    } data;
 };
 
 struct CPooledName {
@@ -150,7 +167,7 @@ struct SStreamFragDecodeData {
 struct SConstPool {
     uint16 unk1;
     uint16 unk2;
-    uchar data[unk2 * 4];
+    float data[unk2];
 };
 
 
