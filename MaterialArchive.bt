@@ -72,7 +72,7 @@ struct CShaderDefines {
 };
 
 struct CShaderVariable {
-
+    ushort unk1;
 };
 struct SShaderImportDesc {
     if (!isDKCTF)

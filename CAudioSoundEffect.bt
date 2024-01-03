@@ -76,7 +76,7 @@ typedef struct CAudioMetaSample {
   STimelineEvent timelineEvents[timelineEventCount];
   uint unk27;
   float unk28;
-  CMayaSpline spline5<optimize = false>;
+  CMayaSpline lowPass<optimize = false>;
   CVector3f unk29;
   SFilterSettings filterSettings1;
   SFilterSettings filterSettings2;

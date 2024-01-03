@@ -1,6 +1,8 @@
 #ifndef _CCHARINFO
 #define _CCHARINFO
 
+#include <CEvalSystem.bt>
+
 local int charinfoi <hidden=true> = 0;
 
 struct SNodeSet {
@@ -298,6 +300,207 @@ struct SSubCharData {
     }
 };
 
+struct SAnimParamNode {
+    CGuid guid;
+    uint unk1;
+    // CPASDatabase
+};
+
+struct CAnimCollisionPrimSet {
+    CStringFixed something; // CStringHashedCase
+    uint unk1;
+    CStringFixed strings[unk1]; // CStringHashedCase
+};
+struct CAnimCollisionPrim {
+    uint unk1;
+    uint unk2;
+    char unk3[unk2];
+    uint evalDataLen;
+    CEvalId evalId;
+    CGuid guid;
+    char evalData[evalDataLen];
+};
+
+struct SObjectTag {
+    int type;
+    CGuid guid;
+};
+
+struct CAnimCollisionPrimData {
+    uint primCount;
+    if (primCount) {
+        CAnimCollisionPrim prims[primCount];
+    }
+    uint setCount;
+    if (setCount) {
+        CAnimCollisionPrimSet collisionPrimSet[setCount];
+    }
+
+    uint unk1;
+    if (unk1) {
+        CGuid guids2[unk1];
+    }
+};
+
+struct CParamSet32 {
+    uint unk1;
+    uint unk2;
+    uint unk3;
+
+    char data[-(unk1 >> 3 & 1) & 0xffffffc0 | (unk1 & 0xf) << 2];
+    char data2[(unk1 & 0xf | unk2 << 4) / 8];
+};
+
+struct CEffectState {
+    ushort unk1;
+    ushort unk2;
+    if (unk1) {
+        SObjectTag tags[unk1];
+    }
+    if (unk2) {
+        CParamSet32 paramSets[unk2];
+    }
+};
+
+struct CActionStream {
+    short unk1;
+    uchar actionFunc;
+    if (unk1) {
+        char data[unk1];
+    }
+};
+
+struct CActionInfo {
+    short unk1;
+    short unk2;
+};
+
+struct CActionData {
+    int unk1;
+    short unk2;
+    int unk3;
+    int unk4;
+    int unk5;
+    uchar unk6;
+    uchar unk7;
+    uchar unk8;
+    uchar unk9;
+    if (unk1 > 0) {
+        CActionStream streams[unk1] <optimize = false>;
+        CActionInfo info[unk1] <optimize = false>;
+    }
+
+    if (unk3 > 0) {
+        int unkInts[unk3];
+    }
+
+    if (unk2 > 0) {
+        uchar eventIds[unk2 * 8];
+    }
+
+    if (unk4) {
+        char unk[unk4 * 4];
+        char unk[unk2];
+    }
+};
+
+struct CAnimTrans {
+    uchar type;
+    switch(type) {
+    case 0:
+        break;
+    case 1:
+        uint unk1;
+        float unk2;
+        break;
+    case 2:
+        float unk1;
+        break;
+    case 3:
+        uint unk1;
+        break;
+    case 4:
+        uint unk1;
+        char data1[unk1 * 4];
+        char data1[(unk1 + 12) * 4];
+        break;
+    }
+};
+
+struct CAnimTransFade {
+    float unk1;
+    float unk2;
+    int unk3;
+};
+struct CTransAnimLink {
+    short unk1;
+    short unk2;
+    short unk3;
+    short unk4;
+    uchar unk5;
+};
+
+struct CAnimTransTarget {
+    uint unk1;
+    ushort unk2;
+    uchar unk3;
+    uchar unk4;
+    if (unk2) {
+        CTransAnimLink links[unk2];
+    }
+};
+
+struct CAnimTransFadeTarget {
+    short unk1;
+    short unk2;
+    short unk3;
+};
+
+struct STransData {
+    ushort unk1;
+    ushort unk2;
+    ushort unk3;
+    ushort unk4;
+    short unk5;
+    short unk6;
+    short unk7;
+    short unk8;
+    if (unk1 > 0) {
+        CAnimTrans trans[unk1] <optimize = false>;
+    }
+    if (unk2 > 0) {
+        CAnimTransFade transFades[unk2] <optimize = false>;
+    }
+
+    if (unk3 > 0) {
+        CAnimTransTarget transTargets[unk3] <optimize = false>;
+    }
+
+    if (unk4 > 0) {
+        CAnimTransFadeTarget transFadesTargets[unk4] <optimize = false>;
+    }
+
+    if (unk7 > 0) {
+        float unk9[unk7];
+    }
+
+    if (unk8 > 0) {
+        CGuid guids[unk8];
+    }
+};
+
+struct SNode {
+    short unk1;
+    short unk2;
+    char data[unk2];
+};
+
+struct CEventStreamDataSet {
+    uint unk1;
+    if (unk1 > 0)
+        SNode nodes[unk1] <optimize = false>;
+};
+
 struct CCharInfo
 {
     if (!isDKCTF)
@@ -352,21 +555,18 @@ struct CCharInfo
         }
 
         uint16 unk10;
-        if (unk6 != 0) {
-
-        }
 
         if (unk6) {
             CAnim anims[unk6] <optimize = false>;
         }
 
         if (unk5 != 0) {
-            struct {
+            struct SAnchorInfo {
                 uint16 unk1;
                 uint16 unk2;
                 uint32 unk3;
                 uint32 unk4;
-            } unk11[unk5];
+            } anchors[unk5];
         }
 
         if (unk3 != 0) {
@@ -376,6 +576,43 @@ struct CCharInfo
         SSubCharData subCharData;
         int16 unk12;
         uint16 unk13;
+
+        char unkData[-((unk12 >> 15) & 1) & ~0x3FFFF | (unk12 & 0xFFFF) << 2];
+        char unkData2[unk13];
+        uint unk14;
+        uint unk15;
+        uchar unkData3[unk14 * 8];
+        uchar unkData4[unk15];
+        if (unk7) {
+            SAnimParamNode paramNodes[unk7];
+        }
+        if (unk6) {
+            CGuid guids[unk6];
+            uint unk16[unk6];
+        }
+        uchar hasCollisionPrimitives;
+        if (hasCollisionPrimitives) {
+            CAnimCollisionPrimData collisionPrimData;
+        }
+
+        uchar hasEffectState;
+        if (hasEffectState) {
+            CEffectState effectState;
+        }
+        uchar hasActionData;
+        if (hasActionData) {
+            CActionData actionData;
+        }
+
+        uchar hasTransData;
+        if (hasTransData) {
+            STransData transData;
+        }
+
+        uchar hasEffectStreamDataSet;
+        if (hasEffectStreamDataSet) {
+            CEventStreamDataSet effectStreamDataSet;
+        }
     }
 
 };

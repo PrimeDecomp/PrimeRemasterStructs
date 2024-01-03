@@ -3,6 +3,7 @@
 
 #include "CDataEnumObject.bt"
 #include "SAtlasLookup.bt"
+#include "CMayaSpline.bt"
 
 typedef enum <uint32> {
     EntityProperties = 0x749749f1,
@@ -1254,10 +1255,8 @@ struct ScriptDataHeader {
     uint32 instanceDataCount;
     uint32 dataLen;
     CGuid guids[dataLen];
-    struct {
-      uint32 a;
-      uint32 b;
-    } unk[dataLen];
+    uint32 propertiesIndices[dataLen];
+    uint32 instanceDataIndices[dataLen];
 };
 
 typedef struct {
@@ -1326,11 +1325,39 @@ struct SLdrPatterned_MP1Typedef {
     ComponentProperty properties[numProperties];
 };
 
+struct SLdrProjectedShadowDataMP1 {
+    uint16 numProperties;
+    ComponentProperty properties[numProperties];
+};
+
 typedef struct {
     uint32 propertyId <format=hex>;
     uint16 propertySize;
     local uint64 start <hidden = true> = FTell();
     switch (propertyId) {
+    // SLdrRidleyMP1
+    case 0x81979F27:
+        SLdrProjectedShadowDataMP1 data;
+    break;
+    case 0x0C71158E:
+        CGuid breastPlateXRay;
+        break;
+    case 0x8DB1624F:
+        CGuid crotchModel;
+        break;
+    case 0x89201C97:
+        CGuid id;
+        break;
+    // SLdrProjectedShadowDataMP1
+    case 0x6496C677:
+        int width;
+        break;
+    case 0x3ac546bc:
+        int height;
+        break;
+    case 0xEF3C8E9E:
+        CMayaSpline data;
+        break;
     case 0x934a89f3:
         SLdrVector_MP1Typedef data;
         break;
@@ -1371,6 +1398,7 @@ struct ComponentProperties {
     EGOComponentType typeId;
     switch (typeId) {
     case GarBeetleMP1:
+    case RidleyMP1:
     case ModCon:
         uint16 propertyCount;
         ComponentProperty properties[propertyCount];
@@ -1406,10 +1434,16 @@ typedef struct {
 
 typedef struct {
     // SConnection::ComputeSizeFromStream
-    byte skip0[0x1a];
+    uint unk1 <format = hex>;
+    uint unk2 <format = hex>;
+    CGuid guid1;
+    ushort unk7;
     SizeofAllocations eventCriteriaSldr;
     SizeofAllocations actionPayloadSldr;
-    byte skip1[0x13];
+    byte b1;
+    byte b2;
+    byte b3;
+    CGuid guid2;
 } SConnection <optimize=false>;
 
 typedef struct {
@@ -1576,13 +1610,14 @@ struct SGameAreaMetaData(uint64 fileStart) {
         if (envVarCount > 0) {
             SEnvironmentVar envVar[envVarCount];
         }
+
         uint32 unkCount;
         if (unkCount > 0) {
             struct {
                 CGuid id;
-                uint32 count;
-                // TODO
-            } unkStruct[unkCount];
+                uint unk;
+                CStringFixed name;
+            } unkStruct[unkCount] <optimize = false>;
         }
         uint32 byteCount;
         if (byteCount > 0) {
