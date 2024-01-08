@@ -3,6 +3,7 @@
 
 #include <CEvalSystem.bt>
 #include <CTransform4f.bt>
+#include <CPASDatabase.bt>
 
 local int charinfoi <hidden=true> = 0;
 
@@ -71,8 +72,10 @@ struct CAssetHeader
 struct NameHashList
 {
     uint count;
-    uint hash[count] <format = hex>;
-    uint stringIDs[count];
+    if (count > 0) {
+        uint hash[count] <format = hex>;
+        uint stringIDs[count];
+    }
 };
 
 struct StringList
@@ -112,12 +115,15 @@ struct SRenderContext {
     uint16 unk3;
     uint16 unk4;
     int32 unk5;
-    local int start = FTell();
     union {
         struct {
             ushort unk[unk1];
-            ushort unk2[unk2];
-            ushort unk3[unk3];
+            if (unk2 > 0) {
+                ushort unk2[unk2];
+            }
+            if (unk3 > 0) {
+                ushort unk3[unk3];
+            }
             ushort segIDs[unk4];
             CTransform4f xfs[unk1 + 1];
             CTransform4f xfs2[unk4];
@@ -320,22 +326,21 @@ struct SSubCharData {
 struct SAnimParamNode {
     CGuid guid;
     uint unk1;
-    // CPASDatabase
+    CPASDatabase pasDatabase;
 };
 
 struct CAnimCollisionPrimSet {
     CStringFixed something; // CStringHashedCase
     uint unk1;
-    CStringFixed strings[unk1]; // CStringHashedCase
+    CStringFixed strings[unk1] <optimize = false>; // CStringHashedCase
 };
 struct CAnimCollisionPrim {
     uint unk1;
-    uint unk2;
-    char unk3[unk2];
+    CStringFixed name;
     uint evalDataLen;
     CEvalId evalId;
     CGuid guid;
-    char evalData[evalDataLen];
+    char evalData[unk1];
 };
 
 struct SObjectTag {
@@ -346,11 +351,11 @@ struct SObjectTag {
 struct CAnimCollisionPrimData {
     uint primCount;
     if (primCount) {
-        CAnimCollisionPrim prims[primCount];
+        CAnimCollisionPrim prims[primCount] <optimize = false>;
     }
     uint setCount;
     if (setCount) {
-        CAnimCollisionPrimSet collisionPrimSet[setCount];
+        CAnimCollisionPrimSet collisionPrimSet[setCount] <optimize = false>;
     }
 
     uint unk1;
@@ -416,8 +421,8 @@ struct CActionData {
     }
 
     if (unk4) {
-        char unk[unk4 * 4];
-        char unk[unk2];
+        uint unk10[unk4];
+        CString strings[unk4] <optimize = false>;
     }
 };
 
@@ -601,7 +606,7 @@ struct CCharInfo
         uchar unkData3[unk14 * 8];
         uchar unkData4[unk15];
         if (unk7) {
-            SAnimParamNode paramNodes[unk7];
+            SAnimParamNode paramNodes[unk7] <optimize = false>;
         }
         if (unk6) {
             CGuid guids[unk6];

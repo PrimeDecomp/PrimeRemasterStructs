@@ -1,0 +1,84 @@
+//--------------------------------------
+//--- 010 Editor v5.0 Binary Template
+//
+// File:
+// Author:
+// Revision:
+// Purpose:
+//--------------------------------------
+
+enum EParmType
+{
+    Int32,
+    Uint32,
+    Real32,
+    Bool,
+    Enum
+};
+
+struct CPASParmInfo
+{
+    EParmType type;
+    uint unknown1;
+    float unknown2;
+    switch(type)
+    {
+        case Int32:
+            int val[2];
+        break;
+        case Uint32:
+            uint val[2];
+        break;
+        case Real32:
+            float val[2];
+        break;
+        case Bool:
+            byte val[2];
+        break;
+        case Enum:
+            uint val[2];
+    }
+};
+
+struct CPASAnimState
+{
+    uint unknown1;
+    uint parmInfoCount;
+    uint animInfoCount;
+    CPASParmInfo parmInfo[parmInfoCount] <optimize = false>;
+    local uint i;
+    struct PASAnimInfo
+    {
+        uint unknown1;
+        for (i = 0; i < parmInfoCount; i++)
+        {
+            switch(parmInfo[i].type)
+            {
+                case Int32:
+                    int val;
+                break;
+                case Uint32:
+                    uint val;
+                break;
+                case Real32:
+                    float val;
+                break;
+                case Bool:
+                    byte val;
+                break;
+                case Enum:
+                    uint val;
+                break;
+            }
+        }
+    } animInfo[animInfoCount] <optimize = false>;  
+};
+
+struct CPASDatabase
+{
+    uint magic;
+    uint animStateCount;
+    uint defaultState;
+    
+    CPASAnimState animStates[animStateCount] <optimize = false>;
+};
