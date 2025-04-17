@@ -1,5 +1,6 @@
 #ifndef _MATERIALARCHIVE
 #define _MATERIALARCHIVE
+
 struct SBufferTOCEntry {
     uint align;
     uint size;
@@ -60,8 +61,7 @@ struct CShaderDefines {
         }
         else
         {
-            uint str1Len;
-            char str1[str1Len];
+            CStringFixed str1;
         }
     };
 
@@ -204,8 +204,8 @@ struct CExplicitCompositeFeatureInstance {
 struct IFeatureInstance {
     uint type;
     CStringFixed name;
-    uint unk1;
-    uint unk2;
+    uint dataOrigin;
+    uint optionCount;
     switch(type) {
         case 0:
             CSimpleFeatureInstance simple <optimize = false>;
@@ -240,8 +240,7 @@ struct SMaterialImportDesc {
     {
         GUID guid;
         uint shaderHash;
-        uint nameLen;
-        char name[nameLen];
+        CStringFixed name;
     }
     else
     {
