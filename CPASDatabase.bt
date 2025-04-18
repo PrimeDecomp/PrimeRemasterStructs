@@ -7,66 +7,76 @@
 // Purpose:
 //--------------------------------------
 
-enum EParmType
-{
-    Int32,
-    Uint32,
-    Real32,
-    Bool,
-    Enum
+enum EParmType {
+    kPT_Int32,
+    kPT_Uint32,
+    kPT_Real32,
+    kPT_Bool,
+    kPT_Enum
 };
 
-struct CPASParmInfo
-{
+enum EWeightFunction {
+    kWF_ExactMatch,
+    kWF_PercentError,
+    kWF_AngularPercent,
+    kWF_NoWeight,
+};
+
+struct CPASParmInfo {
     EParmType type;
-    uint unknown1;
-    float unknown2;
+    EWeightFunction weightFunction;
+    float weight;
     switch(type)
     {
-        case Int32:
-            int val[2];
+        case kPT_Int32:
+            int min;
+            int max;
         break;
-        case Uint32:
-            uint val[2];
+        case kPT_Uint32:
+            uint min;
+            uint max;
         break;
-        case Real32:
-            float val[2];
+        case kPT_Real32:
+            float min;
+            float max;
         break;
-        case Bool:
-            byte val[2];
+        case kPT_Bool:
+            byte min;
+            byte max;
         break;
-        case Enum:
-            uint val[2];
+        case kPT_Enum:
+            uint min;
+            uint max;
+        break;
     }
 };
 
-struct CPASAnimState
-{
-    uint unknown1;
+struct CPASAnimState {
+    uint stateId;
     uint parmInfoCount;
     uint animInfoCount;
     CPASParmInfo parmInfo[parmInfoCount] <optimize = false>;
     local uint i;
     struct PASAnimInfo
     {
-        uint unknown1;
+        uint animId;
         for (i = 0; i < parmInfoCount; i++)
         {
             switch(parmInfo[i].type)
             {
-                case Int32:
+                case kPT_Int32:
                     int val;
                 break;
-                case Uint32:
+                case kPT_Uint32:
                     uint val;
                 break;
-                case Real32:
+                case kPT_Real32:
                     float val;
                 break;
-                case Bool:
+                case kPT_Bool:
                     byte val;
                 break;
-                case Enum:
+                case kPT_Enum:
                     uint val;
                 break;
             }
@@ -74,8 +84,7 @@ struct CPASAnimState
     } animInfo[animInfoCount] <optimize = false>;  
 };
 
-struct CPASDatabase
-{
+struct CPASDatabase {
     uint magic;
     uint animStateCount;
     uint defaultState;

@@ -49,7 +49,10 @@ struct SAbsContext(byte unkA, uint16 unkB, uint16 unkC, uint16 unkD, uint16 unkE
     }
 
     SNodeSet nodeSet;
-    char unk5[unkB * 4];
+    struct {
+        ushort a<format = hex>;
+        ushort b<format = hex>;
+    } unk5[unkB];
     uchar unk6;
 };
 
@@ -117,15 +120,17 @@ struct SRenderContext {
     int32 unk5;
     union {
         struct {
-            ushort unk[unk1];
+            ushort unk[unk1] <format = hex>;
             if (unk2 > 0) {
-                ushort unk2[unk2];
+                ushort unk2[unk2] <format = hex>;
             }
             if (unk3 > 0) {
-                ushort unk3[unk3];
+                ushort unk3[unk3] <format = hex>;
             }
-            ushort segIDs[unk4];
+            ushort segIDs[unk4] <format = hex>;
             CTransform4f xfs[unk1 + 1];
+            local int i;
+
             CTransform4f xfs2[unk4];
             char unkp[unk5];
         } data;
@@ -444,7 +449,7 @@ struct CAnimTrans {
     case 4:
         uint unk1;
         char data1[unk1 * 4];
-        char data1[(unk1 + 12) * 4];
+        char data2[(unk1 + 12) * 4];
         break;
     }
 };
@@ -542,20 +547,61 @@ struct CCharInfo
         uint16 flags2;
     } else {
         SAnimContextLoad animCtxLoadDummy;
-        // local int i;
-        // local int id;
-        // Printf("=== ANIM CTX ===\n");
-        // for (i = 0; i < animCtxLoadDummy.animCtx.nodeSet.nodeCount; ++i) {
-        //     id = animCtxLoadDummy.animCtx.nodeSet.nodeId[i];
-        //     Printf("%s -> 0x%08X (0x%04X, 0x%04X)  -> %i\n", namePool.stringList.text[namePool.hashList[animCtxLoadDummy.animCtx.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
-        // }
+        local int i;
+        local int id;
+        Printf("=== ANIM CTX ===\n");
+        for (i = 0; i < animCtxLoadDummy.animCtx.nodeSet.nodeCount; ++i) {
+            id = animCtxLoadDummy.animCtx.nodeSet.nodeId[i];
+            Printf("%s -> 0x%08X (0x%04X, 0x%04X)  -> %i\n", namePool.stringList.text[namePool.hashList[animCtxLoadDummy.animCtx.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
+        }
         SAbsContextLoad absCtxLoadDummy;
-        // Printf("=== ABS CTX ===\n");
-        // for (i = 0; i < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++i) {
-        //     id = absCtxLoadDummy.absContext.nodeSet.nodeId[i];
-        //     Printf("%s -> 0x%08X (0x%04X, 0x%04X) -> %i\n", namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
-        // }
+        Printf("=== ABS CTX ===\n");
+        for (i = 0; i < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++i) {
+            id = absCtxLoadDummy.absContext.nodeSet.nodeId[i];
+            Printf("%s -> 0x%08X (0x%04X, 0x%04X) -> %i\n", namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
+        }
         SRenderContext renderCtx;
+        Printf("=== RENDER CTX ===\n");
+        local int j;
+        local int k;
+        local int a;
+        local int b;
+        local int c;
+        local int d;
+        local string parentName;
+        for (i = 0; i < renderCtx.unk4; ++i) {
+            Printf("v %f %f %f\n",  renderCtx.data.data.xfs2[i].m03, renderCtx.data.data.xfs2[i].m13,renderCtx.data.data.xfs2[i].m23);
+        }
+        for (i = 0; i < renderCtx.unk4; ++i) {
+            for (j = 0; j < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++j) {
+                parentName = "";
+                a = absCtxLoadDummy.absContext.nodeSet.nodeId[j] & 0xFFFF;
+                b = renderCtx.data.data.segIDs[i];
+                c = absCtxLoadDummy.absContext.unk5[i].a;
+                for (k = 0; k < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++k) {
+                    d = absCtxLoadDummy.absContext.nodeSet.nodeId[k] & 0xFFFF;
+                    if (d == c) {
+                        parentName = namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[k]].text;
+                        break;
+                    }
+                }
+
+                for (k = 0; k < renderCtx.unk4; ++k) {
+                    if (renderCtx.data.data.segIDs[k] == d) {
+                        break;
+                    }
+                }
+
+                if (a == b) {
+                    Printf("o %s %04X -> %s - %04X\n", parentName, c, namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[j]].text, b);
+                    if (c != 0xFFFF) {
+                        Printf("l %i %i\n", i + 1, k + 1);
+                    } else {
+                        Printf("f %i %i %i\n", i + 1, i + 1, i + 1);
+                    }
+                }
+            }
+        }
         SChannelLoad channel;
         ubyte unk3;
         ubyte unk4;
@@ -625,7 +671,7 @@ struct CCharInfo
         if (hasActionData) {
             CActionData actionData;
         }
-
+        return;
         uchar hasTransData;
         if (hasTransData) {
             STransData transData;
