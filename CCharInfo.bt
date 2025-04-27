@@ -228,18 +228,18 @@ struct CAnimSequence {
     float unk7;
 };
 
-struct CGridPointData(ubyte size) {
+struct CGridPointData {
     ubyte unk1;
     ubyte unk2;
     ubyte unk3;
-    char unk4[size];
-    char unk5[unk2 ? size * 4 : 4];
+    ubyte unk4;
+    ubyte unk5;
+    char unk6[unk1];
+    char unk7[!unk2 ? unk1 * 4 : 4];
 };
 
 struct CGridGeo2d {
-    ubyte unk1;
-    ubyte unk2;
-    CGridPointData pointData(unk1);
+    CGridPointData pointData;
     ubyte unk3;
     ubyte unk4;
     ubyte unk5;
@@ -251,16 +251,15 @@ struct CGridGeo2d {
 };
 
 struct CGridGeo1d {
-    ubyte unk1;
-    ubyte unk2;
-    CGridPointData pointData(unk1);
+    CGridPointData pointData;
     float unk3;
     float unk4;
-    char unk8[unk1 * 4];
+    char unk8[pointData.unk1 * 4];
 };
 
 struct CAnimGrid {
-    uint32 unk1; // Read in CAnimGrid::Load
+    int32 unk1; // Read in CAnimGrid::Load
+    // CAnimGrid::ReadIntoMemory
     ubyte gridType;
     switch (gridType) {
         case 0:
@@ -273,12 +272,12 @@ struct CAnimGrid {
             break;
     }
 
-    uint unk2;
-    if (unk2 != 0) {
+    int unk2;
+    if (unk2 > 0) {
         uint unk3[unk2];
     }
 
-    if (unk1 != 0) {
+    if (unk1 > 0) {
         uint unk4[unk1];
     }
 };
@@ -595,7 +594,7 @@ struct CCharInfo
                 if (a == b) {
                     Printf("o %s %04X -> %s - %04X\n", parentName, c, namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[j]].text, b);
                     if (c != 0xFFFF) {
-                        Printf("l %i %i\n", i + 1, k + 1);
+                        Printf("l %i %i\n", k + 1,  i + 1);
                     } else {
                         Printf("f %i %i %i\n", i + 1, i + 1, i + 1);
                     }
