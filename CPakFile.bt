@@ -1,5 +1,6 @@
 #ifndef _CPAKFILE
 #define _CPAKFILE
+#include "Common.bt"
 struct File;
 struct CPakFile;
 
@@ -22,19 +23,23 @@ typedef struct
     {
         local uint64 decompressedSize <hidden=true> = size;
     }
-
+    if (pak.toc.readerVersion == 4) {
+        uint64 unk;
+    }
+    
     local uint64 pos <format=hex, hidden=true> = FTell();
+
     FSeek(offset);
     if (size == decompressedSize) {
         File data <size=size>;
-    } else {
+   } else {
         CompressionType compressionType;
         byte pad[3] <hidden=true>;
         byte compressedData[size - 4];
     }
     FSeek(pos);
 } AssetDirectoryEntry <
-    size=(isDKCTF ? 36 : 52), // Parse on-demand
+    //size=(isDKCTF ? 36 : 52), // Parse on-demand
     name=AssetDirectoryEntryName,
     comment=(SizeComment(this.size))
 >;

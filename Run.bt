@@ -58,30 +58,30 @@ typedef struct {
     }
     break;
   case "MATI":
-    CMaterialInstanceResource materialInstance;
+    //CMaterialInstanceResource materialInstance;
     break;
   case "CAUD":
-    CAudioSoundEffect audioSoundEffect;
+    //CAudioSoundEffect audioSoundEffect;
     break;
   case "CBNK":
-    CAudioSampleBank audioSampleBank;
+   //CAudioSampleBank audioSampleBank;
     break;
   case "CABH":
-    CAudioBusHierarchy audioBusHierarchy;
+    //CAudioBusHierarchy audioBusHierarchy;
     break;
   case "ENUM":
-    CDataEnumObject dataEnum;
+   // CDataEnumObject dataEnum;
     break;
   case "UINF":
-    CUniverseInfo universeInfo(form.size);
+   // CUniverseInfo universeInfo(form.size);
     break;
   case "LTPB":
-    CLightProbeData lightProbe(form.size);
+    //CLightProbeData lightProbe(form.size);
     break;
   case "LFSM":
     if (!isDKCTF)
       BigEndian();
-    CLegacyStateMachine legacyStateMachine;
+   // CLegacyStateMachine legacyStateMachine;
     if (!isDKCTF)
       LittleEndian();
     break;
@@ -89,24 +89,25 @@ typedef struct {
     CCollisionTree obboxCollisionTree(form.size, kCOL_OBBox);
     break;
   case "CMAP":
-    CGuiMap guiMap;
+    Printf("FOUND! 0x%08X", startof(this));
+   // CGuiMap guiMap;
     break;
   case "CLSN":
-    CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
+   // CCollisionTree aaboxCollisionTree(form.size, kCOL_AABox);
     break;
   case "CHPR":
     FCharInfo charInfo;
     break;
   case "CHAR":
-    FCharInfo charInfo;
+   // FCharInfo charInfo;
     break;
   case "CMDL":
   case "SMDL":
   case "WMDL":
-    ModelFile model(form.size);
+    ModelFile model(form.size, form.readerVersion, form.writerVersion);
     break;
   case "MSBT":
-    MessageStudioBinaryText text;
+   // MessageStudioBinaryText text;
     break;
   case "PACK":
     CPakFile pak;
@@ -115,34 +116,34 @@ typedef struct {
     NTextureFormat texture(form.size);
     break;
   case "REFL":
-    CReflectionProbeData probeData;
+   // CReflectionProbeData probeData;
     break;
   /*case "RULE":
       CRuleSet rulesetconfig(form.size);
       break;*/
   case "GFXL":
-    CScaleformFlashLibrary scaleformflashlibrary;
+    //CScaleformFlashLibrary scaleformflashlibrary;
     break;
   /*case "GFX ":
       CFlashMovieResource flashmovieresource(form.size);
       break;*/
   case "VECF":
-    CVectorField vectorField;
+   // CVectorField vectorField;
     break;
   case "ROOM":
     CGameAreaResource room(form.size);
     break;
   case "GUIF":
-    CGuiFrame frame;
+    //CGuiFrame frame;
     break;
   case "SHNT":
-    NShaderHint shaderHints;
+    //NShaderHint shaderHints;
     break;
   case "FONT":
-    CFont font;
+    //CFont font;
     break;
   case "DGRP":
-    DependencyGroup data;
+    //DependencyGroup data;
     break;
   case "MCON":
     CModConData data(form.size);

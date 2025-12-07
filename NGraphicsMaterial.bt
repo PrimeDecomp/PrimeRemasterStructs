@@ -439,6 +439,7 @@ EMaterialDataId MapMaterialDataId(FourCC value) {
   case "XCH1":
     return DATA_ID_XCH1;
   }
+  return -1;
 }
 
 string ReadMaterialDataId(FourCC value) {
