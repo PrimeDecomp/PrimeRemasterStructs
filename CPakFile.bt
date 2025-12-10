@@ -39,7 +39,7 @@ typedef struct
     }
     FSeek(pos);
 } AssetDirectoryEntry <
-    //size=(isDKCTF ? 36 : 52), // Parse on-demand
+    size=(isDKCTF ? 36 : (pak.toc.readerVersion == 4 ? 60 : 52)), // Parse on-demand
     name=AssetDirectoryEntryName,
     comment=(SizeComment(this.size))
 >;

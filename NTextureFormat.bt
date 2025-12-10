@@ -29,8 +29,8 @@ struct STextureCompressedBufferInfo(uint64 fileStart)
 
 struct STextureMetaData(uint64 fileStart)
 {
-    uint32 unk;
-    uint32 unk;
+    uint32 unk0;
+    uint32 unk1;
     uint32 allocCategory;
     uint32 gpuOffset <format=hex>;
     uint32 align;
@@ -39,9 +39,55 @@ struct STextureMetaData(uint64 fileStart)
     if (infoCount != 0) {
         STextureReadInfo info[infoCount]<optimize=false>; //Do this so isDKCTF doesn't kill 010
     }
-    uint32 bufferCount;
-    if (bufferCount != 0) {
-        STextureCompressedBufferInfo buffer(fileStart)[bufferCount] <optimize=false>;
+    if (file.form.readerVersion == 0x41) { // Metroid Prime 4
+        uint32 firstIndex;
+        uint32 firstSize;
+        uint32 firstDestOffset;
+        uint32 firstDestSize;
+        uint32 unk2;
+        uint32 secondIndex;
+        uint32 secondSize;
+        uint32 secondDestOffset;
+        uint32 secondDestSize;
+        // Within the second buffer, part of the data may be uncompressed.
+        uint32 secondDecompressedLen;
+        uint32 secondCompressedLen;
+        uint32 secondCompressedOffset;
+
+        local uint64 pos <format=hex, hidden=true> = FTell();
+        // Compressed data
+        FSeek(fileStart + info[firstIndex].offset);
+        if (firstSize == firstDestSize) {
+            byte firstData[firstSize] <bgcolor=cLtRed>;
+        } else {
+            CompressionType compressionType;
+            byte firstPad[3] <hidden=true>;
+            byte firstData[firstSize - 4] <bgcolor=cLtRed>;
+        }
+        FSeek(fileStart + info[secondIndex].offset + secondCompressedOffset);
+        if (secondCompressedLen == secondDecompressedLen) {
+            byte secondData[secondCompressedLen] <bgcolor=cLtRed>;
+        } else {
+            CompressionType compressionType;
+            byte secondPad[3] <hidden=true>;
+            byte secondData[secondCompressedLen - 4] <bgcolor=cLtRed>;
+        }
+        // Uncompressed leading data
+        if (secondCompressedOffset > 0) {
+            FSeek(fileStart + info[secondIndex].offset);
+            byte uncompressedData1[secondCompressedOffset] <bgcolor=cLtRed>;
+        }
+        // Uncompressed trailing data
+        if (secondSize > secondCompressedOffset + secondCompressedLen) {
+            FSeek(fileStart + info[secondIndex].offset + secondCompressedOffset + secondCompressedLen);
+            byte uncompressedData2[secondSize - (secondCompressedOffset + secondCompressedLen)] <bgcolor=cLtRed>;
+        }
+        FSeek(pos);
+    } else {
+        uint32 bufferCount;
+        if (infoCount != 0) {
+            STextureCompressedBufferInfo buffer(fileStart)[infoCount] <optimize=false>;
+        }
     }
 };
 
@@ -221,8 +267,12 @@ struct STextureHeader
     uint32 width;
     uint32 height;
     uint32 layers;
-    uint32 tileMode; // ?
-    uint32 swizzle; // ?
+    if (form.readerVersion == 0x41) { // Metroid Prime 4
+        uint8 components[4];
+    } else {
+        uint32 tileMode; // ?
+        uint32 swizzle; // ?
+    }
     uint32 mips;
     uint32 mipSizes[mips] <format=hex>;
     STextureSamplerData samplerData;
