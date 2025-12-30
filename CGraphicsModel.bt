@@ -30,8 +30,8 @@ struct SModelWindData {
     CVector3f WindMax;
     float unk;
   } windset[windSets];
-  uint32 unkD;
-  byte unkData[unkD];
+  // uint32 unkD;
+  // byte unkData[unkD];
 };
 
 struct SCausticData {
@@ -329,6 +329,8 @@ typedef struct(int readerVersion, int writerVersion) {
                     CLayeredTextureData data;
                 } else if (IsTextureMaterialDataId(dataId)) {
                         // TODO
+                } else if (dataId == DATA_ID_XCH0) {
+                  byte unk[56];
                 }
             }
             break;
@@ -498,11 +500,12 @@ struct SVertexDataComponent {
 };
 
 struct SVertexBufferInfo {
-    uint32 vertexCount;
+    // uint32 vertexCount;
     uint32 numAttributes;
     SVertexDataComponent component[numAttributes];
     if (!isDKCTF)
     {
+        uint32 unk2;
         byte unk;
     }
 };
@@ -565,12 +568,15 @@ typedef struct(int readerVersion, int writerVersion) {
   case "MESH":
     SMeshLoadInformation loadInformation;
     break;
-    case "VBUF":
-        CGraphicsVertexBufferToken data;
-        break;
-    case "IBUF":
-        CGraphicsIndexBufferToken data;
-        break;
+  case "VBUF":
+    CGraphicsVertexBufferToken data;
+    break;
+  case "IBUF":
+    CGraphicsIndexBufferToken data;
+    break;
+  case "GPU ":
+    byte data[chunk.size];
+    break;
   }
   FSeek(pos + chunk.size);
 } ModelChunk <name=(Str("%s chunk", chunk.id))>;
@@ -596,6 +602,7 @@ struct SModelBufferInfo
     uint32 offset <format=hex>;
     uint32 size <format=hex>;
     uint32 destSize <format=hex>;
+    uint32 unk <format=hex>;
 };
 
 // NModelFormat::SMetaData

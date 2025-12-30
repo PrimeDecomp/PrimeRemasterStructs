@@ -39,9 +39,40 @@ struct ModConVisualData {
         } objectXf[objectTransformCount];
     }
 
-    uint32 byteCount;
-    if (byteCount > 0) {
-        byte bytes[byteCount];
+    uint32 unkCount;
+    if (unkCount > 0) {
+        // ?
+        struct {
+            float x;
+            float y;
+            uint32 z;
+            uint32 w[z];
+        } unk[unkCount] <optimize = false>;
+    }
+
+    uint32 byteCount2;
+    if (byteCount2 > 0) {
+        byte bytes2[byteCount2];
+    }
+
+    uint32 byteCount3;
+    if (byteCount3 > 0) {
+        byte bytes3[byteCount3];
+    }
+
+    uint32 byteCount4;
+    if (byteCount4 > 0) {
+        byte bytes4[byteCount4];
+    }
+
+    uint32 byteCount5;
+    if (byteCount5 > 0) {
+        byte bytes5[byteCount5];
+    }
+
+    uint32 byteCount6;
+    if (byteCount6 > 0) {
+        byte bytes6[byteCount6];
     }
 
     uint32 shortCount;
@@ -54,15 +85,23 @@ struct ModConVisualData {
         uint16 shorts2[shortCount2];
     }
 
-    uint32 byteCount2;
-    if (byteCount2 > 0) {
-        byte bytes2[byteCount2];
+    uint32 byteCount7;
+    if (byteCount7 > 0) {
+        byte bytes7[byteCount7];
     }
 
-    uint32 byteCount3;
-    if (byteCount3 > 0) {
-        byte bytes3[byteCount3];
+    uint32 byteCount8;
+    if (byteCount8 > 0) {
+        byte bytes8[byteCount8];
     }
+
+    uint32 dwordCount;
+    if (dwordCount > 0) {
+        uint32 dwords[dwordCount];
+    }
+
+    uint32 unkCount1;
+    uint32 unkCount2;
 
     uint32 atlasLookupCount1;
     if (atlasLookupCount1 > 0) {
@@ -155,7 +194,7 @@ typedef struct {
 
 struct CModConData(uint64 size) {
     local uint64 start <hidden = true> = FTell();
-    while (FTell() < start + size) {
+    while (FTell() + 4 < start + size) {
         ModConChunk data;
     }
 };

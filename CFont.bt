@@ -35,7 +35,7 @@ typedef struct CFont {
     GUID id;
   } Guids[guidCount];
 
-  uint32 unknowValue;
+  // uint32 unknowValue;
 
   uint32 floatCount01;
   float floatValues01[floatCount01];
