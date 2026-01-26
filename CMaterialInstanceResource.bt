@@ -4,6 +4,16 @@
 #include "CChunkDescriptor.bt"
 #include "NGraphicsMaterial.bt"
 
+int getCountFromBits(int b) {
+  local int count = 0;
+
+  while (b > 0) {
+    count += (b & 1);
+    b >>= 1;
+  }
+
+  return count;
+}
 typedef struct {
   FourCC type;
   FourCC id;
@@ -15,13 +25,64 @@ typedef struct {
   ChunkDescriptor chunk;
   GUID guid1;
   GUID guid2;
-  uint unk1;
-  uchar unk2;
-  uint unk3;
-  uint unk4;
-  uint variableDescCount;
-  CVariableDesc varibleDescs[variableDescCount];
-  uint dataCount;
+  if (form.readerVersion == 37) {
+    uchar unkByte;
+    uchar unkByte2;
+    uint unkInt;
+    uint unkInt2;
+    uint variableDescCount;
+    CVariableDesc variableDescs[variableDescCount];
+    uchar unkByte3;
+
+    if (unkByte3) {
+        struct {
+            ubyte packedCount;
+            local int actualCount = getCountFromBits(packedCount);
+            if (actualCount > 0) {
+                struct {
+                    uint unkCount;
+                    struct {
+                        float unk1;
+                        float unk2;
+                        uchar unk3;
+                        uchar unk4;
+                        local int uVar3 <format = hex> = unk3 & 0xfffe00ff | (uint)(byte)0 << 8 | 0x10000;
+                        if (unk3 & 0xFF == 5) {
+                            uint unk5;
+                            uint unk6;
+                        } 
+                        if (uVar3 & 0xFF00 == 0x500) {
+                            uint unk5;
+                            uint unk6;
+                        }
+                    } unkData[unkCount]<optimize = false>;
+                    
+                    float unk1;
+                    float unk2;
+                    uchar unk3;
+                    uchar unk4;
+                    uchar unk5;
+                } unkData[actualCount] <optimize = false>;
+            }
+        } unkData[unkByte3] <optimize = false>;
+    }
+    
+    ubyte unk4;
+  } else {
+    uint unk1;
+    uchar unk2;
+    uint unk3;
+    uint unk4;
+  }
+  //  uint variableDescCount;
+  //  CVariableDesc varibleDescs[variableDescCount];
+  //  if (form.readerVersion == 37) {
+  //    uchar unk5;
+  //    uchar unk6;
+  //    uint unk7;
+  //  } else {
+  //    uint dataCount;
+  //  }
 
 } CMaterialInstanceResource;
 

@@ -58,7 +58,7 @@ typedef struct {
     }
     break;
   case "MATI":
-    //CMaterialInstanceResource materialInstance;
+    CMaterialInstanceResource materialInstance;
     break;
   case "CAUD":
     //CAudioSoundEffect audioSoundEffect;

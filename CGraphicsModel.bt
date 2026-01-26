@@ -355,56 +355,65 @@ string CMaterialDataRead(CMaterialData &mat) {
 }
 
 typedef struct(int readerVersion, int writerVersion) {
-  if (ReadByte() == 0 || !isDKCTF) //NS, use anti isDKCTF so MP1R models don't break
-  {
-    local uint useMaterialTypeChunk <hidden=true> = 1;
-    CStringFixed name;
-  }
-  else
-  {
-    local uint useMaterialTypeChunk <hidden=true> = 0;
-    CString name;
-  }
-  GUID shaderID;
-  if (isDKCTF)
-  {
-    local uint traitCount <hidden=true> = 1; //Hack it to 1
-  }
-  else
-  {
-    GUID guid2; //unsure
-    uint unk1;
-    uint unk2;
-    uint traitCount;
-  }
-    if (traitCount != 0) {
-        struct { FourCC value; } traits[traitCount] <read=(ReadTrait(value))>;
+  if (readerVersion != 163 && readerVersion != 177) {
+    if (ReadByte() == 0 || !isDKCTF) //NS, use anti isDKCTF so MP1R models don't break
+    {
+      local uint useMaterialTypeChunk <hidden=true> = 1;
+      CStringFixed name;
     }
-  if (isDKCTF == 1)
-  {
-    uint flags;
-  }
-  else
-  {
-    uint variableDescCount;
-    if (variableDescCount != 0) {
-        CVariableDesc variableDescs[variableDescCount];
+    else
+    {
+      local uint useMaterialTypeChunk <hidden=true> = 0;
+      CString name;
     }
-  }
-  //material data types
-  if (readerVersion != 163) {
-    // Metroid Prime remastered and earlier
+    GUID shaderID;
+    if (isDKCTF)
+    {
+      local uint traitCount <hidden=true> = 1; //Hack it to 1
+    }
+    else if (readerVersion != 163 && readerVersion != 177)
+    {
+      GUID guid2; //unsure
+      uint unk1;
+      uint unk2;
+      uint traitCount;
+    }
+      if (traitCount != 0) {
+          struct { FourCC value; } traits[traitCount] <read=(ReadTrait(value))>;
+      }
+    if (isDKCTF == 1)
+    {
+      uint flags;
+    }
+    else if (readerVersion != 163 && readerVersion != 177)
+    {
+      uint variableDescCount;
+      if (variableDescCount != 0) {
+          CVariableDesc variableDescs[variableDescCount];
+      }
+    }
+
+    //material data types
     uint dataCount;
     if (useMaterialTypeChunk || !isDKCTF)
     {
       MaterialType dataTypes(readerVersion, writerVersion)[dataCount];
     }
+    CMaterialData materialData(readerVersion, writerVersion)[dataCount]<optimize = false>;
+  } else if (parentof(this).unkFcc != "LEGA") {
+    uint unk1;
+    uint unk2;
+    GUID unkGuid1;
+    GUID unkGuid2;
+    GUID unkGuid3;
+    uint unk3;
   } else {
     uint dataCount;
+    CMaterialData materialData(readerVersion, writerVersion)[dataCount]<optimize = false>;
   }
+  
   // data parse
-  CMaterialData materialData(readerVersion, writerVersion)[dataCount] <optimize = false>;
-} CMaterialCache <name=(Str("%s %s", this.name.text, GUIDToString(this.shaderID)))>;
+} CMaterialCache;// <name=(Str("%s %s", this.name.text, GUIDToString(this.shaderID)))>;
 
 typedef struct {
   if (isDKCTF)
@@ -554,10 +563,11 @@ typedef struct(int readerVersion, int writerVersion) {
   case "MTRL":
     if (isDKCTF == 0)
     {
-        if (readerVersion == 163) {
+        if (readerVersion == 163 || readerVersion == 177) {
             FourCC unkFcc;// LEGA?
+        } else {
+          uint unk;
         }
-        uint unk;
     }
     uint numMaterials;
     CMaterialCache materials(readerVersion, writerVersion)[numMaterials]<optimize = false>;

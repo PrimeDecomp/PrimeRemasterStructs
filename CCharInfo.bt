@@ -69,7 +69,8 @@ struct SAbsContextLoad {
 struct CAssetHeader
 {
     ushort typeID;
-    ushort version;
+    uchar unk1;
+    uchar unk2;
 };
 
 struct NameHashList
@@ -83,8 +84,9 @@ struct NameHashList
 
 struct StringList
 {
-    uint stringTableSize;
-    local uint pos <format=hex> = FTell();
+  uint stringTableSize;
+  local uint pos<format = hex> = FTell();
+    
 
     while (true)
     {
@@ -105,7 +107,7 @@ struct CPooledNameData
     uint nameHashCounts[hashListCount];
     uint unk;
     //List of string hashes + indices
-    NameHashList hashList[hashListCount]<optimize=false>;
+    NameHashList hashList[hashListCount]<optimize = false>;
 };
 
 struct Transform {
@@ -529,159 +531,161 @@ struct CEventStreamDataSet {
 
 struct CCharInfo
 {
-    if (!isDKCTF)
-    {
-        CPooledNameData namePool;
-    }
-    byte unk1;
-    byte unk2; //boolean
-    char data[unk1 * 2];
+    if (form.readerVersion < 161) {
+        if (!isDKCTF)
+        {
+            CPooledNameData namePool;
+        }
+        byte unk1;
+        byte unk2; //boolean
+        char data[unk1 * 2];
 
-    if (isDKCTF)
-    {
-        byte unk3;
-        byte unk4;
-        byte unk2[12];
-        byte flags1;
-        uint16 flags2;
+        if (isDKCTF)
+        {
+            byte unk3;
+            byte unk4;
+            byte unk2[12];
+            byte flags1;
+            uint16 flags2;
+        } else {
+            SAnimContextLoad animCtxLoadDummy;
+            local int i;
+            local int id;
+            Printf("=== ANIM CTX ===\n");
+            for (i = 0; i < animCtxLoadDummy.animCtx.nodeSet.nodeCount; ++i) {
+                id = animCtxLoadDummy.animCtx.nodeSet.nodeId[i];
+                Printf("%s -> 0x%08X (0x%04X, 0x%04X)  -> %i\n", namePool.stringList.text[namePool.hashList[animCtxLoadDummy.animCtx.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
+            }
+            SAbsContextLoad absCtxLoadDummy;
+            Printf("=== ABS CTX ===\n");
+            for (i = 0; i < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++i) {
+                id = absCtxLoadDummy.absContext.nodeSet.nodeId[i];
+                Printf("%s -> 0x%08X (0x%04X, 0x%04X) -> %i\n", namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
+            }
+            SRenderContext renderCtx;
+            Printf("=== RENDER CTX ===\n");
+            local int j;
+            local int k;
+            local int a;
+            local int b;
+            local int c;
+            local int d;
+            local string parentName;
+            for (i = 0; i < renderCtx.unk4; ++i) {
+                Printf("v %f %f %f\n",  renderCtx.data.data.xfs2[i].m03, renderCtx.data.data.xfs2[i].m13,renderCtx.data.data.xfs2[i].m23);
+            }
+            for (i = 0; i < renderCtx.unk4; ++i) {
+                for (j = 0; j < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++j) {
+                    parentName = "";
+                    a = absCtxLoadDummy.absContext.nodeSet.nodeId[j] & 0xFFFF;
+                    b = renderCtx.data.data.segIDs[i];
+                    c = absCtxLoadDummy.absContext.unk5[i].a;
+                    for (k = 0; k < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++k) {
+                        d = absCtxLoadDummy.absContext.nodeSet.nodeId[k] & 0xFFFF;
+                        if (d == c) {
+                            parentName = namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[k]].text;
+                            break;
+                        }
+                    }
+
+                    for (k = 0; k < renderCtx.unk4; ++k) {
+                        if (renderCtx.data.data.segIDs[k] == d) {
+                            break;
+                        }
+                    }
+
+                    if (a == b) {
+                        Printf("o %s %04X -> %s - %04X\n", parentName, c, namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[j]].text, b);
+                        if (c != 0xFFFF) {
+                            Printf("l %i %i\n", k + 1,  i + 1);
+                        } else {
+                            Printf("f %i %i %i\n", i + 1, i + 1, i + 1);
+                        }
+                    }
+                }
+            }
+            SChannelLoad channel;
+            ubyte unk3;
+            ubyte unk4;
+            ubyte unk5;
+            uint16 unk6;
+            uint16 unk7;
+            ubyte unk8;
+
+            if (unk8) {
+                SStreamFragDecodeData streamFragDecodeData;
+            }
+
+            ubyte unk9;
+            if (unk9) {
+                uint constPoolCount;
+                if (constPoolCount) {
+                    SConstPool constPools[constPoolCount] <optimize = false>;
+                }
+            }
+
+            uint16 unk10;
+
+            if (unk6) {
+                CAnim anims[unk6] <optimize = false>;
+            }
+
+            if (unk5 != 0) {
+                struct SAnchorInfo {
+                    uint16 unk1;
+                    uint16 unk2;
+                    uint32 unk3;
+                    uint32 unk4;
+                } anchors[unk5];
+            }
+
+            if (unk3 != 0) {
+                SModelNode modelNodes[unk3] <optimize = false>;
+            }
+
+            SSubCharData subCharData;
+            int16 unk12;
+            uint16 unk13;
+
+            char unkData[-((unk12 >> 15) & 1) & ~0x3FFFF | (unk12 & 0xFFFF) << 2];
+            char unkData2[unk13];
+            uint unk14;
+            uint unk15;
+            uchar unkData3[unk14 * 8];
+            uchar unkData4[unk15];
+            if (unk7) {
+                SAnimParamNode paramNodes[unk7] <optimize = false>;
+            }
+            if (unk6) {
+                CGuid guids[unk6];
+                uint unk16[unk6];
+            }
+            uchar hasCollisionPrimitives;
+            if (hasCollisionPrimitives) {
+                CAnimCollisionPrimData collisionPrimData;
+            }
+
+            uchar hasEffectState;
+            if (hasEffectState) {
+                CEffectState effectState;
+            }
+            uchar hasActionData;
+            if (hasActionData) {
+                CActionData actionData;
+            }
+            return;
+            uchar hasTransData;
+            if (hasTransData) {
+                STransData transData;
+            }
+
+            uchar hasEffectStreamDataSet;
+            if (hasEffectStreamDataSet) {
+                CEventStreamDataSet effectStreamDataSet;
+            }
+        }
     } else {
-        SAnimContextLoad animCtxLoadDummy;
-        local int i;
-        local int id;
-        Printf("=== ANIM CTX ===\n");
-        for (i = 0; i < animCtxLoadDummy.animCtx.nodeSet.nodeCount; ++i) {
-            id = animCtxLoadDummy.animCtx.nodeSet.nodeId[i];
-            Printf("%s -> 0x%08X (0x%04X, 0x%04X)  -> %i\n", namePool.stringList.text[namePool.hashList[animCtxLoadDummy.animCtx.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
-        }
-        SAbsContextLoad absCtxLoadDummy;
-        Printf("=== ABS CTX ===\n");
-        for (i = 0; i < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++i) {
-            id = absCtxLoadDummy.absContext.nodeSet.nodeId[i];
-            Printf("%s -> 0x%08X (0x%04X, 0x%04X) -> %i\n", namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[i]].text, id, (id >> 16) & 0xFFFF, id & 0xFFFF, i);
-        }
-        SRenderContext renderCtx;
-        Printf("=== RENDER CTX ===\n");
-        local int j;
-        local int k;
-        local int a;
-        local int b;
-        local int c;
-        local int d;
-        local string parentName;
-        for (i = 0; i < renderCtx.unk4; ++i) {
-            Printf("v %f %f %f\n",  renderCtx.data.data.xfs2[i].m03, renderCtx.data.data.xfs2[i].m13,renderCtx.data.data.xfs2[i].m23);
-        }
-        for (i = 0; i < renderCtx.unk4; ++i) {
-            for (j = 0; j < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++j) {
-                parentName = "";
-                a = absCtxLoadDummy.absContext.nodeSet.nodeId[j] & 0xFFFF;
-                b = renderCtx.data.data.segIDs[i];
-                c = absCtxLoadDummy.absContext.unk5[i].a;
-                for (k = 0; k < absCtxLoadDummy.absContext.nodeSet.nodeCount; ++k) {
-                    d = absCtxLoadDummy.absContext.nodeSet.nodeId[k] & 0xFFFF;
-                    if (d == c) {
-                        parentName = namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[k]].text;
-                        break;
-                    }
-                }
-
-                for (k = 0; k < renderCtx.unk4; ++k) {
-                    if (renderCtx.data.data.segIDs[k] == d) {
-                        break;
-                    }
-                }
-
-                if (a == b) {
-                    Printf("o %s %04X -> %s - %04X\n", parentName, c, namePool.stringList.text[namePool.hashList[absCtxLoadDummy.absContext.nodeSet.nameSet].stringIDs[j]].text, b);
-                    if (c != 0xFFFF) {
-                        Printf("l %i %i\n", k + 1,  i + 1);
-                    } else {
-                        Printf("f %i %i %i\n", i + 1, i + 1, i + 1);
-                    }
-                }
-            }
-        }
-        SChannelLoad channel;
-        ubyte unk3;
-        ubyte unk4;
-        ubyte unk5;
-        uint16 unk6;
-        uint16 unk7;
-        ubyte unk8;
-
-        if (unk8) {
-            SStreamFragDecodeData streamFragDecodeData;
-        }
-
-        ubyte unk9;
-        if (unk9) {
-            uint constPoolCount;
-            if (constPoolCount) {
-                SConstPool constPools[constPoolCount] <optimize = false>;
-            }
-        }
-
-        uint16 unk10;
-
-        if (unk6) {
-            CAnim anims[unk6] <optimize = false>;
-        }
-
-        if (unk5 != 0) {
-            struct SAnchorInfo {
-                uint16 unk1;
-                uint16 unk2;
-                uint32 unk3;
-                uint32 unk4;
-            } anchors[unk5];
-        }
-
-        if (unk3 != 0) {
-            SModelNode modelNodes[unk3] <optimize = false>;
-        }
-
-        SSubCharData subCharData;
-        int16 unk12;
-        uint16 unk13;
-
-        char unkData[-((unk12 >> 15) & 1) & ~0x3FFFF | (unk12 & 0xFFFF) << 2];
-        char unkData2[unk13];
-        uint unk14;
-        uint unk15;
-        uchar unkData3[unk14 * 8];
-        uchar unkData4[unk15];
-        if (unk7) {
-            SAnimParamNode paramNodes[unk7] <optimize = false>;
-        }
-        if (unk6) {
-            CGuid guids[unk6];
-            uint unk16[unk6];
-        }
-        uchar hasCollisionPrimitives;
-        if (hasCollisionPrimitives) {
-            CAnimCollisionPrimData collisionPrimData;
-        }
-
-        uchar hasEffectState;
-        if (hasEffectState) {
-            CEffectState effectState;
-        }
-        uchar hasActionData;
-        if (hasActionData) {
-            CActionData actionData;
-        }
-        return;
-        uchar hasTransData;
-        if (hasTransData) {
-            STransData transData;
-        }
-
-        uchar hasEffectStreamDataSet;
-        if (hasEffectStreamDataSet) {
-            CEventStreamDataSet effectStreamDataSet;
-        }
     }
-
 };
 
 struct CAnimationIdMap
@@ -724,48 +728,56 @@ struct CAnimationInfo
 
 struct FCharInfo
 {
-    CAssetHeader assetHeader;
-    if (isDKCTF)
-    {
-        CCharInfo charInfo<optimize=false>;
-        if (ReadByte() == 0)
+    if (form.readerVersion != 161) {
+        CAssetHeader assetHeader;
+        if (isDKCTF)
         {
-           CStringFixed name;
+            CCharInfo charInfo<optimize=false>;
+            if (ReadByte() == 0)
+            {
+            CStringFixed name;
+            }
+            else
+            {
+            CString name;
+            }
+            GUID skeletonID;
+            uint32 modelSets;
+            for (charinfoi = 0; charinfoi < modelSets; charinfoi++)
+            {
+                CCharacterModelSet cms;
+            }
+            uint32 animInfos;
+            for (charinfoi = 0; charinfoi < animInfos; charinfoi++)
+            {
+                CAnimationInfo cai;
+            }
+            if (charInfo.flags1 && charInfo.flags2 && 2000)
+            {
+                CAnimationIdMap caim;
+            }
+            if (charInfo.flags1 && charInfo.flags2 && 8000)
+            {
+                //CTransitionInfo cti;
+            }
+            if (charInfo.flags1 && charInfo.flags2 && 4000)
+            {
+                //uint32 ctis;
+                //CCharacterTransformBits cti[ctis];
+            }
+            //CAABox endaabox;
         }
         else
         {
-          CString name;
+            byte count;
+            CCharInfo charInfo[count] <optimize=false>;
         }
-        GUID skeletonID;
-        uint32 modelSets;
-        for (charinfoi = 0; charinfoi < modelSets; charinfoi++)
-        {
-            CCharacterModelSet cms;
-        }
-        uint32 animInfos;
-        for (charinfoi = 0; charinfoi < animInfos; charinfoi++)
-        {
-            CAnimationInfo cai;
-        }
-        if (charInfo.flags1 && charInfo.flags2 && 2000)
-        {
-            CAnimationIdMap caim;
-        }
-        if (charInfo.flags1 && charInfo.flags2 && 8000)
-        {
-            //CTransitionInfo cti;
-        }
-        if (charInfo.flags1 && charInfo.flags2 && 4000)
-        {
-            //uint32 ctis;
-            //CCharacterTransformBits cti[ctis];
-        }
-        //CAABox endaabox;
-    }
-    else
-    {
-        byte count;
-        CCharInfo charInfo[count] <optimize=false>;
+    } else {
+      CAssetHeader assetHeader;
+      uint unk1;
+      uint unk2;
+      uchar unk[(unk2 >> 9) & 7];
+      CCharInfo charInfo;
     }
 };
 
