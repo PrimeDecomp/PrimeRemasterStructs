@@ -48,6 +48,7 @@ typedef struct {
   }
 
 } CMaterialInstanceData; // named from CMaterialInstanceDataBuilder, not guaranteed to be accurate
+
 typedef struct {
   ChunkDescriptor chunk;
   GUID guid1;
@@ -72,29 +73,20 @@ typedef struct {
     }
 
     ubyte unk4;
-
-    uint propertyCount;
-    CMaterialInstanceData data[propertyCount]<optimize = false>;
-    uint unkFccCount;
-    struct {
-        FourCC fcc;
-     } unkFourCC[unkFccCount];
   } else {
     uint unk1;
     uchar unk2;
     uint unk3;
-    uint unk4;
+    uint variableDescCount;
+    CVariableDesc varibleDescs[variableDescCount];
   }
-  //  uint variableDescCount;
-  //  CVariableDesc varibleDescs[variableDescCount];
-  //  if (form.readerVersion == 37) {
-  //    uchar unk5;
-  //    uchar unk6;
-  //    uint unk7;
-  //  } else {
-  //    uint dataCount;
-  //  }
-
+  
+  uint propertyCount;
+  CMaterialInstanceData data[propertyCount]<optimize = false>;
+  uint unkFccCount;
+  struct {
+      FourCC fcc;
+  } unkFourCC[unkFccCount];
 } CMaterialInstanceResource;
 
 #endif// _CMATERIALINSTANCERESOURCE
