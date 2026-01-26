@@ -46,14 +46,13 @@ typedef struct {
                         float unk2;
                         uchar unk3;
                         uchar unk4;
-                        local int uVar3 <format = hex> = unk3 & 0xfffe00ff | (uint)(byte)0 << 8 | 0x10000;
-                        if (unk3 & 0xFF == 5) {
-                            uint unk5;
-                            uint unk6;
+                        if (unk3 == 5) {
+                            float unk5;
+                            float unk6;
                         } 
-                        if (uVar3 & 0xFF00 == 0x500) {
-                            uint unk5;
-                            uint unk6;
+                        if (unk4 == 5) {
+                            float unk7;
+                            float unk8;
                         }
                     } unkData[unkCount]<optimize = false>;
                     
