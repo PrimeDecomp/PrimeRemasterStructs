@@ -119,13 +119,6 @@ typedef struct(int readerVersion, int writerVersion) {
     FourCC type <read=ReadMaterialDataType>;
 } MaterialType <read=(Str("%s %s", id, type))>;
 
-struct STextureUsageInfo {
-    uint flags;
-    uint filter;
-    uint wrapX;
-    uint wrapY;
-    uint wrapZ;
-};
 
 struct SSkinnedModelHeader {
     uint unk;

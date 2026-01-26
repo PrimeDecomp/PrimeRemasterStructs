@@ -3,6 +3,14 @@
 
 #include "Common.bt"
 
+struct STextureUsageInfo {
+    uint flags;
+    uint filter;
+    uint wrapX;
+    uint wrapY;
+    uint wrapZ;
+};
+
 // NMaterialInstance::ETrait
 enum <uint32> ETrait {
     TRAIT_RFBC = 1,

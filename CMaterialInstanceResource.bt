@@ -22,6 +22,32 @@ typedef struct {
 } CVariableDesc <name=(Str("%s %s", type, id))>;
 
 typedef struct {
+  FourCC id;
+  uchar type;
+
+  switch (type) {
+  case 2:
+    int unk;
+    break;
+  case 3:
+  case 4:
+  case 12:
+    CColor4f color;
+    break;
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+    GUID texture;
+    STextureUsageInfo textureUsage;
+    break;
+  case 10:
+    CVector4i unk;
+    break;
+  }
+
+} CMaterialInstanceData; // named from CMaterialInstanceDataBuilder, not guaranteed to be accurate
+typedef struct {
   ChunkDescriptor chunk;
   GUID guid1;
   GUID guid2;
@@ -65,8 +91,15 @@ typedef struct {
             }
         } unkData[unkByte3] <optimize = false>;
     }
-    
+
     ubyte unk4;
+
+    uint propertyCount;
+    CMaterialInstanceData data[propertyCount]<optimize = false>;
+    uint unkFccCount;
+    struct {
+        FourCC fcc;
+     } unkFourCC[unkFccCount];
   } else {
     uint unk1;
     uchar unk2;
