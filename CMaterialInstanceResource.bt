@@ -2,6 +2,7 @@
 #define _CMATERIALINSTANCERESOURCE
 
 #include "CChunkDescriptor.bt"
+#include "CMayaSpline.bt"
 #include "NGraphicsMaterial.bt"
 
 int getCountFromBits(int b) {
@@ -65,29 +66,7 @@ typedef struct {
             ubyte packedCount;
             local int actualCount = getCountFromBits(packedCount);
             if (actualCount > 0) {
-                struct {
-                    uint unkCount;
-                    struct {
-                        float unk1;
-                        float unk2;
-                        uchar unk3;
-                        uchar unk4;
-                        if (unk3 == 5) {
-                            float unk5;
-                            float unk6;
-                        } 
-                        if (unk4 == 5) {
-                            float unk7;
-                            float unk8;
-                        }
-                    } unkData[unkCount]<optimize = false>;
-                    
-                    float unk1;
-                    float unk2;
-                    uchar unk3;
-                    uchar unk4;
-                    uchar unk5;
-                } unkData[actualCount] <optimize = false>;
+              CMayaSpline splines[actualCount] <optimize = false>;
             }
         } unkData[unkByte3] <optimize = false>;
     }
