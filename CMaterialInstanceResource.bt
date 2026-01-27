@@ -45,6 +45,17 @@ typedef struct {
   case 10:
     CVector4i unk;
     break;
+  case 32:
+    uchar unk1[3];
+    CColor4f unk2;
+    CColor4f unk3;
+    break;
+  case 48:
+    uchar unk2[3];
+    CColor4f color1;
+    CColor4f color2;
+    CColor4f color3;
+    break;
   }
 
 } CMaterialInstanceData; // named from CMaterialInstanceDataBuilder, not guaranteed to be accurate
