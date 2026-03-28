@@ -1,0 +1,53 @@
+#ifndef _DIALOGUE
+#define _DIALOGUE
+
+#include "Common.bt"
+
+typedef enum <uint> {
+    Armstrong = 0x3B6D5087,
+    Duke      = 0xF3FA69F7,
+    MacKenzie = 0x3749E413,
+    Tokabi    = 0xF1CAB965,
+    VUE_995   = 0x5AFA1EB5,
+    Samus     = 0x525C2625,
+    Sylux     = 0x97CE32B7,
+    None      = 0x1344B4AA
+} DialogueActor;
+
+typedef struct Line {
+    CStringFixed label;
+    ubyte unk[4];
+    DialogueActor speakerId<format=hex>;
+    DialogueActor targetId<format=hex>;
+    ubyte unk1[4];
+    GUID caud;
+    byte unk2[10];
+};
+
+typedef struct Scene {
+    uint maybe_id <format=hex>;
+    uint unk1;
+    uint unk2[2];
+    ubyte unk3[4];
+    uint unk4[2];
+    ubyte unk5[6];
+    uint unk6;
+    ubyte hasLDCH;
+    if (hasLDCH) {
+        ubyte magic[4];
+        uint ldchSize;
+        uint ldchUnks[4];
+        ubyte unk0[ldchSize];
+    }
+    uint lineCount;
+    Line lines[lineCount] <optimize=false>;
+};
+
+typedef struct Dialogue {
+    uint count;
+    if (count) {
+        Scene scenes[count] <optimize=false>;
+    }
+};
+
+#endif// _DIALOGUE

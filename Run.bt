@@ -40,6 +40,7 @@ if (!exists(isDKCTF)) {
 #include "CFont.bt"
 #include "DependencyGroup.bt"
 #include "NModConFormat.bt"
+#include "Dialogue.bt"
 
 // Custom footer
 #include "Footer.bt"
@@ -107,7 +108,7 @@ typedef struct {
     ModelFile model(form.size, form.readerVersion, form.writerVersion);
     break;
   case "MSBT":
-   // MessageStudioBinaryText text;
+    MessageStudioBinaryText text(form.readerVersion, form.writerVersion);
     break;
   case "PACK":
     CPakFile pak;
@@ -147,6 +148,9 @@ typedef struct {
     break;
   case "MCON":
     CModConData data(form.size);
+    break;
+  case "DLOG":
+    Dialogue data;
     break;
   }
   FSeek(start + form.size);

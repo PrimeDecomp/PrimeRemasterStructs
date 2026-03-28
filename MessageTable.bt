@@ -125,6 +125,7 @@ struct TextsSection {
 
 struct Language (string expectedLanguage) {
     ChunkDescriptor languageChunkHeader;
+    Assert(languageChunkHeader.id == expectedLanguage);
     // Each section here is heavily referenced from https://zeldamods.org/wiki/Msbt
     struct MSBTContents {
         MSBTHeader header;
@@ -138,8 +139,15 @@ struct Language (string expectedLanguage) {
     } contents;
 };
 
-struct MessageStudioBinaryText
-{   
+struct TableName {
+    ChunkDescriptor tableNameChunkHeader;
+    Assert(tableNameChunkHeader.id == "TBNM");
+    CStringFixed name;
+};
+
+struct MessageStudioBinaryText(uint32 readerVersion, uint32 writerVersion)
+{
+    Assert(readerVersion == writerVersion);
     if (isDKCTF == 1)
     {
         Language us_english("USEN");
@@ -151,7 +159,7 @@ struct MessageStudioBinaryText
         Language eu_german("EUGE");
         Language eu_italian("EUIT");
         Language jp_japanese("JPJP");
-    } else {
+    } else if (readerVersion == 10) {
         Language us_english("USEN");
         Language eu_english("EUEN");
         Language eu_french("EUFR");
@@ -165,6 +173,24 @@ struct MessageStudioBinaryText
         Language ch_traditionalchinese("CHTC");
         Language ch_simplifiedchinese("CHSC");
         Language us_spanish("USSP");
+    } else if (readerVersion == 16) {
+        Language us_english("USEN");
+        Language eu_english("EUEN");
+        Language us_portuguese("USPO");
+        Language eu_french("EUFR");
+        Language us_french("USFR");
+        Language eu_spanish("EUSP");
+        Language us_spanish("USSP");
+        Language eu_german("EUGE");
+        Language eu_italian("EUIT");
+        Language eu_dutch("EUDU");
+        Language jp_japanese("JPJP");
+        Language ch_simplifiedchinese("CHSC");
+        Language ko_korean("KOKO");
+        Language ch_traditionalchinese("CHTC");
+        TableName tableName;
+    } else {
+        Assert(false, "Unsupported MSBT version!");
     }
 };
 
