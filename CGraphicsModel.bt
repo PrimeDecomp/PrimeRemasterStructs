@@ -401,6 +401,11 @@ typedef struct(int readerVersion, int writerVersion) {
     GUID unkGuid3;
     uint unk3;
   } else {
+    CStringFixed name;
+    GUID a;
+    GUID b;
+    uint unk1;
+    uint unk2;
     uint dataCount;
     CMaterialData materialData(readerVersion, writerVersion)[dataCount]<optimize = false>;
   }
@@ -557,7 +562,8 @@ typedef struct(int readerVersion, int writerVersion) {
     if (isDKCTF == 0)
     {
         if (readerVersion == 163 || readerVersion == 177) {
-            FourCC unkFcc;// LEGA?
+          FourCC unkFcc; // LEGA?
+          uint unk;
         } else {
           uint unk;
         }

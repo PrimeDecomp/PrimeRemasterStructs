@@ -5,6 +5,22 @@
 #include "SAtlasLookup.bt"
 #include "CMayaSpline.bt"
 
+// NGameArea::ERoomType
+typedef enum <uint16> {
+  // kRoomType_FirstValid = 0,
+  kRoomType_Area = 0,
+  kRoomType_Zone,
+  kRoomType_Universe,
+  kRoomType_HUD,
+  kRoomType_PauseMenu,
+  kRoomType_FrontEnd,
+  kRoomType_Kernel,
+  kRoomType_Hallway,
+  kRoomType_Hub,
+  kRoomType_Level,
+  //kRoomType_LastValid = kRoomType_Level,
+} ERoomType;
+
 typedef enum <uint32> {
     EntityProperties = 0x749749f1,
     FakePlayerControls = 0x4ec5fa3a,
@@ -1112,6 +1128,7 @@ struct ProductionWorkStages {
   }
 };
 
+
 // NGameArea::SGameAreaHeader
 struct SGameAreaHeader {
   if (isDKCTF)
@@ -1121,7 +1138,7 @@ struct SGameAreaHeader {
   else
   {
     CGuid parentRoomId;
-    uint16 unk1;
+    ERoomType roomType;
     uint16 unk2;
     uchar unk3;
     CGuid id_b;
@@ -1158,8 +1175,6 @@ struct GeneratedObjectMap {
     } entry[count];
   }
 };
-
-typedef uint16 ERoomType;
 
 struct DockEntry {
   CGuid a;
