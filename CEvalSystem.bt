@@ -2,26 +2,50 @@
 #define CEVALSYSTEM_BT
 
 typedef struct CEvalId {
-    uint unk1;
+    uint packed;
+    local uint operation = packed & 31;
+    local uint wordIndex = (packed >> 5) & 0xfff;
+    // Word count for value op 1; bit index for value op 0.
+    local uint payload = packed >> 17;
 } CEvalId;
 
 typedef struct CEvalDataHandle {
-    uint unk1;
-    uint unks[unk1 / 4];
+    uint byteSize;
+    uint sampleWords[byteSize / 4];
 } CEvalDataHandle;
 
 typedef struct CEvalDataContext {
-    uint dataLen;
+    uint dataWordCount;
     uint dataHandleCount;
-    char data[dataLen * 4];
+    // Mixed-width data with a trailing endian map; do not read as a uint array.
+    char serializedData[dataWordCount * 4];
     CEvalDataHandle handles[dataHandleCount] <optimize = false>;
 } CEvalDataContext;
 
 typedef struct CEvalSystem {
     CEvalDataContext context;
-    uint unk1;
-    uint unk2;
-    uint unk3;
+    CEvalId update;
+    CEvalId setTime;
+    CEvalId setPhase;
 } CEvalSystem;
+
+// MPR runtime memory layouts.
+struct SAnimUvTransformMprRuntime {
+    float rows[8]; // 2x4; U/V translation at indices 3/7
+};
+struct CAnimatedUVMaterialDataMprRuntime {
+    ubyte materialDataHeader[0x10];
+    uint mode; // 1 enables U-only transforms
+    SAnimUvTransformMprRuntime transforms[3];
+    ubyte padding[4];
+};
+struct CEvalTimeContextMprRuntime {
+    double time;
+    double rate;
+    double duration;
+    double inverseDuration;
+    float wrappedTime;
+    int cycle;
+};
 
 #endif // CEVALSYSTEM_BT

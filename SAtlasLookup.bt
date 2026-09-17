@@ -2,10 +2,11 @@
 #define _SATLASLOOKUP
 
 struct SAtlasLookup {
-  float unkA;
-  float unkB;
-  float unkC;
+  float offsetU;
+  float offsetV;
+  float scale;
   float unkD;
+  // UV = UV * scale + (offsetU, offsetV); scale >= 0 is valid.
 };
 
 #endif// _SATLASLOOKUP

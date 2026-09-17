@@ -1,0 +1,84 @@
+#ifndef _ROOMCONTEXT
+#define _ROOMCONTEXT
+
+#include "Common.bt"
+
+// ROOM SDEN property payloads, after the component-type word.
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    if (propertyId == 0x71a12a41) {
+        uchar unknownRenderFlag;
+    } else if (propertySize > 0) {
+        uchar data[propertySize];
+    }
+    FSeek(start + propertySize);
+} SMPRRoomRenderSettingProperty <optimize=false>;
+
+struct SMPRRoomRenderSettings {
+    uint16 count;
+    if (count > 0) {
+        SMPRRoomRenderSettingProperty properties[count];
+    }
+};
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    if (propertyId == 0xc028d01f) {
+        SMPRRoomRenderSettings renderSettings;
+    } else if (propertySize > 0) {
+        uchar data[propertySize];
+    }
+    FSeek(start + propertySize);
+} SMPRRoomSettingProperty <optimize=false>;
+
+struct SMPRRoomSettingsProperties {
+    uint16 count;
+    if (count > 0) {
+        SMPRRoomSettingProperty properties[count];
+    }
+};
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    if (propertyId == 0x30a4d63d) {
+        CGuid roomId;
+    } else if (propertySize > 0) {
+        uchar data[propertySize];
+    }
+    FSeek(start + propertySize);
+} SMPRRoomControllerProperty <optimize=false>;
+
+struct SMPRRoomControllerProperties {
+    uint16 count;
+    if (count > 0) {
+        SMPRRoomControllerProperty properties[count];
+    }
+};
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    if (propertyId == 0x8582d268 && propertySize == 4) {
+        int32 priority;
+    } else if (propertySize > 0) {
+        uchar data[propertySize];
+    }
+    FSeek(start + propertySize);
+} SMPRBakedLightingPriorityProperty <optimize=false>;
+
+struct SMPRBakedLightingPriorityProperties {
+    uint16 count;
+    if (count > 0) {
+        SMPRBakedLightingPriorityProperty properties[count];
+    }
+};
+
+#endif

@@ -1,0 +1,23 @@
+#ifndef _MPRTIMEPLAYBACKMANAGER
+#define _MPRTIMEPLAYBACKMANAGER
+
+#include "Common.bt"
+
+// Runtime memory layout.
+typedef struct {
+    float time;
+    float minTime;
+    float maxTime;
+    uchar flags <format=hex>; // bits 0-5: direction (1 forward); bit 6: playing; bit 7: looping
+    uchar padding[3];
+} CMPRTimePlaybackManager;
+
+typedef enum <uint32> {
+    MPRPlaybackNone = 0,
+    MPRPlaybackReachedStart = 1,
+    MPRPlaybackReachedEnd = 2,
+    MPRPlaybackLoopedForward = 3,
+    MPRPlaybackLoopedBackward = 4,
+} EMPRPlaybackResult;
+
+#endif

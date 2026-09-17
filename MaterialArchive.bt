@@ -1,25 +1,36 @@
 #ifndef _MATERIALARCHIVE
 #define _MATERIALARCHIVE
+#include "ShaderNVN.bt"
+#include "ShaderDXBC.bt"
+#include "MaterialFeatureDefinitions.bt"
 
 struct SBufferTOCEntry {
-    uint align;
+    uint offset; // Relative to shaderSourceCount, after the TOC.
     uint size;
 };
 
+// Local option indices, least-significant bit first.
+// Each uses max(1, ceil(log2(optionCount))) bits.
 struct CPermutation {
-  uint64 unk1;
-  uint64 unk2;
+  uint64 value[2]; // low word first; no alignment padding
 };
+#include "MaterialRuntime.bt"
 
+// Comments give runtime technique indices.
 enum <char> EMaterialTechnique {
-    kMT_None = 'x', /* offset 0x10 = 9, offset 0x20 = 0, offset 0x28 = 1, type = 0 */
-    kMT_DepthOnly = 'z',/* offset 0x10 = 15, offset 0x20 = 0, offset 0x28 = 1, type 1  */
-    kMT_DeferredGBuffer = 'g',/* offset 0x10 = 15, offset 0x20 = 0, offset 0x28 = 1, type 2  */
-    kMT_DeferredInstance = 'i',/* offset 0x10 = 16, offset 0x20 = 0, offset 0x28 = 1, type 3  */
-    kMT_ForwardRender = 'f', /* offset 0x10 = 13, offset 0x20 = 0, offset 0x28 = 1, type  4 */
-    kMT_ParticleTechniqueSprite = 's', /* offset 0x10 = 23, offset 0x20 = 0, offset 0x28 = 1, type 5  */
-    kMT_ParticleTechniqueSwoosh = 'w', /* offset 0x10 = 23, offset 0x20 = 0, offset 0x28 = 1, type 6 */
-    kMT_ParticleTechniqueModel = 'm', /* offset 0x10 = 22, offset 0x20 = 0, offset 0x28 = 1, type 7  */
+    kMT_None = 'x', // 0
+    kMT_DepthOnly = 'z', // 1
+    kMT_DeferredGBuffer = 'g', // 2
+    kMT_DeferredInstance = 'i', // 3
+    kMT_ForwardRender = 'f', // 4
+    kMT_ParticleTechniqueSprite = 's', // 5
+    kMT_ParticleTechniqueSwoosh = 'w', // 6
+    kMT_ParticleTechniqueModel = 'm', // 7
+    kMT_ThermalHot = 'h', // 8
+    kMT_XRay = 'r', // 9
+    kMT_ParticleTechniqueModel_XRay = 'a', // 10
+    kMT_ParticleTechniqueSprite_XRay = 'y', // 11
+    kMT_ParticleTechniqueSwoosh_XRay = 'b' // 12
 };
 
 struct CShaderIdentifier {
@@ -29,28 +40,34 @@ struct CShaderIdentifier {
 
 struct SShaderTOCEntry {
     CShaderIdentifier identifier;
-    uint unk1;
-    uint unk2;
+    uint offset; // Same origin as SBufferTOCEntry.
+    uint size; // Full SShaderImportDesc size.
 };
 
 struct SMaterialTOCEntry {
     GUID guid;
-    uint unk1;
+    uint materialHash;
     uint nameLen;
     char name[nameLen];
     ushort unk2;
     uint shaderEntryCount;
     SShaderTOCEntry shaderEntries[shaderEntryCount];    
-    SBufferTOCEntry bufferToc;
+    SBufferTOCEntry bufferToc; // Length-prefixed material data, excluding its header.
 };
 
-struct SShaderSource {
+struct SShaderSource(uint isNVN, uint isSDX) {
     uchar state;
     uint strLen;
     if (strLen)
         char str[strLen]; 
     uint dataLen;
-    uchar data[dataLen];
+    if (isNVN && dataLen) {
+        SNVNShaderBinary data(dataLen);
+    } else if (isSDX && dataLen) {
+        SSDXShaderBinary data(dataLen);
+    } else if (dataLen) {
+        uchar data[dataLen];
+    }
 };
 
 struct CShaderDefines {
@@ -72,9 +89,13 @@ struct CShaderDefines {
 };
 
 struct CShaderVariable {
-    ushort unk1;
+    ushort packed;
+    // SNVN type 0 indexes SUniform; type 1 indexes SResource_NVN.
+    local uint valid = packed != 0xffff;
+    local uint type = packed & 1;
+    local uint index = packed >> 1;
 };
-struct SShaderImportDesc {
+struct SShaderImportDesc(uint isNVN) {
     if (!isDKCTF)
     {
         CShaderIdentifier ident;
@@ -94,24 +115,29 @@ struct SShaderImportDesc {
     {
         int computeProgramIndex;
     }
-    uint unk;
+    int unk;
     CShaderDefines defines;
     uint dataSize;
-    union {
-        struct {
-            uint variableCount;
-            CShaderVariable variables[1];
-        } meta;
-        char data[dataSize];
-    } data;
+    if (isNVN && dataSize) {
+        union {
+            uchar raw[dataSize];
+            SNVNReflection decoded(dataSize);
+        } metadata;
+    } else if (dataSize) {
+        uchar metadata[dataSize];
+    }
 };
 
-
+// Postfix boolean expressions.
+enum <uint> EBooleanOpcode {
+    kBool_True = 0, kBool_False = 1, kBool_Equal = 2, kBool_Xor = 3,
+    kBool_Not = 4, kBool_Implies = 5, kBool_And = 6, kBool_Or = 7,
+    kBool_Identifier = 0xffffffff
+};
 struct SExpression {
-    uint unk1;
-    uint unk2;
+    EBooleanOpcode opcode;
+    uint operand; // Identifier index; unused for operators.
 };
-
 
 struct CBooleanExpressionEvaluator {
     uint expressionCount;
@@ -119,17 +145,17 @@ struct CBooleanExpressionEvaluator {
 };
 
 struct SSimpleFeatureInstanceInternalOptionRequirement {
-    uint unk;
+    uint optionMask; // Clear these definition-option bits when a nonempty expression is false.
     CBooleanExpressionEvaluator evaluator;
 };
 
 struct SSimpleFeatureInstanceShaderBinding {
-    CStringFixed name;
+    CStringFixed semantic;
     CStringFixed binding;
 };
 
 struct SSimpleFeatureInstanceInternalOption {
-    uint unk;
+    uint definitionOption;
     CShaderDefines shaderDefines;
     uint bindingCount;
     if (bindingCount) {
@@ -145,24 +171,29 @@ struct CFeatureSet {
 };
 
 struct CSimpleFeatureInstance {
-    FourCC unk1;
-    uint fccCount;
-    uint fccs[fccCount];
-    uint boolExpresionEvalCount;
-    CBooleanExpressionEvaluator evaluators[boolExpresionEvalCount] <optimize = false>;
+    union {
+        FourCC id;
+        EMaterialFeatureDefinition type;
+    } definition;
+    uint dataIdCount;
+    Assert(dataIdCount <= 16);
+    FourCC dataIds[dataIdCount];
+    // Expression i sets bit (i & 31); empty expressions are false.
+    uint flagExpressionCount;
+    CBooleanExpressionEvaluator flagExpressions[flagExpressionCount] <optimize = false>;
     uint internalOptionCount;
     SSimpleFeatureInstanceInternalOption internalOption[internalOptionCount] <optimize = false>;
-    uint unk;
-    uint unkIntCount;
-    Assert(unkIntCount <= 32);
-    uint unkInts[unkIntCount];
+    uint allowedOptions <format=hex>; // Definition-option mask.
+    uint optionMapCount;
+    Assert(optionMapCount <= 32);
+    uint optionMap[optionMapCount]; // Definition -> local option; 0xffffffff = absent.
     uint optionRequirementCount;
     if (optionRequirementCount)
         SSimpleFeatureInstanceInternalOptionRequirement optionRequirements[optionRequirementCount] <optimize = false>;
 };
 
 struct SCompositeFeatureInstanceInternalOptionRequirement {
-    uint unk;
+    uint optionMask; // Clear these local-option bits when the expression is false.
     CBooleanExpressionEvaluator eval;
 };
 
@@ -179,33 +210,34 @@ struct SCompositeFeatureInstanceArgument {
 
 struct CCompositeFeatureInstance {
     CFeatureSet subSet;
-    uint argumentCount1;
-    if (argumentCount1) {
-        SCompositeFeatureInstanceArgument arguments1[argumentCount1] <optimize = false>;
+    uint argumentCount;
+    if (argumentCount) {
+        SCompositeFeatureInstanceArgument arguments[argumentCount] <optimize = false>;
     }
-   uint argumentCount2;
-   if (argumentCount2) {
-       SCompositeFeatureInstanceArgument arguments2[argumentCount2] <optimize = false>;
+   uint bindArgumentCount;
+   if (bindArgumentCount) {
+       SCompositeFeatureInstanceArgument bindArguments[bindArgumentCount] <optimize = false>;
    }
 
    uint optionCount;
-   SCompositeFeatureInstanceInternalOption optionRequirements1[optionCount] <optimize = false>;
+   SCompositeFeatureInstanceInternalOption options[optionCount] <optimize = false>;
     uint optionRequirementsCount;
-   SCompositeFeatureInstanceInternalOptionRequirement optionRequirements2[optionRequirementsCount] <optimize = false>;
+   SCompositeFeatureInstanceInternalOptionRequirement optionRequirements[optionRequirementsCount] <optimize = false>;
 };
 
 struct IFeatureInstance;
 struct CExplicitCompositeFeatureInstance;
 struct CExplicitCompositeFeatureInstance {
     CCompositeFeatureInstance base;
-    IFeatureInstance sub;
+    IFeatureInstance selector;
 };
 
 struct IFeatureInstance {
     uint type;
     CStringFixed name;
     uint dataOrigin;
-    uint optionCount;
+    uint optionCount; // Permutation width = max(1, ceil(log2(optionCount))).
+    Assert(optionCount > 0);
     switch(type) {
         case 0:
             CSimpleFeatureInstance simple <optimize = false>;
@@ -220,22 +252,83 @@ struct IFeatureInstance {
 };
 
 struct SDepthModeState {
-
+    uint enabled;
+    uint compareFunction; // 0 never, 1 always, 2 !=, 3 <, 4 <=, 5 ==, 6 >=, 7 >
+    uint writeEnabled; // 1 = enabled; writes without a depth test use Always.
 };
 
 struct SStencilModeState {
-
+    uint enabled;
+    uint compareFunction;
+    uint operations[3]; // EStencilFunction; order unknown
 };
 
+// Explicit factors and equations take precedence over preset.
+struct STargetBlendMode {
+    int preset; // EBlendMode; -1 = explicit
+    uint colorEquation;
+    uint colorSource;
+    uint colorDestination;
+    uint alphaEquation;
+    uint alphaSource;
+    uint alphaDestination;
+    float constantColor[4];
+    int logicOp; // -1 = unused
+};
+
+struct SBlendState {
+    // 0 preserves state; 0xffffffff applies targets[0] to every target.
+    uint targetMask <format=hex>;
+    uint targetCount;
+    if (targetCount)
+        STargetBlendMode targets[targetCount];
+};
+
+struct SGraphicsScissorRect {
+    int coordinates[4];
+};
+
+// Fields are serialized in this order, regardless of flag-bit order.
 struct CGraphicsState {
-    uint flags;
+    uint flags <format=hex>;
+    if (flags & (1 << 1)) uchar cullMode; // 0 none, 1 front, 2 back
+    if (flags & (1 << 2)) uchar frontFace; // 0 CCW, 1 CW
+    if (flags & (1 << 3)) SDepthModeState depth;
+    if (flags & (1 << 12)) float depthBias[3];
+    if (flags & (1 << 4)) SStencilModeState stencil;
+    if (flags & (1 << 11)) uchar stencilMasks[3];
+    if (flags & (1 << 13)) uchar alphaToCoverage;
+    if (flags & (1 << 0)) SBlendState blend;
+    if (flags & (1 << 10)) uchar colorMask[2]; // RGBA write bits, target mask
+    if (flags & (1 << 5)) uint fillMode; // 0 line, otherwise fill
+    if (flags & (1 << 6)) float clearColor[4];
+    if (flags & (1 << 7)) float clearDepth;
+    if (flags & (1 << 8)) uint clearStencil;
+    if (flags & (1 << 14)) uint rasterControl[2];
+    if (flags & (1 << 9)) {
+        uint scissorCount;
+        if (scissorCount) SGraphicsScissorRect scissors[scissorCount];
+    }
+    if (flags & (1 << 15)) float lineWidth;
 };
 
 struct SOverrideState {
+    // An empty expression is unconditional.
     CBooleanExpressionEvaluator evaluator;
     CGraphicsState state;  
 };
-struct SMaterialImportDesc {
+struct SFeaturedMaterialTechnique {
+    uchar present;
+    if (present) {
+        CFeatureSet featureSet;
+        CGraphicsState state;
+        uint overrideStateCount;
+        if (overrideStateCount)
+            SOverrideState overrideStates[overrideStateCount] <optimize = false>;
+    }
+};
+
+struct SMaterialImportDesc(uint isNVN) {
     if (!isDKCTF)
     {
         GUID guid;
@@ -248,29 +341,30 @@ struct SMaterialImportDesc {
     }
     ushort unk2;
     uint shaderImportCount;
-    SShaderImportDesc shaderImportDescs[shaderImportCount] <optimize = false>;
+    SShaderImportDesc shaderImportDescs(isNVN)[shaderImportCount] <optimize = false>;
     uint dataSize;
-    union {
-        struct {
-            uchar hasFeatureSet;
-            if (hasFeatureSet) {
-                CFeatureSet featureSet;
+    if (dataSize) {
+        local uint64 dataEnd = FTell() + dataSize;
+        union {
+            if (!isDKCTF) {
+                struct {
+                    // Indexed by runtime technique, including absent entries.
+                    SFeaturedMaterialTechnique techniques[16] <optimize = false>;
+                    Assert(FTell() == dataEnd, "Featured material metadata size mismatch");
+                } decoded;
             }
-            CGraphicsState state;
-            uint overrideStateCount;
-            if (overrideStateCount) {
-                SOverrideState overrideStates;
-            }
-        } meta;
-        char data[dataSize];
-    } data;
+            uchar raw[dataSize];
+        } data;
+    }
 };
 
 struct MaterialBackend {
     ChunkDescriptor chunk;
+    local uint isNVN = !isDKCTF && chunk.id == "SNVN";
+    local uint isSDX = !isDKCTF && chunk.id == "SDX ";
     local uint64 start <format=hex, hidden=true> = FTell();
     uint flags;
-    if (flags != 0) {
+    if ((flags & 1) != 0 || (isDKCTF && flags != 0)) {
         uint tocSize;
         uint bufferEntryCount;
         SBufferTOCEntry bufferEntries[bufferEntryCount];
@@ -284,11 +378,11 @@ struct MaterialBackend {
     if (!isDKCTF)
     {
 	    uint shaderSourceCount;
-	    SShaderSource shaderSources[shaderSourceCount]  <optimize = false>;
+	    SShaderSource shaderSources(isNVN, isSDX)[shaderSourceCount]  <optimize = false>;
 	}
 
 	uint materialImportDescCount;
-	SMaterialImportDesc materialImportDescs[materialImportDescCount] <optimize = false>;
+	SMaterialImportDesc materialImportDescs(isNVN)[materialImportDescCount] <optimize = false>;
 
     if ((FTell() - start) != chunk.size) {
         char data[chunk.size - (FTell() - start)];

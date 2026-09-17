@@ -1,0 +1,42 @@
+#ifndef _LOADUNITLOGIC
+#define _LOADUNITLOGIC
+
+#include "Common.bt"
+
+// Prefix expressions with signed int32 operands; AND/OR evaluate both sides.
+typedef enum <uint16> {
+    LoadUnitEqual = 0,
+    LoadUnitNotEqual = 1,
+    LoadUnitLess = 2,
+    LoadUnitGreater = 3,
+    LoadUnitLessEqual = 4,
+    LoadUnitGreaterEqual = 5,
+    LoadUnitAnd = 6,
+    LoadUnitOr = 7
+} ELoadUnitLogicOperator;
+
+struct LoadUnitLogic(uint32 byteSize) {
+    local uint64 start <hidden=true> = FTell();
+    Assert(byteSize >= 2, "Truncated load-unit condition");
+    uint16 tokenCount;
+    if (tokenCount) {
+        struct {
+            uint16 kind;
+            if (kind == 0) {
+                CGuid environmentVarId;
+                CStringFixed name; // debug name; lookup uses the GUID
+            } else if (kind == 1) {
+                ELoadUnitLogicOperator op;
+            } else if (kind == 2) {
+                int32 value;
+            }
+            // Unknown kinds have no payload.
+            Assert(FTell() <= start + byteSize, "Load-unit token exceeds its blob");
+        } tokens[tokenCount] <optimize=false>;
+    }
+    if (FTell() < start + byteSize) {
+        uchar trailingData[start + byteSize - FTell()];
+    }
+};
+
+#endif // _LOADUNITLOGIC

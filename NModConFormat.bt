@@ -16,9 +16,9 @@ struct ModConVisualData {
         CGuid modelId[count];
     }
 
-    uint32 count2;
-    if (count2 > 0) {
-        CGuid ids2[count2];
+    uint32 worldModelCount;
+    if (worldModelCount > 0) {
+        CGuid worldModelId[worldModelCount]; // WMDL preload table
     }
 
     uint32 colorCount;
@@ -31,12 +31,12 @@ struct ModConVisualData {
         CTransform4f xf[transformCount];
     }
 
-    uint32 objectTransformCount;
-    if (objectTransformCount > 0) {
+    uint32 worldInstanceCount;
+    if (worldInstanceCount > 0) {
         struct {
-            CGuid id;
+            CGuid modelId; // WMDL ID
             CTransform4f xf;
-        } objectXf[objectTransformCount];
+        } worldInstance[worldInstanceCount];
     }
 
     uint32 byteCount;
@@ -44,19 +44,21 @@ struct ModConVisualData {
         byte bytes[byteCount];
     }
 
-    uint32 shortCount;
-    if (shortCount > 0) {
-        uint16 shorts[shortCount];
+    // Indices in visual order.
+    uint32 modelIndexCount;
+    if (modelIndexCount > 0) {
+        uint16 modelIndex[modelIndexCount];
     }
 
-    uint32 shortCount2;
-    if (shortCount2 > 0) {
-        uint16 shorts2[shortCount2];
+    // Draws use color[colorIndex[visual]].
+    uint32 colorIndexCount;
+    if (colorIndexCount > 0) {
+        uint16 colorIndex[colorIndexCount];
     }
 
-    uint32 byteCount2;
-    if (byteCount2 > 0) {
-        byte bytes2[byteCount2];
+    uint32 gbufferFlagCount;
+    if (gbufferFlagCount > 0) {
+        byte gbufferFlags[gbufferFlagCount];
     }
 
     uint32 byteCount3;
@@ -64,14 +66,16 @@ struct ModConVisualData {
         byte bytes3[byteCount3];
     }
 
-    uint32 atlasLookupCount1;
-    if (atlasLookupCount1 > 0) {
-        SAtlasLookup atlasLookup1[atlasLookupCount1];
+    // Empty or one lookup per visual, in transform order.
+    uint32 visualAtlasCount;
+    if (visualAtlasCount > 0) {
+        SAtlasLookup visualAtlas[visualAtlasCount];
     }
 
-    uint32 atlasLookupCount2;
-    if (atlasLookupCount2 > 0) {
-        SAtlasLookup atlasLookup2[atlasLookupCount2];
+    // Empty or one lookup per world instance.
+    uint32 worldAtlasCount;
+    if (worldAtlasCount > 0) {
+        SAtlasLookup worldAtlas[worldAtlasCount];
     }
 
     uint32 renderOctreeFlags;
@@ -116,6 +120,28 @@ struct ModConVertexBlendData {
     }
 };
 
+struct ModConDecal {
+    CGuid id;
+    CTransform4f xf;
+    uint16 materialIndex;
+    float angleRadians; // Triangle-angle limit.
+    int16 sortOrder;
+    byte unknown;
+};
+
+struct ModConDecalData {
+    uint32 decalCount;
+    uint16 materialCount;
+    uint16 unknownShort;
+    uint32 unknownWords[2];
+    if (materialCount > 0) {
+        CGuid materialId[materialCount]; // MATI
+    }
+    if (decalCount > 0) {
+        ModConDecal decal[decalCount];
+    }
+};
+
 struct ModConChunk;
 typedef struct {
     if (ReadString(FTell(), 4) == "PEEK") {
@@ -136,6 +162,9 @@ typedef struct {
             break;
         case "MCCD":
             CCollisionTree data(desc.size, kCOL_AABox);
+            break;
+        case "MCDD":
+            ModConDecalData data;
             break;
         case "MCVB":
             ModConVertexBlendData data;

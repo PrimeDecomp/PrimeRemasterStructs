@@ -1,0 +1,101 @@
+#ifndef _BAKEDLIGHTINGRUNTIME
+#define _BAKEDLIGHTINGRUNTIME
+
+#include "CAABox.bt"
+#include "CTransform4f.bt"
+#include "CVector3i.bt"
+#include "CVector3f.bt"
+
+// MPR runtime memory layouts.
+
+struct SProbeLayerVirtualTextureStatsRuntime {
+    CVector3i minTile;
+    CVector3i maxTile;           // inclusive
+    uint64 bytesPerTile;        // 65536 bytes
+    uint64 tileStrideY;         // countX
+    uint64 tileStrideZ;         // countX * countY
+};
+
+// Coordinates are relative to minTile; byteOffset addresses a sparse page.
+struct SProbeVirtualTextureMappingRequestRuntime {
+    uint64 textureToken;
+    uint64 byteOffset;
+    uint32 relativeX;
+    uint32 relativeY;
+    uint32 relativeZ;
+    uint32 padding1C;
+    uint64 byteSize;
+};
+
+struct SProbeTextureReferenceRuntime {
+    uint64 pointer;
+    uint64 control;
+};
+
+// Active entries may overlap; the flag does not imply exclusive ownership.
+struct SProbeLayerPhysicalTileEntryRuntime {
+    CVector3i position;
+    int32 layer;
+    SProbeTextureReferenceRuntime texture;
+    uint32 contextNodeId;
+    int32 priority;
+    ubyte groupId;
+    ubyte active;
+    ubyte padding2A[6];
+};
+
+struct SProbeLayerTileMapRuntime {
+    uint32 keyCount;
+    uint32 keyCapacity;
+    uint64 keys;                    // uint64[keyCount]
+    uint32 entryCount;
+    uint32 entryCapacity;
+    uint64 entries;                 // SProbeLayerPhysicalTileEntryRuntime[entryCount]
+    ubyte unknown20[8];
+};
+
+struct SProbeMappingQueueRuntime {
+    uint32 count;
+    uint32 capacity;
+    uint64 requests;                // SProbeVirtualTextureMappingRequestRuntime[count]
+};
+
+struct SProbeMappingQueueSetRuntime {
+    SProbeMappingQueueRuntime layers[6];
+};
+
+// BLPD buffer element, generated from probe textures.
+struct SLightProbeNonlinearRuntime {
+    CVector3f mMidpointRGB;
+    float mUnused0;
+    CVector3f mRangeRGB;
+    float mUnused1;
+    float mGradientDirExponentR[4]; // direction.xyz, exponent
+    float mGradientDirExponentG[4];
+    float mGradientDirExponentB[4];
+};
+
+struct CBakedLightingProbeTextureRuntime {
+    CTransform4f worldToStorage;
+    CTransform4f worldToGrid;        // Scale(density) * worldToStorage
+    CTransform4f gridToWorld;        // inverse(worldToGrid)
+    CTransform4f gridToTexture;      // Scale(1 / dimensions) * Translate(0.5 - gridOrigin)
+    CTransform4f worldToTexture;     // gridToTexture * worldToGrid
+    SProbeLayerTileMapRuntime tileMaps[6];
+    SProbeTextureReferenceRuntime textures[6];
+    SProbeLayerVirtualTextureStatsRuntime layerStats[6];
+    SProbeMappingQueueSetRuntime mappingQueues[2];
+    uint32 mappingQueueIndex;
+    uint32 unknown424;
+    uint64 material;
+    CAABox alignedProbeCenterBounds;
+    float probesPerUnit;
+    ubyte activeGroup;
+    ubyte hasActiveGroup;
+    ubyte padding44E[2];
+    uint64 mappingJob;
+    ubyte initialized;
+    ubyte unknown459[7];
+};
+
+#endif // _BAKEDLIGHTINGRUNTIME

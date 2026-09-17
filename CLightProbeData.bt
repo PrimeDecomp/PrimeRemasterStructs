@@ -6,6 +6,7 @@
 #include "NTextureFormat.bt"
 #include "CVector3f.bt"
 #include "CVector3i.bt"
+#include "BakedLightingRuntime.bt"
 
 typedef struct {
     int16 x;
@@ -16,9 +17,9 @@ typedef struct {
 struct LightProbeBundleHeader {
     uint32 unk1;
     uint32 unk2;
-    CVector3f unk3;
-    CBakedLightingUniformProbeGridIndex unk4;
-    CBakedLightingUniformProbeGridIndex unk5;
+    CVector3f gridSpacing;
+    CBakedLightingUniformProbeGridIndex minIndex;
+    CBakedLightingUniformProbeGridIndex maxIndex; // inclusive
 };
 
 struct SLightProbeMetaData(uint64 fileStart) {
@@ -34,10 +35,16 @@ struct SLightProbeMetaData(uint64 fileStart) {
     }
 };
 
+// TXTR follows variable-length texture metadata and 16 bytes of tile metadata.
+uint64 ProbeTileTextureStart(uint64 metaStart) {
+    local uint64 bufferCountPos = metaStart + 28 + 9 * (uint64)ReadUInt(metaStart + 24);
+    return bufferCountPos + 4 + 20 * (uint64)ReadUInt(bufferCountPos) + 16;
+}
+
 struct LightProbeBundle {
-    STextureMetaData metaData(FTell() + 0x4D /* start of TXTR */);
-    CVector3i unkVector;
-    uint unk;
+    STextureMetaData metaData(ProbeTileTextureStart(FTell()));
+    CVector3i tilePosition;
+    uint layer; // NLightProbe::EProbeNonlinearGPUTextureLayer
     FormDescriptor textureForm;
     NTextureFormat txtrChunk(textureForm.size);
 };

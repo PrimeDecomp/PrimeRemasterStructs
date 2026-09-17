@@ -8,30 +8,42 @@
 #include "NGraphicsMaterial.bt"
 #include "CMaterialInstanceResource.bt"
 
+struct SAnimatedUvTransformSet {
+  int evalIndices[3];
+  int unknown;
+};
+
 struct SModelAnimatedUVData {
   CEvalSystem evalSystem;
   uint evalIdCount;
   CEvalId evalId[evalIdCount];
-  uint vec4iCount;
-  CVector4i vec4is[vec4iCount];
-  uint unkCount;
-  char unk[unkCount];
+  uint transformSetCount;
+  SAnimatedUvTransformSet transformSets[transformSetCount];
+  // CRenderMesh order; 0xff means no transform set.
+  uint meshCount;
+  ubyte meshTransformSet[meshCount];
   if (!isDKCTF)
   {
-    uchar unk2;
+    uchar flags; // bit 0: material-data mode
   }
 };
 
 struct SModelWindData {
-  uint32 windSets;
+  uint32 windSetCount;
   struct WindSet
   {
-    CVector3f WindMin;
-    CVector3f WindMax;
-    float unk;
-  } windset[windSets];
-  uint32 unkD;
-  byte unkData[unkD];
+    CVector3f vector0;
+    CVector3f vector1;
+    float timeScale;
+    if (!isDKCTF)
+    {
+      float independence;
+      float independentMagnitude;
+    }
+  } windset[windSetCount];
+  // CRenderMesh order; 0xff means no wind set.
+  uint32 meshCount;
+  ubyte meshWindSet[meshCount];
 };
 
 struct SCausticData {
@@ -119,18 +131,19 @@ typedef struct(int readerVersion, int writerVersion) {
     FourCC type <read=ReadMaterialDataType>;
 } MaterialType <read=(Str("%s %s", id, type))>;
 
-
 struct SSkinnedModelHeader {
-    uint unk;
+    uint unknown0;
     if (!isDKCTF)
     {
-        uint unk;
-        uint unk;
-        uint unk;
-        uint uintsCount;
-        uint uints[uintsCount];
-        uint dataCount;
-        char data[dataCount];
+        // The initial palette contains boneCount identity matrices.
+        uint boneCount;
+        uint unknown8;
+        uint meshBitCount;
+        uint meshWordCount;
+        uint meshBits[meshWordCount];
+        uint meshDataCount;
+        // Marked meshes use visibility-mask bit (meshVisibilityGroups[index] & 31).
+        uchar meshVisibilityGroups[meshDataCount];
     }
 };
 
@@ -224,14 +237,18 @@ string ReadMaterialDataType(FourCC value)
     return EnumToString(type);
 }
 
-typedef struct
+// Nil TXTR entries include usage at top level but omit it inside layers.
+typedef struct(ubyte alwaysReadUsage)
 {
     GUID id;
-    if (id != GUIDZero || isDKCTF) { STextureUsageInfo usage; } //Detect isDKCTF to force it on NS models
+    if (alwaysReadUsage || id != GUIDZero || isDKCTF) { STextureUsageInfo usage; } //Detect isDKCTF to force it on NS models
 } CMaterialTextureTokenData <optimize=false>;
 
 enum <uint32> EBlendControl {
-    // TODO
+    BLEND_EMBEDDED = 0,
+    BLEND_SEPARATE = 1,
+    BLEND_EXTERNAL = 2,
+    BLEND_DISABLED = 3,
 };
 
 struct SBlendRegs {
@@ -242,13 +259,14 @@ struct CLayeredTextureBaseData
 {
     EBlendControl blendControl;
     SBlendRegs regs;
-    byte flags;
+    byte flags; // bit 0: one tangent stream; bit 1: two tangent streams
 };
 
 struct CLayeredTextureData
 {
     CLayeredTextureBaseData base;
-    CMaterialTextureTokenData textures[3];
+    // Texture0, Texture1, BlendTexture
+    CMaterialTextureTokenData textures(0)[3];
 };
 
 typedef struct(int readerVersion, int writerVersion) {
@@ -260,7 +278,7 @@ typedef struct(int readerVersion, int writerVersion) {
       {
         case 0:
             local FourCC type = "TXTR";
-            CMaterialTextureTokenData texture;
+            CMaterialTextureTokenData texture(1);
         break;
         case 1:
             local FourCC type = "COLR";
@@ -293,7 +311,7 @@ typedef struct(int readerVersion, int writerVersion) {
         FourCC type <read=ReadMaterialDataType>;
         switch (MapMaterialDataType(type)) {
         case DATA_TYPE_TEXTURE:
-            CMaterialTextureTokenData texture;
+            CMaterialTextureTokenData texture(1);
             break;
         case DATA_TYPE_COLOR:
             CColor4f color;
@@ -359,16 +377,16 @@ typedef struct(int readerVersion, int writerVersion) {
       local uint useMaterialTypeChunk <hidden=true> = 0;
       CString name;
     }
-    GUID shaderID;
+    GUID materialResourceID; // MTRL asset ID
     if (isDKCTF)
     {
       local uint traitCount <hidden=true> = 1; //Hack it to 1
     }
     else if (readerVersion != 163 && readerVersion != 177)
     {
-      GUID guid2; //unsure
-      uint unk1;
-      uint unk2;
+      GUID materialID; // SMaterialImportDesc.guid
+      uint materialFlags; // EMaterialFlag bits
+      uint materialSetHash;
       uint traitCount;
     }
       if (traitCount != 0) {
@@ -433,8 +451,10 @@ typedef struct {
 struct SMeshLoadInformation {
     uint meshCount;
     CRenderMesh meshes[meshCount] <optimize=false>;
-    byte unk[(meshCount + 3) / 4];
-    byte unk2[(meshCount + 7) / 8];
+    // Two bits per mesh: 0/2 opaque, 1 alpha, 3 alpha-weighted additive.
+    byte meshClasses[(meshCount + 3) / 4];
+    // One bit per mesh; set to disable face culling.
+    byte twoSidedFlags[(meshCount + 7) / 8];
     uint shortCount;
     if (shortCount > 0) {
         uint16 shorts[shortCount];
@@ -565,7 +585,16 @@ typedef struct(int readerVersion, int writerVersion) {
           FourCC unkFcc; // LEGA?
           uint unk;
         } else {
-          uint unk;
+          // Per-material values override shared data.
+          if (readerVersion == 114 || readerVersion == 127 || readerVersion == 118) {
+            uint sharedDataCount;
+            if (sharedDataCount != 0) {
+              MaterialType sharedDataTypes(readerVersion, writerVersion)[sharedDataCount];
+              CMaterialData sharedData(readerVersion, writerVersion)[sharedDataCount] <optimize=false>;
+            }
+          } else {
+            uint unk;
+          }
         }
     }
     uint numMaterials;

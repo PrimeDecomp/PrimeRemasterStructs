@@ -1,0 +1,80 @@
+#ifndef _MPRCOLORMODIFIER
+#define _MPRCOLORMODIFIER
+
+#include "Common.bt"
+#include "CColor4f.bt"
+#include "CMayaSpline.bt"
+#include "TimePlaybackManager.bt"
+
+// Mode names are inferred from runtime behavior.
+
+typedef enum <uint32> {
+    MPRColorModifierGeneral = 0x6e1abcf4,
+    MPRColorModifierBakedLighting = 0xd2fd45bc,
+    MPRColorModifierColorEffect0 = 0x209ea819,
+    MPRColorModifierColorEffect1 = 0x586d50a4,
+} EMPRColorModifierMode;
+
+// Channels are stored in RGBA order.
+typedef struct {
+    uint32 count;
+    Assert(count <= 4, "Color gradient exceeds native four-channel storage");
+    if (count > 0) {
+        CMayaSpline channels[count] <optimize=false>;
+    }
+} CMPRColorGradient;
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    switch (propertyId) {
+    case 0x28376d3f: float initialTime; break;
+    case 0xb1437b20: float randomTimeRange; break;
+    case 0xe4c9cd3e: uchar initiallyPlaying; break;
+    case 0x47a9b8f4: uchar applyFromStart; break;
+    case 0xcb60e6ae: uchar applyGradientFromStart; break;
+    case 0xe000181c: uchar applyEndColor; break;
+    case 0xf9159caf: uchar applyGradientEnd; break;
+    case 0xff17f0bb: uchar applyInitialTime; break;
+    case 0xcb494abc: uchar looping; break;
+    case 0x68b9c38e: uchar useGradient; break;
+    case 0x83737173: uchar useThinkDelta; break;
+    default:
+        if (propertySize > 0) { uchar data[propertySize]; }
+        break;
+    }
+    FSeek(start + propertySize);
+} SMPRColorModifierOption <optimize=false>;
+
+struct SMPRColorModifierOptions {
+    uint16 count;
+    if (count > 0) { SMPRColorModifierOption properties[count]; }
+};
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    switch (propertyId) {
+    case 0x8133a24b: CColor4f initialColor; break;
+    case 0xd968bd8e: CColor4f endColor; break;
+    case 0xdbe10078: CMPRColorGradient gradient; break;
+    case 0x34d88fef: CMayaSpline timing; break;
+    case 0xb7bf28fd: SMPRColorModifierOptions options; break;
+    case 0xa3fbf12b: EMPRColorModifierMode mode; break;
+    case 0x627d5359: float initialIntensity; break;
+    case 0xc1fd4866: float endIntensity; break;
+    default:
+        if (propertySize > 0) { uchar data[propertySize]; }
+        break;
+    }
+    FSeek(start + propertySize);
+} SMPRColorModifierProperty <optimize=false>;
+
+struct SMPRColorModifierProperties {
+    uint16 count;
+    if (count > 0) { SMPRColorModifierProperty properties[count]; }
+};
+
+#endif

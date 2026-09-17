@@ -5,6 +5,7 @@
 
 typedef struct CReflectionProbeData {
     ChunkDescriptor chunkHeader;
+    Assert(chunkHeader.id == "DATA" && chunkHeader.size == 24, "Unexpected REFL DATA layout");
     uint unused;
     GUID textureId;
     float intensity;

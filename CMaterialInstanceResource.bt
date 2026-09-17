@@ -15,12 +15,13 @@ int getCountFromBits(int b) {
 
   return count;
 }
+// Packing rule 0xff is the default; other values select a channel.
 typedef struct {
-  FourCC type;
-  FourCC id;
-  uchar unk1;
-  uchar unk2;
-} CVariableDesc <name=(Str("%s %s", type, id))>;
+  FourCC variableName;
+  FourCC dataID <read=ReadMaterialDataId>;
+  uchar variableType;
+  uchar packingRule;
+} CVariableDesc <name=(Str("%s -> %s", variableName, dataID))>;
 
 typedef struct {
   FourCC id;
@@ -61,43 +62,90 @@ typedef struct {
 } CMaterialInstanceData; // named from CMaterialInstanceDataBuilder, not guaranteed to be accurate
 
 typedef struct {
-  ChunkDescriptor chunk;
-  GUID guid1;
-  GUID guid2;
-  if (form.readerVersion == 37) {
-    uchar unkByte;
-    uchar unkByte2;
-    uint unkInt;
-    uint unkInt2;
-    uint variableDescCount;
-    CVariableDesc variableDescs[variableDescCount];
-    uchar unkByte3;
+  uchar type;
+  FourCC id <read=ReadMaterialDataId>;
+  switch (type) {
+  case 2:
+    int value;
+    break;
+  case 3:
+  case 4:
+    CColor4f value;
+    break;
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+    GUID texture;
+    STextureUsageInfo textureUsage; // Present even for nil texture IDs.
+    break;
+  case 10:
+    CVector4i value;
+    break;
+  default:
+    Assert(false, "Unsupported MPR MATI property type");
+  }
+} CMaterialInstanceDataMPR;
 
-    if (unkByte3) {
-        struct {
-            ubyte packedCount;
-            local int actualCount = getCountFromBits(packedCount);
-            if (actualCount > 0) {
-              CMayaSpline splines[actualCount] <optimize = false>;
-            }
-        } unkData[unkByte3] <optimize = false>;
+typedef struct {
+  ChunkDescriptor chunk;
+  if (form.readerVersion == 11 && form.writerVersion == 13) {
+    Assert(chunk.id == "MDAT", "Expected MATI MDAT chunk");
+    local uint64 dataEnd = FTell() + chunk.size;
+    GUID materialID;
+    GUID materialResourceID;
+    uint materialSetHash;
+    uchar traits; // ETrait bits
+    int cullMode; // low byte; 0xff = unset
+    int blendMode; // -1 = unset
+    uint variableDescCount;
+    Assert(uint64(variableDescCount) * 10 <= dataEnd - FTell(), "MATI variable count exceeds chunk");
+    CVariableDesc variableDescs[variableDescCount];
+    uint propertyCount;
+    Assert(uint64(propertyCount) * 9 <= dataEnd - FTell(), "MATI property count exceeds chunk");
+    CMaterialInstanceDataMPR data[propertyCount] <optimize=false>;
+    uint materialFlagCount;
+    Assert(uint64(materialFlagCount) * 4 <= dataEnd - FTell(), "MATI flag count exceeds chunk");
+    struct { FourCC value; } materialFlags[materialFlagCount] <read=(ReadMaterialFlag(value))>;
+    Assert(FTell() == dataEnd, "Unconsumed MATI MDAT data");
+  } else {
+    GUID guid1;
+    GUID guid2;
+    if (form.readerVersion == 37) {
+      uchar unkByte;
+      uchar unkByte2;
+      uint unkInt;
+      uint unkInt2;
+      uint variableDescCount;
+      CVariableDesc variableDescs[variableDescCount];
+      uchar unkByte3;
+
+      if (unkByte3) {
+          struct {
+              ubyte packedCount;
+              local int actualCount = getCountFromBits(packedCount);
+              if (actualCount > 0) {
+                CMayaSpline splines[actualCount] <optimize = false>;
+              }
+          } unkData[unkByte3] <optimize = false>;
+      }
+
+      ubyte unk4;
+    } else {
+      uint unk1;
+      uchar unk2;
+      uint unk3;
+      uint variableDescCount;
+      CVariableDesc varibleDescs[variableDescCount];
     }
 
-    ubyte unk4;
-  } else {
-    uint unk1;
-    uchar unk2;
-    uint unk3;
-    uint variableDescCount;
-    CVariableDesc varibleDescs[variableDescCount];
+    uint propertyCount;
+    CMaterialInstanceData data[propertyCount]<optimize = false>;
+    uint unkFccCount;
+    struct {
+        FourCC fcc;
+    } unkFourCC[unkFccCount];
   }
-  
-  uint propertyCount;
-  CMaterialInstanceData data[propertyCount]<optimize = false>;
-  uint unkFccCount;
-  struct {
-      FourCC fcc;
-  } unkFourCC[unkFccCount];
 } CMaterialInstanceResource;
 
 #endif// _CMATERIALINSTANCERESOURCE

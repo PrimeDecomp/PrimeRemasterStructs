@@ -1,0 +1,44 @@
+#ifndef _SCRIPTLAYERRUNTIME
+#define _SCRIPTLAYERRUNTIME
+
+#include "Common.bt"
+
+// Partial CScriptLayer runtime layout (little endian).
+struct CScriptLayerRuntime {
+    ubyte unknown000[0x20];
+    CGuid id;
+    ubyte unknown030[0x18];
+    uint32 generatedKeyCount;
+    uint32 generatedKeyCapacity;
+    uint64 generatedKeys;               // GUID array
+    ubyte unknown058[0x30];
+    uint64 componentChunkOffset;        // Relative to ROOM data.
+    uint64 componentChunkSize;          // Includes the CSKR descriptor.
+    ubyte unknown098[0x18];
+    uint32 entityCount;
+    uint32 entityCapacity;
+    uint64 entityIds;                   // uint32 ID array
+    ubyte unknown0C0[0x20];
+    uint32 loadUnitCount;
+    uint32 loadUnitCapacity;
+    uint64 loadUnitIds;
+    CGuid reloadSetId;
+    ubyte resetOnActivation;
+    ubyte padding101[3];
+    int32 activeRequests;
+    ubyte loaded;
+    ubyte constructed;
+    ubyte constructionFlag;
+    ubyte unknown10B;
+    ubyte areaActive;
+    ubyte padding10D[3];
+    uint64 entityDestructionCursor;
+    uint64 generatedDestructionCursor;
+    uint32 unregisteredComponentIndex;
+    ubyte unknown124[4];
+    uint32 unregisteredComponentCount;
+    ubyte unknown12C[0x9c];
+    uint64 unregisteredComponents;      // Component pointer array.
+};
+
+#endif // _SCRIPTLAYERRUNTIME

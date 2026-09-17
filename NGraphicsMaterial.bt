@@ -2,17 +2,19 @@
 #define _NGRAPHICSMATERIAL
 
 #include "Common.bt"
+#include "MaterialSceneData.bt"
 
 struct STextureUsageInfo {
-    uint flags;
-    uint filter;
-    uint wrapX;
-    uint wrapY;
-    uint wrapZ;
+    uint texCoordIndex;
+    int filter; // -1 inherits; 0/1 overrides min, mag and mip filtering
+    int wrapX; // -1 inherits the texture sampler
+    int wrapY;
+    int wrapZ;
 };
 
 // NMaterialInstance::ETrait
 enum <uint32> ETrait {
+    TRAIT_RFBP = 0,
     TRAIT_RFBC = 1,
     TRAIT_RFBD = 2,
     TRAIT_RFDS = 3,
@@ -22,6 +24,8 @@ enum <uint32> ETrait {
 
 ETrait MapTrait(FourCC value) {
   switch (value) {
+  case "RFBP":
+    return TRAIT_RFBP;
   case "RFBC":
     return TRAIT_RFBC;
   case "RFBD":
@@ -93,7 +97,7 @@ enum <uint32> EMaterialDataId {
   DATA_ID_PSXT = 47, // used in CParticleSceneNode::BuildParticleMaterialInstance
   DATA_ID_PTAI = 48, // used in CParticleSceneNode::BuildParticleMaterialInstance
   DATA_ID_PCMD = 49, // used in CParticleSceneNode::BuildParticleMaterialInstanceCustom
-  DATA_ID_BSAO = 50,
+  DATA_ID_BSAO = 50, // PhysicallyBased: layer alpha scales/offsets
   // blur_sample_param uses CCH0-6
   // NMaterialClearRect clear_color CCH0-1
   DATA_ID_CCH0 = 51, // bloom_texture_size_params, NMaterialSimpleColor color_sample, NMaterialDataView_Model color_view, NMaterialReflectionProbe params
@@ -126,8 +130,8 @@ enum <uint32> EMaterialDataId {
   DATA_ID_OPCS = 75,
   DATA_ID_SPCP = 76,
   DATA_ID_INDS = 77,
-  DATA_ID_BLSM = 78,
-  DATA_ID_LITS = 79,
+  DATA_ID_BLSM = 78, // PhysicallyBased: blend smoothness
+  DATA_ID_LITS = 79, // PhysicallyBased: back-face light bleed
   DATA_ID_MDOE = 80,
   DATA_ID_VANF = 81,
   DATA_ID_OTHS = 82, // related to CParticleDescription::GetThresholdTexture

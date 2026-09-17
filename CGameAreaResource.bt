@@ -4,6 +4,11 @@
 #include "CDataEnumObject.bt"
 #include "SAtlasLookup.bt"
 #include "CMayaSpline.bt"
+#include "RoomLighting.bt"
+#include "RoomContext.bt"
+#include "ColorModifier.bt"
+#include "LoadUnitLogic.bt"
+#include "ScriptLayerRuntime.bt"
 
 // NGameArea::ERoomType
 typedef enum <uint16> {
@@ -1128,7 +1133,6 @@ struct ProductionWorkStages {
   }
 };
 
-
 // NGameArea::SGameAreaHeader
 struct SGameAreaHeader {
   if (isDKCTF)
@@ -1154,10 +1158,10 @@ struct SGameAreaHeader {
 struct CScriptPerformanceGroupResourceData {
   CStringFixed name;
   CGuid controllerId;
-  uchar unk;
-  uint16 count;
-  if (count) {
-    CGuid guid[count];
+  uchar active;
+  uint16 layerCount;
+  if (layerCount) {
+    CGuid layerId[layerCount];
   }
 };
 
@@ -1219,14 +1223,14 @@ struct LoadUnitHeader {
   }
   else
   {
-    CGuid id2;
-    uint16 unk2;
-    uint unk3;
-    if (unk3)
-      char unkData2[unk3];
-    uint unk4;
-    if (unk4)
-      char unkData3[unk4];
+    CGuid stateVariableId; // nil falls back to id; both nil imply state 1
+    uint16 flags;
+    uint dataSize;
+    if (dataSize)
+      LoadUnitLogic logic(dataSize);
+    uint skippedDataSize;
+    if (skippedDataSize)
+      uchar skippedData[skippedDataSize];
   }
 };
 
@@ -1246,10 +1250,14 @@ struct LoadUnitLayers {
 
 struct StringPool {
     uint unk1;
-    uint unk2;
-    uint poolLen;
-    if (poolLen) {
-        char data[poolLen];
+    uint poolCount;
+    if (poolCount > 0) {
+        struct {
+            uint poolLen;
+            if (poolLen > 0) {
+                char data[poolLen];
+            }
+        } pools[poolCount] <optimize=false>;
     }
 };
 
@@ -1260,7 +1268,7 @@ struct STRP {
     struct {
         uint strLen;
         char str[strLen];
-    } strings1;
+    } strings1[numStrings1] <optimize=false>;
   }
   StringPool pool;
 };
@@ -1307,10 +1315,14 @@ typedef struct {
 struct LayerHeader {
   CStringFixed name;
   CGuid id;
-  int unk;
-  uint16 count;
-  CGuid guid[count+1];
-  bool unk2;
+  uint16 entityCount;
+  uint16 generatedObjectCount; // GGOB chunks in GSRP
+  uint16 loadUnitCount;
+  if (loadUnitCount) {
+    CGuid loadUnitId[loadUnitCount];
+  }
+  CGuid reloadSetId;
+  bool resetOnActivation; // Deactivation discards entities for reconstruction.
 };
 
 struct GeneratedGameObject {
@@ -1393,12 +1405,18 @@ typedef struct {
     case 0x88DF29DE:
         CGuid id;
         break;
-    // ModCon
+    // SLdrModCon
     case 0xA8E2BA93:
-        CGuid id;
+        CGuid modelContainerId;
         break;
     case 0xF068D36B:
         CDataEnumBitField bitfield;
+        break;
+    case 0x356DB82B:
+        uint32 renderTargetScene <format = hex>; // RenderTargetScene CRC
+        break;
+    case 0x61BE7D93:
+        bool unknownFlag;
         break;
     default:
         if (propertySize > 0) {
@@ -1412,6 +1430,28 @@ typedef struct {
 struct ComponentProperties {
     EGOComponentType typeId;
     switch (typeId) {
+    case EntityProperties:
+        bool active;
+        bool unknownFlag;
+        CVector3f position;
+        CVector3f rotation;
+        CVector3f scale;
+        break;
+    case LightStatic:
+        SMPRRoomLightProperties light;
+        break;
+    case RoomSettings:
+        SMPRRoomSettingsProperties roomSettings;
+        break;
+    case RoomController:
+        SMPRRoomControllerProperties roomController;
+        break;
+    case BakedLightingPriorityModifierMP1:
+        SMPRBakedLightingPriorityProperties bakedLightingPriority;
+        break;
+    case ColorModifier:
+        SMPRColorModifierProperties colorModifier;
+        break;
     case GarBeetleMP1:
     case RidleyMP1:
     case ModCon:
@@ -1431,44 +1471,41 @@ typedef struct {
     }
 } PooledString <read=(Str("%d %d", a, b))>;
 
-// NScriptLoader::SizeofAllocationsForEventCriteriaActionPayloadOrLinkDataSLdrFromStream
+// Type 0 has no lengths or payload.
 typedef struct {
-    uint32 a;
-    if (a != 0) {
-        // NScriptLoader::CalculateAllocatedMemoryForTypedefInterfaceSLdrFromCRC32
-        uint16 size;
-        if (size > 0) {
-            byte skip[size];
+    uint32 typeId <format=hex>;
+    if (typeId != 0) {
+        uint16 typedefSize;
+        if (typedefSize > 0) {
+            byte typedefData[typedefSize];
         }
-        uint32 size2;
-        if (size2 > 0) {
-            byte skip[size2];
+        uint32 extraSize;
+        if (extraSize > 0) {
+            byte extraData[extraSize];
         }
     }
 } SizeofAllocations <optimize=false>;
 
 typedef struct {
-    // SConnection::ComputeSizeFromStream
-    uint unk1 <format = hex>;
-    uint unk2 <format = hex>;
-    CGuid guid1;
-    ushort unk7;
+    uint32 event <format=hex>;
+    uint32 action <format=hex>;
+    CGuid target;
+    uint16 unknownU16;
     SizeofAllocations eventCriteriaSldr;
     SizeofAllocations actionPayloadSldr;
-    byte b1;
-    byte b2;
-    byte b3;
-    CGuid guid2;
+    byte flagBytes[3];
+    CGuid trailingId;
 } SConnection <optimize=false>;
 
 typedef struct {
-    // SScriptLink::ComputeSizeFromStream
-    byte skip0[0x14];
-    SizeofAllocations c;
-    byte skip1[0x12];
+    uint32 link <format=hex>;
+    CGuid target;
+    SizeofAllocations data;
+    byte flagBytes[2];
+    CGuid trailingId;
 } SScriptLink <optimize=false>;
 
-struct SGOComponentInstanceData {
+struct SGOComponentInstanceData(uint64 end) {
     CGuid id;
     PooledString str;
     uint16 connectionCount;
@@ -1478,6 +1515,9 @@ struct SGOComponentInstanceData {
     uint16 linkCount;
     if (linkCount > 0) {
         SScriptLink link[linkCount];
+    }
+    if (FTell() < end) {
+        byte trailingData[end - FTell()];
     }
 };
 
@@ -1539,7 +1579,7 @@ typedef struct {
             ComponentProperties data;
             break;
         case "IDTA":
-            SGOComponentInstanceData data;
+            SGOComponentInstanceData data(start + desc.size);
             break;
         default:
             if (desc.size > 0) {
@@ -1562,12 +1602,13 @@ struct CGameAreaResource(uint64 size) {
 };
 
 typedef struct {
-    CGuid idA;
-    CGuid idB;
-    uint16 unk0;
+    // LUHD layout without the name or skipped blob.
+    CGuid id;
+    CGuid stateVariableId; // nil falls back to id; both nil skip state lookup
+    uint16 flags;
     uint32 byteCount;
     if (byteCount > 0) {
-        byte data[byteCount];
+        LoadUnitLogic logic(byteCount);
     }
 } SScriptLoadUnitMetaData <optimize=false>;
 
@@ -1578,7 +1619,7 @@ typedef struct {
     if (byteCount > 0) {
         byte data[byteCount];
     }
-    uint32 unk1;
+    int32 initialValue;
     uint32 flags;
     if ((flags & 1) != 0) {
         uint32 unkFlag0;
@@ -1607,8 +1648,8 @@ typedef struct {
 struct SGameAreaMetaData(uint64 fileStart) {
     uint16 version;
     if (version == 0x19) {
-        uint16 unk0;
-        FourCC fcc;
+        ERoomType roomType;
+        FourCC game; // MPR1, MPRT or DFLT
         CGuid parentRoomId;
         uint16 unk1;
         uchar unk2[3];

@@ -4,29 +4,55 @@
 #include "Common.bt"
 #include "CVector2f.bt"
 
-typedef struct CMayaSplineKnot {
-  float unk1;
-  float unk2;
-  byte unk3;
-  byte unk4;
+// Mode names are inferred from runtime behavior.
+typedef enum <uchar> {
+  MayaTangentLinear = 0,
+  MayaTangentFlat = 1,
+  MayaTangentSmooth = 2,
+  MayaTangentStep = 3,
+  MayaTangentAdaptive = 4,
+  MayaTangentFixed = 5,
+} EMayaSplineTangent;
 
-  if (unk3 == 5) {
-    CVector2f tangentA; 
+typedef enum <uchar> {
+  MayaInfinityConstant = 0,
+  MayaInfinityLinear = 1,
+  MayaInfinityCycle = 2,
+  MayaInfinityCycleRelative = 3,
+  MayaInfinityOscillate = 4,
+} EMayaSplineInfinity;
+
+typedef enum <uchar> {
+  MayaAmplitudeUnclamped = 0,
+  MayaAmplitudeClamp = 1,
+  MayaAmplitudeWrap = 2,
+} EMayaSplineClamp;
+
+typedef struct CMayaSplineKnot {
+  float time;
+  float value;
+  EMayaSplineTangent tangentTypeA; // incoming
+  EMayaSplineTangent tangentTypeB; // outgoing
+
+  if (tangentTypeA == 5) {
+    CVector2f tangentA;
   }
 
-  if (unk4 == 5) {
+  if (tangentTypeB == 5) {
     CVector2f tangentB;
   }
 } CMayaSplineKnot;
 
 typedef struct CMayaSpline {
   uint knotCount;
-  CMayaSplineKnot knots[knotCount] <optimize = false>;
-  float minAmplitudeTime;
-  float maxAmplitudeTime;
-  byte unk1;
-  byte unk2;
-  byte unk3;
+  if (knotCount > 0) {
+    CMayaSplineKnot knots[knotCount] <optimize = false>;
+  }
+  float minAmplitude;
+  float maxAmplitude;
+  EMayaSplineInfinity preInfinity;
+  EMayaSplineInfinity postInfinity;
+  EMayaSplineClamp clampMode;
 } CMayaSpline;
 
 #endif// _CMAYASPLINE

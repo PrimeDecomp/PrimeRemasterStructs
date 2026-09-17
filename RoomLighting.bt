@@ -1,0 +1,110 @@
+#ifndef _ROOMLIGHTING
+#define _ROOMLIGHTING
+
+// LightStatic SDEN properties, after the component-type word.
+
+struct SMPRRoomLightProperties;
+
+typedef struct {
+    uint32 propertyId <format=hex>;
+    uint16 propertySize;
+    local uint64 start <hidden=true> = FTell();
+    switch (propertyId) {
+    case 0x8b76d48e: // SLdrLightColors
+    case 0xdd21d666: // SLdrLumaIntensity
+    case 0xebae52b2: // SLdrLightDistanceAttenuation
+    case 0x664b1a7c: // SLdrLightAngleAttenuation
+    case 0xf939c307: // SLdrLightFlags
+        SMPRRoomLightProperties nested;
+        break;
+    case 0x52d4c579:
+        int32 lightType; // 0 ambient, 1 directional, 2 point, 3 spot, 4 area, 5/6 square
+        break;
+    case 0x6c1d6c28:
+        uchar runtimeEnabled;
+        break;
+    case 0xf10ea1b7:
+        uchar baked;
+        break;
+    case 0x163bbc26:
+        uchar unknown16a;
+        break;
+    case 0x7c3cd2ce:
+        uint32 renderTargetScene <format=hex>;
+        break;
+    case 0x8f421907:
+        float color[4];
+        break;
+    case 0xdaf8bddf:
+        float intensity;
+        break;
+    case 0x174c8abc:
+        uint32 distanceMode <format=hex>;
+        break;
+    case 0xe5ceaf7c:
+        float innerRadius;
+        break;
+    case 0x68ac20b3:
+        float outerRadius;
+        break;
+    case 0x635dfcc7:
+        float innerAngleDegrees; // Full cone angle.
+        break;
+    case 0xb0a71764:
+        float outerAngleDegrees; // Full cone angle.
+        break;
+    case 0xa103d675:
+        uchar lightFlag0;
+        break;
+    case 0x56608a5c:
+        uchar lightFlag1;
+        break;
+    case 0xeeb94af2:
+        uchar lightFlag2;
+        break;
+    case 0x67241f0c:
+        uchar lightFlag3;
+        break;
+    case 0x3f1e6850:
+        uchar fillAmbient;
+        break;
+    default:
+        if (propertySize > 0) {
+            uchar data[propertySize];
+        }
+        break;
+    }
+    FSeek(start + propertySize);
+} SMPRRoomLightProperty <optimize=false>;
+
+struct SMPRRoomLightProperties {
+    uint16 count;
+    if (count > 0) {
+        SMPRRoomLightProperty properties[count];
+    }
+};
+
+// SLdrLightStatic runtime memory layout.
+struct SMPRStaticLightLoaderData {
+    uint64 vtable;
+    uchar lightShape[0x10];
+    uchar distanceMode;
+    uchar padding19[3];
+    float innerRadius;
+    float outerRadius;
+    float innerAngleDegrees;
+    float outerAngleDegrees;
+    float color[4];
+    float intensity;
+    uchar reflectionProbeInfluence[0x14];
+    uchar lightFlags[5];
+    uchar otherFields[0x107];
+    int32 lightType;
+    uint32 renderTargetScene;
+    uchar runtimeEnabled;
+    uchar baked;
+    uchar unknown16a;
+    uchar padding16b[5];
+};
+
+#endif

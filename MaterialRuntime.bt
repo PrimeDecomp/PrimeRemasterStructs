@@ -1,0 +1,67 @@
+#ifndef _MATERIALRUNTIME
+#define _MATERIALRUNTIME
+
+// Decompressed MPR EXPT data.
+// Offsets refer to the runtime allocation.
+struct SMaterialRuntimeTechnique {
+    uint runtimeCount;
+    uint uniqueCount;
+    uint runtimeIDOffset;
+    uint permutationOffset;
+};
+
+struct SMaterialRuntimeValues(uint count, ushort width) {
+    Assert(width == 2 || width == 4 || width == 8 || width == 16,
+        "Unsupported material runtime value size");
+    if (count) {
+        if (width == 2) ushort values[count];
+        else if (width == 4) uint values[count];
+        else if (width == 8) uint64 values[count];
+        else CPermutation values[count];
+    }
+};
+
+struct CMaterialIdentifierRuntime(uint64 size) {
+    local uint64 start <hidden=true> = FTell();
+    GUID materialID;
+    uint materialHash;
+    uint dynamicFeatureSkipMaskCount;
+    Assert(dynamicFeatureSkipMaskCount <= 16, "Too many technique masks");
+    // Set bits exclude dynamic features from the runtime ID.
+    if (dynamicFeatureSkipMaskCount)
+        uint dynamicFeatureSkipMasks[dynamicFeatureSkipMaskCount];
+    ushort runtimeIDSize;
+    ushort permutationSize;
+    Assert(runtimeIDSize == 2 || runtimeIDSize == 4 || runtimeIDSize == 8,
+        "Unsupported runtime ID size");
+    Assert(permutationSize == 2 || permutationSize == 4 || permutationSize == 8
+        || permutationSize == 16, "Unsupported permutation size");
+    uint uniquePermutationCount; // Nonzero selects the indirect table.
+    uint uniquePermutationOffset;
+    SMaterialRuntimeTechnique techniques[16];
+    uint allocationSize;
+    if (allocationSize) uint allocationAlignment;
+    local int i;
+    // Three passes, without runtime allocation padding.
+    for (i = 0; i < 16; i++) {
+        Assert((uint64)techniques[i].runtimeIDOffset
+            + (uint64)techniques[i].runtimeCount * runtimeIDSize <= allocationSize,
+            "Runtime IDs outside allocation");
+        SMaterialRuntimeValues runtimeIDs(techniques[i].runtimeCount, runtimeIDSize);
+    }
+    for (i = 0; i < 16; i++) {
+        local ushort entrySize = uniquePermutationCount ? 2 : permutationSize;
+        Assert((uint64)techniques[i].permutationOffset
+            + (uint64)techniques[i].runtimeCount * entrySize <= allocationSize,
+            "Permutation entries outside allocation");
+        // Indirect entries index the shared permutation table.
+        SMaterialRuntimeValues permutationEntries(techniques[i].runtimeCount, entrySize);
+    }
+    Assert((uint64)uniquePermutationOffset
+        + (uint64)uniquePermutationCount * permutationSize <= allocationSize,
+        "Unique permutations outside allocation");
+    SMaterialRuntimeValues uniquePermutations(uniquePermutationCount, permutationSize);
+    Assert(FTell() == start + size, "EXPT size mismatch");
+};
+
+#endif // _MATERIALRUNTIME

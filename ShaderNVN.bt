@@ -1,0 +1,298 @@
+#ifndef _SHADERNVN
+#define _SHADERNVN
+#include "ShaderMaxwell.bt"
+
+// MPR MTRL v22 SNVN shader data.
+
+enum <uint> ENVNShaderStage {
+    kNVN_Vertex = 0,
+    kNVN_Pixel = 1,
+    kNVN_Geometry = 2,
+    kNVN_Compute = 3
+};
+
+struct SNVNShaderStage {
+    ENVNShaderStage stage;
+    uint gpuPoolOffset;
+    uint cpuPoolOffset;
+    uint scratchMemory[2]; // Maximum per field across all stages.
+};
+
+struct SNVNShaderBinary(uint64 size) {
+    local uint64 end = FTell() + size;
+    Assert(size >= 17, "Truncated NVN shader binary");
+    uint gpuPoolSize;
+    uint cpuPoolSize;
+    uchar unknown;
+    uint compressedSize;
+    Assert(compressedSize <= end - FTell() - 4, "NVN compressed range out of bounds");
+    // zlib stream containing the GPU pool followed by the CPU pool.
+    uchar compressedPools[compressedSize];
+    uint stageCount;
+    Assert(uint64(stageCount) * 20 == end - FTell(), "Invalid NVN stage table size");
+    if (stageCount) {
+        SNVNShaderStage stages[stageCount];
+    }
+};
+
+// Control records are in the decompressed CPU pool.
+struct SNVNProgramControl {
+    uint magic <format=hex>;
+    uint headerWords[8];
+    Assert(magic == 0x98761234 && headerWords[0] == 1 && headerWords[1] == 16
+        && headerWords[2] == 0x120 && headerWords[3] == 11
+        && headerWords[4] == 0x878 && headerWords[7] == 0x880,
+        "Unsupported NVN control layout");
+    uchar unknown24[0x6f8 - 0x24];
+    uint programSize; // SPH + code for graphics; code only for compute
+    uint constantDataSize; // Compiler constants, excluding padding.
+    uint codeAllocationSize; // Aligned prefix + SPH + code.
+    uint gpuRecordSize;
+    uint programOffset; // 0x30 graphics, 0x100 compute
+    uint registerCount;
+    uint unknown710;
+    uint vendorStage; // 0 vertex, 1 pixel, 2 geometry, 3 tess-control, 4 tess-eval, 5 compute
+    uchar unknown718[0x74a - 0x718];
+    if (vendorStage == 1) {
+        uchar sampleShading; // Default per-sample execution; runtime may override.
+    } else {
+        uchar stageUnion74a;
+    }
+    uchar unknown74b[0x880 - 0x74b];
+};
+
+// Read from the GPU pool, using sizes from the CPU control record.
+struct SNVNProgramGPU(uint stage, uint programSize, uint codeAllocationSize, uint gpuRecordSize, uint constantDataSize) {
+    local uint programOffset = stage == 3 ? 0x100 : 0x30;
+    local uint headerSize = stage == 3 ? 0 : 80;
+    Assert(programSize >= headerSize && uint64(programOffset) + programSize <= codeAllocationSize
+        && uint64(codeAllocationSize) + constantDataSize <= gpuRecordSize, "Invalid NVN program bounds");
+    uint magic <format=hex>;
+    Assert(magic == (stage == 3 ? 0x12345679 : 0x12345678), "Invalid NVN GPU magic");
+    uchar prefix[programOffset - 4];
+    if (headerSize) SMaxwellShaderHeader hardwareHeader;
+    SMaxwellCode code(programSize - headerSize);
+    if (programOffset + programSize < codeAllocationSize)
+        uchar allocationPadding[codeAllocationSize - programOffset - programSize];
+    if (constantDataSize)
+        uchar compilerConstants[constantDataSize]; // Graphics c[1], bound per stage.
+    if (codeAllocationSize + constantDataSize < gpuRecordSize)
+        uchar constantAllocationPadding[gpuRecordSize - codeAllocationSize - constantDataSize];
+};
+
+struct SDataOffsetAndCount {
+    uint offset;
+    uint count;
+};
+
+// Runtime uniform layouts.
+struct SNVNTransformVector { float x, y, z, w; };
+
+struct SNVNJointMatrix { SNVNTransformVector rows[3]; };
+struct SNVNJointPalette(uint jointCount) {
+    if (jointCount) SNVNJointMatrix matrices[jointCount];
+};
+
+// NVN runtime multisample state.
+struct SNVNMultisampleState {
+    uint flags <format=hex>;
+    local uint sampleEnabled = flags & 1;
+    local uint customLocationsEnabled = (flags >> 3) & 1;
+    local uint sampleGridEnabled = (flags >> 4) & 1;
+    local uint colorSamples = (flags >> 8) & 31;
+    local uint rasterSamples = (flags >> 15) & 31;
+    uchar sampleLocations[16] <format=hex>; // x/y in low/high nibbles; units of 1/16 pixel from upper left
+    uint additionalFlags <format=hex>;
+};
+
+// Runtime driver constants at c0[0x620..0x640].
+struct SNVNDriverSampleConstants {
+    uchar sampleOffsets[16] <format=hex>; // Raster locations XOR 0x88; signed x/y nibbles.
+    uint sampleMask; // Effective sample count - 1.
+    uint sampleShift; // log2(effective sample count)
+    uint pixelXMask; // 1 for 2/4 samples, 0 for 8/16
+    uint pixelYMask; // 3 for 2 samples, 1 for 4/8, 0 for 16
+};
+
+// Runtime REFP parameters; the cube is bound separately.
+struct SNVNReflectionProbeParams {
+    float maxValidMipIdx; // Cube mip range maximum - 1.
+    float minIntensity;
+    float maxIntensity;
+    float probeIntensity;
+};
+// ub_globalSystemValues
+struct SNVNGlobalSystemValues {
+    float absoluteModularTime;
+    uint reserved0;
+    float inverseTonemapExposure;
+    uint reserved1;
+};
+struct SNVNGlobalTransforms {
+    SNVNTransformVector modelToClipColumns[4]; // projection * modelToView
+    SNVNTransformVector modelViewInverseTransposeRows[3]; // w = 0
+    SNVNTransformVector modelToViewRows[3]; // nativeWorldToView * modelToWorld
+    SNVNTransformVector modelToWorldRows[3];
+    SNVNTransformVector worldToModelRows[3]; // inverse(modelToWorld)
+    SNVNTransformVector worldToViewRows[3];
+    // worldToView * BindWorldToBaked input
+    SNVNTransformVector bakedToViewRows[3];
+    SNVNTransformVector projectionColumns[4];
+    SNVNTransformVector inverseProjectionColumns[4];
+    SNVNTransformVector custom0Columns[4];
+};
+
+struct SConstantBuffer {
+    uint nameCRC <format=hex>; // CRC32(name), initial 0xffffffff, no final XOR or NUL
+    uint size;
+    // bit 0: global transforms; bit 3: system values; bit 4: baked probes
+    uint flags;
+    uint materialFlags; // EMaterialFlag mask
+    uint64 materialDataIDs[2]; // EMaterialDataId mask
+};
+
+struct SNVNCachedLight {
+    SNVNTransformVector mColor;
+    SNVNTransformVector mPosition; // view-space xyz; cone scale in w
+    SNVNTransformVector mNegSpotDirection; // negated view direction; cone bias in w
+    SNVNTransformVector mDistanceNormalization; // scale/bias in xy; zw = 0
+    SNVNTransformVector mDistanceAttnCoeffs; // cubic coefficients a, b, c, d
+};
+
+struct SNVNClusteredLightBuffer(uint lightCapacity) {
+    SNVNTransformVector clusterSizeParams; // 1/tilePixels.xy, gridCount.xy
+    SNVNTransformVector clusterDepthParams; // 1/exponent, scale, near, range
+    uint clusterIndexParams[4]; // width*height, width, nodeFlag0ClearMask, 0
+    if (lightCapacity) SNVNCachedLight unshadowedLights[lightCapacity];
+};
+
+struct SNVNClusteredCullBuffer(uint channels) {
+    Assert(channels == 1 || channels == 2, "Unknown raster cull channel count");
+    uint params[4]; // light counts 0/1, gridWidth*gridHeight, gridWidth
+    SNVNTransformVector lightSpheres0[32]; // xyz = center, w = radius
+    if (channels == 2) SNVNTransformVector lightSpheres1[8];
+    SNVNTransformVector planesX[35];
+    SNVNTransformVector planesY[20];
+    SNVNTransformVector planesZ[33];
+};
+
+struct SShaderVertexLayoutEntry {
+    uint component; // EVertexComponent
+    // Generic input address = 0x80 + 16 * location.
+    int location;
+};
+
+struct SConstantBufferRef {
+    // Graphics uniform slot n binds c[(n + 3) & 31].
+    uint binding;
+    uint bufferIndex; // Index into SConstantBuffer[].
+};
+
+struct SUniform {
+    ushort bufferIndex;
+    ushort byteOffset;
+};
+
+// Runtime binding instance.
+struct SNVNShaderVariableBindingInstanceRuntime {
+    uint constantBufferCount;
+    uint writeMask; // Write-enable bit per buffer.
+    uchar flags; // bit 0: geometry texture/image bindings
+    uchar textureStarts[4]; // vertex, pixel, geometry, compute
+    uchar textureCounts[4];
+    uchar totalTextureCount;
+    uchar unknown12[6];
+    uint64 textureHandles; // uint64[]
+    uint64 imageHandles; // uint64[]
+    uint64 constantBufferCpuMappings; // uint64[]
+    uint64 constantBufferGpuAddresses; // uint64[]
+    uint64 constantBufferSizes; // uint32[], byte sizes
+};
+
+struct SResource_NVN {
+    uint type; // 0 texture, 1 storage buffer
+    // 0xffff = absent
+    ushort vertexBinding;
+    ushort pixelBinding;
+    ushort geometryBinding;
+    ushort computeBinding;
+};
+
+void CheckNVNRange(uint64 base, uint offset, uint count, uint stride, uint64 end) {
+    Assert(base + offset <= end && uint64(count) * stride <= end - (base + offset),
+           "NVN reflection range outside its containing blob");
+}
+
+struct SNVNReflection(uint64 size) {
+    local uint64 start = FTell();
+    local uint64 end = start + size;
+    Assert(size >= 0x5c, "Truncated NVN reflection header");
+    uint flags;
+    // Offsets relative to the end of this 0x5c-byte header.
+    SDataOffsetAndCount constantBuffersRange;
+    SDataOffsetAndCount vertexLayoutRange;
+    SDataOffsetAndCount shaderDataRange; // Byte count; layout depends on shader class.
+    SDataOffsetAndCount unknownRange;
+    SDataOffsetAndCount bindingsRange; // Byte count.
+    // Offsets relative to the binding blob.
+    SDataOffsetAndCount vertexBuffersRange;
+    SDataOffsetAndCount pixelBuffersRange;
+    SDataOffsetAndCount geometryBuffersRange;
+    SDataOffsetAndCount computeBuffersRange;
+    SDataOffsetAndCount uniformsRange;
+    SDataOffsetAndCount resourcesRange;
+    local uint64 base = start + 0x5c;
+
+    CheckNVNRange(base, constantBuffersRange.offset, constantBuffersRange.count, 32, end);
+    FSeek(base + constantBuffersRange.offset);
+    if (constantBuffersRange.count) {
+        SConstantBuffer constantBuffers[constantBuffersRange.count];
+    }
+    CheckNVNRange(base, vertexLayoutRange.offset, vertexLayoutRange.count, 8, end);
+    FSeek(base + vertexLayoutRange.offset);
+    if (vertexLayoutRange.count) {
+        SShaderVertexLayoutEntry vertexLayout[vertexLayoutRange.count];
+    }
+    CheckNVNRange(base, shaderDataRange.offset, shaderDataRange.count, 1, end);
+    FSeek(base + shaderDataRange.offset);
+    if (shaderDataRange.count) {
+        uchar shaderData[shaderDataRange.count];
+    }
+    CheckNVNRange(base, bindingsRange.offset, bindingsRange.count, 1, end);
+    local uint64 bindingBase = base + bindingsRange.offset;
+    local uint64 bindingEnd = bindingBase + bindingsRange.count;
+
+    CheckNVNRange(bindingBase, vertexBuffersRange.offset, vertexBuffersRange.count, 8, bindingEnd);
+    FSeek(bindingBase + vertexBuffersRange.offset);
+    if (vertexBuffersRange.count) {
+        SConstantBufferRef vertexBuffers[vertexBuffersRange.count];
+    }
+    CheckNVNRange(bindingBase, pixelBuffersRange.offset, pixelBuffersRange.count, 8, bindingEnd);
+    FSeek(bindingBase + pixelBuffersRange.offset);
+    if (pixelBuffersRange.count) {
+        SConstantBufferRef pixelBuffers[pixelBuffersRange.count];
+    }
+    CheckNVNRange(bindingBase, geometryBuffersRange.offset, geometryBuffersRange.count, 8, bindingEnd);
+    FSeek(bindingBase + geometryBuffersRange.offset);
+    if (geometryBuffersRange.count) {
+        SConstantBufferRef geometryBuffers[geometryBuffersRange.count];
+    }
+    CheckNVNRange(bindingBase, computeBuffersRange.offset, computeBuffersRange.count, 8, bindingEnd);
+    FSeek(bindingBase + computeBuffersRange.offset);
+    if (computeBuffersRange.count) {
+        SConstantBufferRef computeBuffers[computeBuffersRange.count];
+    }
+    CheckNVNRange(bindingBase, uniformsRange.offset, uniformsRange.count, 4, bindingEnd);
+    FSeek(bindingBase + uniformsRange.offset);
+    if (uniformsRange.count) {
+        SUniform uniforms[uniformsRange.count];
+    }
+    CheckNVNRange(bindingBase, resourcesRange.offset, resourcesRange.count, 12, bindingEnd);
+    FSeek(bindingBase + resourcesRange.offset);
+    if (resourcesRange.count) {
+        SResource_NVN resources[resourcesRange.count];
+    }
+    FSeek(end);
+};
+
+#endif // _SHADERNVN

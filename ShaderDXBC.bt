@@ -1,0 +1,252 @@
+#ifndef _SHADERDXBC
+#define _SHADERDXBC
+
+// MPR MTRL v22 SDX shader envelope.
+struct SSDXShaderBinary(uint64 size) {
+    Assert(size >= 9, "Truncated SDX envelope");
+    uint decompressedSize;
+    uchar unknown;
+    uint compressedSize;
+    Assert(uint64(compressedSize) == size - 9, "SDX compressed size mismatch");
+    if (compressedSize) uchar compressedDXBC[compressedSize]; // zlib stream
+};
+
+// The following structures read decompressed DXBC data.
+
+struct SDXBCString(uint64 base, uint64 end, uint offset) {
+    local uint64 resume = FTell();
+    Assert(base + offset < end, "DXBC string offset out of range");
+    local uint64 length = 0;
+    while (base + offset + length < end && ReadUByte(base + offset + length) != 0)
+        length++;
+    Assert(base + offset + length < end, "Unterminated DXBC string");
+    FSeek(base + offset);
+    char text[length + 1];
+    FSeek(resume);
+};
+
+struct SDXBCTypeMember(uint64 base, uint64 end) {
+    uint nameOffset;
+    uint typeOffset; // RDEF-relative type offset; not expanded recursively
+    uint offset; // Byte offset within the structure.
+    Assert(base + typeOffset + 36 <= end, "RDEF member type out of bounds");
+    SDXBCString name(base, end, nameOffset);
+};
+
+struct SDXBCType(uint64 base, uint64 end) {
+    Assert(FTell() + 36 <= end, "Truncated RDEF type");
+    ushort typeClass; // D3D_SHADER_VARIABLE_CLASS
+    ushort baseType; // D3D_SHADER_VARIABLE_TYPE
+    ushort rows;
+    ushort columns;
+    ushort elements; // 0 = not an array
+    ushort memberCount;
+    uint membersOffset;
+    uint unknown[4];
+    uint nameOffset;
+    local uint64 resume = FTell();
+    if (nameOffset) SDXBCString name(base, end, nameOffset);
+    Assert(base + membersOffset + uint64(memberCount) * 12 <= end, "RDEF members out of bounds");
+    if (memberCount) {
+        FSeek(base + membersOffset);
+        SDXBCTypeMember members(base, end)[memberCount] <optimize=false>;
+    }
+    FSeek(resume);
+};
+
+struct SDXBCVariable(uint64 base, uint64 end, uint bufferSize) {
+    uint nameOffset;
+    uint offset;
+    uint size;
+    uint flags; // D3D_SHADER_VARIABLE_FLAGS; bit 1 = used
+    uint typeOffset;
+    uint defaultValueOffset;
+    uint startTexture;
+    uint textureSize;
+    uint startSampler;
+    uint samplerSize;
+    local uint64 resume = FTell();
+    Assert(uint64(offset) + size <= bufferSize, "RDEF variable outside buffer");
+    SDXBCString name(base, end, nameOffset);
+    Assert(base + typeOffset + 36 <= end, "RDEF type out of bounds");
+    FSeek(base + typeOffset);
+    SDXBCType type(base, end);
+    if (defaultValueOffset) {
+        Assert(base + defaultValueOffset + size <= end, "RDEF default value out of bounds");
+        FSeek(base + defaultValueOffset);
+        if (size) uchar defaultValue[size];
+    }
+    FSeek(resume);
+};
+
+struct SDXBCBuffer(uint64 base, uint64 end) {
+    uint nameOffset;
+    uint variableCount;
+    uint variablesOffset;
+    uint size;
+    uint flags;
+    uint bufferType; // D3D_CBUFFER_TYPE
+    local uint64 resume = FTell();
+    SDXBCString name(base, end, nameOffset);
+    Assert(base + variablesOffset + uint64(variableCount) * 40 <= end, "RDEF variables out of bounds");
+    if (variableCount) {
+        FSeek(base + variablesOffset);
+        SDXBCVariable variables(base, end, size)[variableCount] <optimize=false>;
+    }
+    FSeek(resume);
+};
+
+struct SDXBCBinding(uint64 base, uint64 end) {
+    uint nameOffset;
+    uint type; // D3D_SHADER_INPUT_TYPE
+    uint returnType;
+    uint dimension;
+    uint sampleCount;
+    uint bindPoint;
+    uint bindCount;
+    uint flags;
+    SDXBCString name(base, end, nameOffset);
+};
+
+struct SDXBCReflection(uint64 size) {
+    local uint64 base = FTell();
+    local uint64 end = base + size;
+    Assert(size >= 60, "Truncated SM5 RDEF");
+    uint bufferCount;
+    uint buffersOffset;
+    uint bindingCount;
+    uint bindingsOffset;
+    uchar minorVersion;
+    uchar majorVersion;
+    ushort shaderType <format=hex>; // 0xffff PS, 0xfffe VS, 0x4753 GS, 0x4353 CS
+    uint compileFlags;
+    uint creatorOffset;
+    FourCC magic;
+    uint headerSize;
+    uint bufferStride;
+    uint bindingStride;
+    uint variableStride;
+    uint typeStride;
+    uint memberStride;
+    uint interfaceSlotCount;
+    Assert(majorVersion == 5 && minorVersion == 0 && magic == "RD11",
+        "Unsupported RDEF version");
+    Assert(headerSize == 60 && bufferStride == 24 && bindingStride == 32
+        && variableStride == 40 && typeStride == 36 && memberStride == 12,
+        "Unsupported RDEF record sizes");
+    SDXBCString creator(base, end, creatorOffset);
+    Assert(base + buffersOffset + uint64(bufferCount) * 24 <= end, "RDEF buffers out of bounds");
+    if (bufferCount) {
+        FSeek(base + buffersOffset);
+        SDXBCBuffer buffers(base, end)[bufferCount] <optimize=false>;
+    }
+    Assert(base + bindingsOffset + uint64(bindingCount) * 32 <= end, "RDEF bindings out of bounds");
+    if (bindingCount) {
+        FSeek(base + bindingsOffset);
+        SDXBCBinding bindings(base, end)[bindingCount] <optimize=false>;
+    }
+    FSeek(end);
+};
+
+struct SDXBCSignatureElement(uint64 base, uint64 end, uint hasStream, uint hasPrecision) {
+    if (hasStream) uint stream;
+    uint nameOffset;
+    uint semanticIndex;
+    uint systemValue;
+    uint componentType;
+    uint registerIndex;
+    uchar mask;
+    uchar readWriteMask; // Input: always read; output: never written.
+    ushort reserved;
+    if (hasPrecision) uint minPrecision;
+    SDXBCString semantic(base, end, nameOffset);
+};
+
+struct SDXBCSignature(uint64 size, uint hasStream, uint hasPrecision) {
+    local uint64 base = FTell();
+    local uint64 end = base + size;
+    Assert(size >= 8, "Truncated DXBC signature");
+    uint count;
+    uint headerSize;
+    local uint stride = 24 + 4 * hasStream + 4 * hasPrecision;
+    Assert(headerSize >= 8 && headerSize % 4 == 0
+        && uint64(headerSize) + uint64(count) * stride <= size, "DXBC signature out of bounds");
+    FSeek(base + headerSize);
+    if (count) SDXBCSignatureElement elements(base, end, hasStream, hasPrecision)[count] <optimize=false>;
+    FSeek(end);
+};
+
+struct SDXBCInstruction(uint64 end) {
+    local uint64 start = FTell();
+    Assert(start + 4 <= end, "Truncated DXBC opcode");
+    uint opcodeToken <format=hex>;
+    local uint opcode = opcodeToken & 0x7ff;
+    local uint length = (opcodeToken >> 24) & 0x7f;
+    if (opcode == 53) { // CUSTOMDATA: second word is the total word count
+        local uint customDataClass = opcodeToken >> 11;
+        Assert(FTell() + 4 <= end, "Truncated custom data header");
+        uint customLength;
+        length = customLength;
+        Assert(length >= 2 && start + uint64(length) * 4 <= end, "Invalid custom data length");
+        if (length > 2) uint customWords[length - 2] <format=hex>;
+    } else {
+        Assert(length >= 1 && start + uint64(length) * 4 <= end, "Invalid DXBC instruction length");
+        // Bit 31 chains extended opcodes; operand tokens follow.
+        if (length > 1) uint remainingTokens[length - 1] <format=hex>;
+    }
+};
+
+struct SDXBCTokenizedProgram(uint64 size) {
+    local uint64 end = FTell() + size;
+    Assert(size >= 8, "Truncated DXBC program");
+    uint version <format=hex>;
+    local uint stage = version >> 16; // 0 PS, 1 VS, 2 GS, 3 HS, 4 DS, 5 CS
+    local uint major = (version >> 4) & 15;
+    local uint minor = version & 15;
+    uint tokenCount; // Includes the header.
+    Assert(uint64(tokenCount) * 4 == size, "DXBC token count mismatch");
+    while (FTell() < end) {
+        SDXBCInstruction instruction(end);
+    }
+};
+
+struct SDXBCChunk(uint64 fileEnd) {
+    Assert(FTell() + 8 <= fileEnd, "Truncated DXBC chunk");
+    FourCC tag;
+    uint size;
+    local uint64 end = FTell() + size;
+    Assert(end <= fileEnd, "DXBC chunk outside container");
+    if (tag == "RDEF") SDXBCReflection reflection(size);
+    else if (tag == "SHEX" || tag == "SHDR") SDXBCTokenizedProgram program(size);
+    else if (tag == "ISGN" || tag == "OSGN" || tag == "PCSG") SDXBCSignature signature(size, 0, 0);
+    else if (tag == "OSG5") SDXBCSignature signature(size, 1, 0);
+    else if (tag == "ISG1" || tag == "OSG1" || tag == "PSG1") SDXBCSignature signature(size, 1, 1);
+    else if (size) uchar raw[size];
+    FSeek(end);
+};
+
+struct SDXBCContainer(uint64 size) {
+    local uint64 base = FTell();
+    local uint64 end = base + size;
+    Assert(size >= 32, "Truncated DXBC header");
+    FourCC magic;
+    uchar checksum[16];
+    uint version;
+    uint totalSize;
+    uint chunkCount;
+    Assert(magic == "DXBC" && version == 1 && totalSize == size, "Invalid DXBC container");
+    Assert(32 + uint64(chunkCount) * 4 <= size, "DXBC chunk table out of bounds");
+    if (chunkCount) {
+        uint offsets[chunkCount]; // Relative to the DXBC magic.
+        local uint i;
+        for (i = 0; i < chunkCount; i++) {
+            Assert(offsets[i] >= 32 + uint64(chunkCount) * 4 && offsets[i] % 4 == 0
+                && uint64(offsets[i]) + 8 <= size, "Invalid DXBC chunk offset");
+            FSeek(base + offsets[i]);
+            SDXBCChunk chunk(end);
+        }
+    }
+    FSeek(end);
+};
+
+#endif

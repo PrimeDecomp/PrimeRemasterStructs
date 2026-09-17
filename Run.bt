@@ -117,7 +117,8 @@ typedef struct {
     NTextureFormat texture(form.size);
     break;
   case "REFL":
-   // CReflectionProbeData probeData;
+    Assert(form.readerVersion == 3 && form.writerVersion == 3, "Unsupported REFL version");
+    CReflectionProbeData probeData;
     break;
   /*case "RULE":
       CRuleSet rulesetconfig(form.size);
@@ -156,6 +157,9 @@ typedef struct {
   FSeek(start + form.size);
 } File<open = true, bgcolor = cSilver>;
 
+if (!isDKCTF && ReadString(FTell(), 4) == "DXBC") {
+  SDXBCContainer dxbc(FileSize() - FTell());
+} else {
 File
     file<bgcolor = cGray, name = (Str("%s rv%d wv%d file", form.id,
                                       form.readerVersion, form.writerVersion))>;
@@ -163,4 +167,5 @@ File
 // Custom footer for extracted files
 if (ReadString(FTell(), 4) == "RFRM") {
   Footer footer(file.form.id)<bgcolor = cLtBlue>;
+}
 }

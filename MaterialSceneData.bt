@@ -1,0 +1,185 @@
+#ifndef _MATERIALSCENEDATA
+#define _MATERIALSCENEDATA
+
+#include "CTransform4f.bt"
+#include "CAABox.bt"
+
+// MPR runtime memory layouts (little endian).
+
+struct SMPRSceneTokenRef {
+    uint64 token;
+    uint64 referenceControl;
+};
+
+struct SMPRSceneArray {
+    uint count;
+    uint capacity;
+    uint64 data;
+};
+
+struct SMPRBakedLightingContextSceneNode {
+    uchar unknown00[0x28];
+    uint32 nodeId;
+    uchar enabled;
+    uchar group;
+    uint16 contextIdentifier;
+    int16 contextListIndex; // -1 = not in a list
+    uchar unknown32[6];
+    SMPRSceneTokenRef dataStorage;
+    uint32 managerSlot;
+    uchar registered;
+    uchar unknown4D[3];
+    uchar primaryCandidate;
+    uchar unknown51[3];
+    CAABox zoneBounds;
+    CAABox storageBounds;
+    float modulationColor[4];
+    int32 priority;
+};
+
+struct SMPRBakedLightingContextTransferData {
+    uint64 vtable;
+    uint16 contextIdentifier;
+    uchar enabled;
+    uchar group;
+    float modulationColor[4];
+    int32 priority;
+};
+
+struct SMPRBakedLightingContextSceneNodeProxy {
+    uchar unknown00[0x28];
+    SMPRSceneTokenRef sceneProxy;
+    SMPRSceneTokenRef nodeHandle;
+    uchar enableFlags; // bit 0: scene enabled; bit 1: locally enabled
+    uchar unknown49[7];
+    SMPRSceneTokenRef transferData;
+    uint16 contextIdentifier;
+    uchar unknown62[6];
+    SMPRSceneTokenRef dataStorage;
+    float modulationColor[4];
+    int32 priority;
+    uchar unknown8C[4];
+};
+
+struct SMPRBakedLightingUniformProbeStorage {
+    uint64 vtable;
+    uchar probeResourceToken[0x10];
+    uint64 gridMetadata;
+    CTransform4f storageToWorld;
+    CTransform4f worldToStorage;
+};
+
+struct SMPRBakedLightingManagerPrefix {
+    uint64 primaryContext;
+    SMPRSceneArray contextSlots; // Pointer array; may contain null entries.
+    uchar unknown18[0x10];
+    uint64 probeMaterial;
+    uint64 probeTexture;
+    uint64 modulationMaterial;
+    uchar activeGroup;
+    uchar hasActiveGroup;
+    uchar unknown42[2];
+    float overrideColor[4];
+    uchar hasOverrideColor;
+    uchar unknown55[3];
+    uchar registrationReplayed;
+};
+
+struct SMPRBakedProbeTextureMaterialData {
+    uint64 vtable;
+    uint32 materialDataId; // BLPT
+    uint32 materialDataType; // Complex = 5
+    CTransform4f viewToTexture;
+    CTransform4f viewToProbeSpaceInverseTranspose;
+    SMPRSceneTokenRef textures[6];
+};
+
+struct SMPRAmbientSource {
+    float flatColor[4]; // AMBS uploads this vector.
+    float gradientDirection[4];
+    float gradientColor0[4];
+    float gradientColor1[4];
+    float fillDirection[4];
+    float fillColor[4];
+};
+
+struct SMPRAmbientSourceMaterialData {
+    uint64 vtable;
+    uint materialDataId; // ALLD
+    uint materialDataType; // Complex = 5
+    SMPRAmbientSource source;
+};
+
+struct SMPRLightingSetAmbientFields {
+    uchar unknown00[0xd8];
+    float allAmbient[4];
+    float unbakedAmbient[4];
+    uchar hasAmbient;
+    uchar unknownF9[0x0b];
+    SMPRAmbientSource directionalAmbient;
+};
+
+struct SMPRSkinningMaterialData {
+    uint64 vtable;
+    uint materialDataId; // SKIN
+    uint materialDataType; // Complex = 5
+    uchar flags; // bit 0: instanced palettes
+    uchar unknown11[7];
+    if (flags & 1) {
+        uint64 instancesBegin;
+        uint64 instancesEnd;
+    } else {
+        uint64 animationRenderData; // Takes precedence when nonnull, including empty palettes.
+        int fallbackBoneCount;
+        uint fallbackCapacity;
+        uint64 fallbackMatrices; // Row-major 3x4 matrices.
+    }
+};
+
+struct SMPRAnimRenderData {
+    uchar unknown00[8];
+    short boneCount;
+    short unknown0A;
+    short unknown0C;
+    uchar unknown0E[34];
+    uint64 matrices; // Shader palette order.
+};
+
+struct SMPRClusteredLightingMaterialData {
+    uint64 vtable;
+    uint materialDataId; // CLLD
+    uint materialDataType; // Complex = 5
+    float clusterSizeParams[4];
+    float clusterDepthParams[4];
+    uint clusterIndexParams[4];
+    uint lightMaskSource;
+    uint unknown44;
+    SMPRSceneTokenRef clusterLightMask;
+    SMPRSceneTokenRef clusterShadowMapLightMask;
+    uchar hasShadowMaps;
+    uchar unknown69[7];
+    SMPRSceneArray unshadowedLights; // stride 0x50
+    SMPRSceneArray spotShadowMapLights; // stride 0x50
+    SMPRSceneArray spotShadowMapData; // stride 0x70
+    uchar unknownA0[16];
+    SMPRSceneTokenRef spotSharedTexture;
+    SMPRSceneTokenRef spotSharedSampler;
+    SMPRSceneArray pointShadowMapLights; // stride 0x50
+    SMPRSceneArray pointShadowMapData; // stride 0x80
+    uchar unknownF0[16];
+    SMPRSceneTokenRef pointSharedTexture;
+    SMPRSceneTokenRef pointSharedSampler;
+};
+
+struct SMPRReflectionProbeMaterialData {
+    uint64 vtable;
+    uint materialDataId; // REFP
+    uint materialDataType; // Complex = 5
+    SMPRSceneTokenRef brdf;
+    float maxValidMipIndex;
+    float minIntensity;
+    float maxIntensity;
+    float probeIntensity;
+}; // The cube is a separate material texture.
+
+#endif

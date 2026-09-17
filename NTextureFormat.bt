@@ -1,5 +1,6 @@
 #ifndef _NTEXTUREFORMAT
 #define _NTEXTUREFORMAT
+#include "TextureNVN.bt"
 struct STextureReadInfo
 {
     if (!isDKCTF)
@@ -85,8 +86,8 @@ struct STextureMetaData(uint64 fileStart)
         FSeek(pos);
     } else {
         uint32 bufferCount;
-        if (infoCount != 0) {
-            STextureCompressedBufferInfo buffer(fileStart)[infoCount] <optimize=false>;
+        if (bufferCount != 0) {
+            STextureCompressedBufferInfo buffer(fileStart)[bufferCount] <optimize=false>;
         }
     }
 };
@@ -136,9 +137,10 @@ enum /* where? */ ECompareFunction
     TEXTURE_COMPARE_GREATER = 7,
 };
 
+// Flag bit 1 requests sample shading with LOD bias -1.
 struct STextureSamplerData
 {
-    uint32 unk;
+    uint32 flags <format=hex>;
     ETextureFilter filter;
     ETextureMipFilter mipFilter;
     ETextureWrap wrapX;
@@ -148,6 +150,24 @@ struct STextureSamplerData
         ETextureWrap wrapZ;
         ETextureAnisotropicRatio aniso;
     }
+};
+
+// MPR runtime sampler parameters.
+// Merging: -1 inherits integers, LOD floats replace, flags OR.
+struct SBuildTextureSamplerParams {
+    int filter;       // 0 nearest, 1 linear
+    int mipFilter;    // 0 nearest, 1 linear
+    int wrapX;        // ETextureWrap; NVN maps 5 and unknown values to Repeat
+    int wrapY;
+    int wrapZ;
+    int compare;      // ECompareFunction
+    float minLOD;
+    float maxLOD;
+    float lodBias;
+    int border;       // -1/0 transparent black, 1 opaque black, 2 opaque white
+    int aniso;        // -1 inherits; 0/1/2/3/4 = 1x/2x/4x/8x/16x
+    uchar flags;     // bit 0: sample shading with LOD bias -1
+    uchar padding[3];
 };
 
 enum <uint32> ETextureType
@@ -264,6 +284,7 @@ struct STextureHeader
 {
     ETextureType type;
     ETextureFormat format;
+    // Dimensions are in texels, including compressed formats.
     uint32 width;
     uint32 height;
     uint32 layers;
@@ -274,6 +295,7 @@ struct STextureHeader
         uint32 swizzle; // ?
     }
     uint32 mips;
+    // Byte totals across layers, including full compressed edge blocks.
     uint32 mipSizes[mips] <format=hex>;
     STextureSamplerData samplerData;
 };
@@ -310,6 +332,5 @@ typedef struct(uint64 size)
         TXTRChunk chunk;
     }
 } NTextureFormat <name="TXTR chunks">;
-
 
 #endif// _NTEXTUREFORMAT

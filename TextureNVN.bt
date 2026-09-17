@@ -1,0 +1,170 @@
+#ifndef _TEXTURENVN
+#define _TEXTURENVN
+
+// MPR runtime texture layouts (little endian).
+
+uint MPRNVNTextureTarget(uint engineType) {
+    switch (engineType) {
+        case 0: return 0;
+        case 1: return 1;
+        case 2: return 2;
+        case 3: return 8;
+        case 4: return 3;
+        case 5: return 4;
+        case 6: return 5;
+        case 7: return 6;
+        case 8: return 9;
+        default: return 1;
+    }
+}
+
+// The SDK rejects engine formats 11 and 38.
+uint MPRNVNTextureFormat(uint engineFormat) {
+    switch (engineFormat) {
+        case 0: return 0x01;
+        case 1: return 0x02;
+        case 2: return 0x03;
+        case 3: return 0x04;
+        case 4: return 0x06;
+        case 5: return 0x07;
+        case 6: return 0x08;
+        case 7: return 0x09;
+        case 8: return 0x05;
+        case 9: return 0x0b;
+        case 10: return 0x0c;
+        case 11: return 0x19;
+        case 12: return 0x25;
+        case 13: return 0x38;
+        case 14: return 0x29;
+        case 15: return 0x2e;
+        case 16: return 0x32;
+        case 17: return 0x32;
+        case 18: return 0x35;
+        case 19: return 0x34;
+        case 20: return 0x42;
+        case 21: return 0x46;
+        case 22: return 0x43;
+        case 23: return 0x47;
+        case 24: return 0x44;
+        case 25: return 0x48;
+        case 26: return 0x49;
+        case 27: return 0x4a;
+        case 28: return 0x4b;
+        case 29: return 0x4c;
+        case 30: return 0x3f;
+        case 31: return 0x0a;
+        case 32: return 0x0d;
+        case 33: return 0x0e;
+        case 34: return 0x0f;
+        case 35: return 0x10;
+        case 36: return 0x11;
+        case 37: return 0x12;
+        case 38: return 0x1f;
+        case 39: return 0x14;
+        case 40: return 0x15;
+        case 41: return 0x3d;
+        case 42: return 0x3e;
+        case 43: return 0x17;
+        case 44: return 0x18;
+        case 45: return 0x16;
+        case 46: return 0x2a;
+        case 47: return 0x2b;
+        case 48: return 0x2c;
+        case 49: return 0x2d;
+        case 50: return 0x2f;
+        case 51: return 0x30;
+        case 52: return 0x00;
+        case 53: return 0x79;
+        case 54: return 0x7a;
+        case 55: return 0x7b;
+        case 56: return 0x7c;
+        case 57: return 0x7d;
+        case 58: return 0x7e;
+        case 59: return 0x7f;
+        case 60: return 0x80;
+        case 61: return 0x81;
+        case 62: return 0x82;
+        case 63: return 0x83;
+        case 64: return 0x84;
+        case 65: return 0x85;
+        case 66: return 0x86;
+        case 67: return 0x87;
+        case 68: return 0x88;
+        case 69: return 0x89;
+        case 70: return 0x8a;
+        case 71: return 0x8b;
+        case 72: return 0x8c;
+        case 73: return 0x8d;
+        case 74: return 0x8e;
+        case 75: return 0x8f;
+        case 76: return 0x90;
+        case 77: return 0x91;
+        case 78: return 0x92;
+        case 79: return 0x93;
+        case 80: return 0x94;
+        case 81: return 0x50;
+        case 82: return 0x4f;
+        case 83: return 0x4d;
+        case 84: return 0x4e;
+        default: Assert(0, "Unknown MPR texture format"); return 0;
+    }
+}
+
+struct SNVNTextureView {
+    ushort baseLayer;
+    ushort layerCount; // 0 = remaining layers
+    uchar baseMip;
+    uchar mipCount; // 0 = remaining mip levels
+    uchar target; // NVN target
+    uchar flags <format=hex>;
+    uint format; // NVNformat; enabled by flag bit 2
+    uchar swizzle[4]; // 0 zero, 1 one, 2 R, 3 G, 4 B, 5 A
+    local uint hasLevels = flags & 1;
+    local uint hasLayers = (flags >> 1) & 1;
+    local uint hasFormat = (flags >> 2) & 1;
+    local uint hasSwizzle = (flags >> 3) & 1;
+    local uint hasDepthStencilMode = (flags >> 4) & 1;
+    local uint hasTarget = (flags >> 5) & 1;
+    local uint depthStencilMode = flags >> 6; // 0 depth, 1 stencil
+    // Unset fields inherit from the backing texture.
+};
+
+struct SMaxwellTextureDescriptor {
+    uint words[8] <format=hex>;
+    local uint headerVersion = (words[2] >> 21) & 7;
+    if (headerVersion == 3) { // SELECT_BLOCKLINEAR
+        local uint componentSizes = words[0] & 127;
+        // 1 SNORM, 2 UNORM, 3 SINT, 4 UINT, 5/6 half SNORM/UNORM, 7 float
+        local uint typeR = (words[0] >> 7) & 7;
+        local uint typeG = (words[0] >> 10) & 7;
+        local uint typeB = (words[0] >> 13) & 7;
+        local uint typeA = (words[0] >> 16) & 7;
+        // 0 zero, 2 R, 3 G, 4 B, 5 A, 6 integer one, 7 float one
+        local uint sourceX = (words[0] >> 19) & 7;
+        local uint sourceY = (words[0] >> 22) & 7;
+        local uint sourceZ = (words[0] >> 25) & 7;
+        local uint sourceW = (words[0] >> 28) & 7;
+        local uint64 gpuAddress <format=hex> = (words[1] & 0xfffffe00)
+            | (uint64(words[2] & 0xffff) << 32);
+        // 0 1D, 1 2D, 2 3D, 3 cube, 4 1D array, 5 2D array, 6 buffer, 7 rectangle, 8 cube array
+        local uint textureType = (words[4] >> 23) & 15;
+        local uint srgb = (words[4] >> 22) & 1;
+        local uint width = (words[4] & 0xffff) + 1;
+        local uint height = (words[5] & 0xffff) + 1;
+        local uint depth = ((words[5] >> 16) & 0x3fff) + 1;
+        local uint maxMipLevel = words[3] >> 28;
+        local uint viewMinMipLevel = words[7] & 15;
+        local uint viewMaxMipLevel = (words[7] >> 4) & 15;
+        local uint multisampleMode = (words[7] >> 8) & 15; // NVN 2x/4x/8x -> 5/2/4
+        local uint normalizedCoordinates = words[5] >> 31;
+        local uint blockHeightLog2 = (words[3] >> 3) & 7;
+        local uint blockDepthLog2 = (words[3] >> 6) & 7;
+        local uint tileWidthLog2 = (words[3] >> 10) & 7;
+        // NVN stores the base layer in reserved bits; gpuAddress includes its offset.
+        local uint nvnRegisteredBaseLayer = ((words[4] >> 16) & 7)
+            | (((words[2] >> 16) & 31) << 3) | (((words[2] >> 29) & 7) << 8);
+        // Cube arrays encode depth in cubes; array views may retain the backing depth.
+    }
+};
+
+#endif

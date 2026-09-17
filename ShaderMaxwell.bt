@@ -1,0 +1,576 @@
+#ifndef _SHADERMAXWELL
+#define _SHADERMAXWELL
+
+// Tegra X1 / Maxwell SM53.
+
+struct SMaxwellShaderHeader {
+    uint commonWords[5] <format=hex>;
+    uint stageWords[15] <format=hex>; // Stage-specific attribute maps.
+    local uint sphType = commonWords[0] & 31; // 1 VTG, 2 pixel
+    local uint version = (commonWords[0] >> 5) & 31;
+    local uint shaderType = (commonWords[0] >> 10) & 15; // 1 vertex, 4 geometry, 5 pixel
+    local uint mrtEnable = (commonWords[0] >> 14) & 1;
+    local uint killsPixels = (commonWords[0] >> 15) & 1;
+    local uint globalStore = (commonWords[0] >> 16) & 1;
+    local uint sassVersion = (commonWords[0] >> 17) & 15;
+    local uint loadOrStore = (commonWords[0] >> 26) & 1;
+    local uint fp64 = (commonWords[0] >> 27) & 1;
+    local uint streamOutMask = commonWords[0] >> 28;
+    local uint localMemoryLow = commonWords[1] & 0xffffff;
+    local uint localMemoryHigh = commonWords[2] & 0xffffff;
+    local uint localMemoryCrs = commonWords[3] & 0xffffff;
+    local uint perPatchAttributes = commonWords[1] >> 24;
+    local uint threadsPerInputPrimitive = commonWords[2] >> 24;
+    local uint outputTopology = (commonWords[3] >> 24) & 15;
+    local uint maxOutputVertices = commonWords[4] & 0xfff;
+    local uint storeRequestStart = (commonWords[4] >> 12) & 255;
+    local uint storeRequestEnd = commonWords[4] >> 24;
+    if (version == 3 && sphType == 1) {
+        local uint clipDistanceInputs = (stageWords[5] >> 16) & 255;
+        local uint clipDistanceOutputs = stageWords[13] & 255;
+    }
+    if (version == 3 && sphType == 2 && shaderType == 5) {
+        // Input modes: 0 unused, 1 constant, 2 perspective, 3 screen linear.
+        local uint pixelSystemInputsAB = stageWords[0]; // Position XYZW in bits 28-31.
+        local uint pixelGenericModes[128]; // a[0x80 + component*4]
+        local uint pixelFrontColorModes[8]; // a[0x280 + component*4]
+        local uint pixelTextureModes[40]; // a[0x300 + component*4]
+        local uint pixelColorMasks[8]; // RGBA bits per render target.
+        local uint mapIndex;
+        for (mapIndex = 0; mapIndex < 128; mapIndex++)
+            pixelGenericModes[mapIndex] = (stageWords[1 + mapIndex/16] >> (2*(mapIndex%16))) & 3;
+        for (mapIndex = 0; mapIndex < 8; mapIndex++) {
+            pixelFrontColorModes[mapIndex] = (stageWords[9] >> (2*mapIndex)) & 3;
+            pixelColorMasks[mapIndex] = (stageWords[13] >> (4*mapIndex)) & 15;
+        }
+        for (mapIndex = 0; mapIndex < 40; mapIndex++)
+            pixelTextureModes[mapIndex] = (stageWords[10 + mapIndex/16] >> (2*(mapIndex%16))) & 3;
+        local uint pixelSystemInputsC = stageWords[9] >> 16; // a[0x2c0..0x2fc]
+        local uint pixelUnknownWord17High = stageWords[12] >> 16;
+        local uint pixelWritesSampleMask = stageWords[14] & 1;
+        local uint pixelWritesDepth = (stageWords[14] >> 1) & 1;
+        local uint pixelUnknownWord19Bits = stageWords[14] & 0xfffffffc;
+        // Each present target reserves four GPRs, even with a partial mask.
+        // Depth follows the sample-mask slot even when that output is disabled.
+        local int pixelColorBaseRegisters[8]; // -1 = absent target
+        local int nextPixelOutputRegister = 0;
+        for (mapIndex = 0; mapIndex < 8; mapIndex++) {
+            pixelColorBaseRegisters[mapIndex] = -1;
+            if (pixelColorMasks[mapIndex] != 0) {
+                pixelColorBaseRegisters[mapIndex] = nextPixelOutputRegister;
+                nextPixelOutputRegister += 4;
+            }
+        }
+        local int pixelSampleMaskRegister = pixelWritesSampleMask ? nextPixelOutputRegister : -1;
+        local int pixelDepthRegister = pixelWritesDepth ? nextPixelOutputRegister + 1 : -1;
+    }
+};
+
+struct SMaxwellInstruction(uint scheduleBits) {
+    uint64 word <format=hex>;
+    local uint predicate = (word >> 16) & 7; // 7 = PT
+    local uint predicateInverted = (word >> 19) & 1;
+    local uint stall = scheduleBits & 15;
+    local uint yieldFlag = (scheduleBits >> 4) & 1;
+    local uint writeBarrier = (scheduleBits >> 5) & 7; // 7 = none
+    local uint readBarrier = (scheduleBits >> 8) & 7; // 7 = none
+    local uint waitBarrierMask = (scheduleBits >> 11) & 63;
+    local uint reuseMask = (scheduleBits >> 17) & 15;
+    local uint64 aluNormal = word & 0xfff8000000000000;
+    local uint64 aluCompact = word & 0xfef8000000000000; // bit 56 is the literal sign
+    local uint64 aluFma = word & 0xff80000000000000;
+    local uint64 aluCompactFma = word & 0xfe80000000000000;
+    local uint64 aluLong = word & 0xfc00000000000000;
+    local string aluOperation = "";
+    // Source kinds: 0 register, 1 constant buffer, 2 compact float, 3 raw32.
+    local int aluSourceKind = -1;
+    local uint aluLongForm = 0;
+    local uint aluCbufIsThirdFmaOperand = 0;
+    if (aluNormal == 0x5c98000000000000 || aluNormal == 0x4c98000000000000) {
+        aluOperation = "MOV";
+        aluSourceKind = aluNormal == 0x5c98000000000000 ? 0 : 1;
+    } else if ((word & 0xfff0000000000000) == 0x0100000000000000) {
+        aluOperation = "MOV"; aluSourceKind = 3; aluLongForm = 1;
+    } else if (aluNormal == 0x5c58000000000000 || aluNormal == 0x4c58000000000000 || aluCompact == 0x3858000000000000 || aluLong == 0x0800000000000000) {
+        aluOperation = "FADD";
+        aluLongForm = aluLong == 0x0800000000000000;
+        aluSourceKind = aluLongForm ? 3 : aluCompact == 0x3858000000000000 ? 2 : aluNormal == 0x4c58000000000000 ? 1 : 0;
+    } else if (aluNormal == 0x5c68000000000000 || aluNormal == 0x4c68000000000000 || aluCompact == 0x3868000000000000 || (word >> 56) == 0x1e) {
+        aluOperation = "FMUL";
+        aluLongForm = (word >> 56) == 0x1e;
+        aluSourceKind = aluLongForm ? 3 : aluCompact == 0x3868000000000000 ? 2 : aluNormal == 0x4c68000000000000 ? 1 : 0;
+    } else if (aluFma == 0x5980000000000000 || aluFma == 0x4980000000000000 || aluFma == 0x5180000000000000 || aluCompactFma == 0x3280000000000000 || aluLong == 0x0c00000000000000) {
+        aluOperation = "FFMA";
+        aluLongForm = aluLong == 0x0c00000000000000;
+        aluCbufIsThirdFmaOperand = aluFma == 0x5180000000000000;
+        aluSourceKind = aluLongForm ? 3 : aluCompactFma == 0x3280000000000000 ? 2 : aluFma == 0x5980000000000000 ? 0 : 1;
+    } else if (aluNormal == 0x5c60000000000000 || aluNormal == 0x4c60000000000000 || aluCompact == 0x3860000000000000) {
+        aluOperation = "FMNMX";
+        aluSourceKind = aluCompact == 0x3860000000000000 ? 2 : aluNormal == 0x4c60000000000000 ? 1 : 0;
+    } else if (aluNormal == 0x5080000000000000) {
+        aluOperation = "MUFU";
+    } else if (aluNormal == 0x5c90000000000000 || aluNormal == 0x4c90000000000000 || aluCompact == 0x3890000000000000) {
+        aluOperation = "RRO";
+        aluSourceKind = aluCompact == 0x3890000000000000 ? 2 : aluNormal == 0x4c90000000000000 ? 1 : 0;
+    }
+    if (aluOperation != "") {
+        local uint aluDestination = word & 255; // 255 = RZ
+        if (aluSourceKind == 0) {
+            local uint aluRegisterAt20 = (word >> 20) & 255;
+        } else if (aluSourceKind == 1) {
+            local uint aluConstantBuffer = (word >> 34) & 31;
+            local int aluConstantByteOffset = ((word >> 20) & 0x3fff) * 4;
+            if (aluConstantByteOffset >= 0x8000) aluConstantByteOffset -= 0x10000;
+        } else if (aluSourceKind == 2) {
+            local uint aluImmediateBits = ((word >> 20) & 0x7ffff) << 12;
+            if ((word >> 56) & 1) aluImmediateBits |= 0x80000000;
+            // Float32 bits; low 12 bits are zero.
+        } else if (aluSourceKind == 3) {
+            local uint aluImmediateBits = (word >> 20) & 0xffffffff;
+        }
+        if (aluOperation == "MOV") {
+            local uint aluLaneMask = (word >> (aluLongForm ? 12 : 39)) & 15;
+        } else if (aluOperation == "RRO") {
+            local uint aluRangeReduction = (word >> 39) & 1; // 0 SinCos, 1 Exp2
+            local uint aluSourceAbsolute = (word >> 49) & 1;
+            local uint aluSourceNegate = (word >> 45) & 1;
+        } else {
+            local uint aluRegisterAt8 = (word >> 8) & 255;
+            if (aluOperation == "MUFU") {
+                local uint aluSpecialFunction = (word >> 20) & 15;
+                // 0 COS, 1 SIN, 2 EX2, 3 LG2, 4 RCP, 5 RSQ, 6 RCP64H, 7 RSQ64H, 8 SQRT
+                local uint aluSourceAbsolute = (word >> 46) & 1;
+                local uint aluSourceNegate = (word >> 48) & 1;
+                local uint aluSaturate = (word >> 50) & 1;
+            } else {
+                local uint aluWritesCC = (word >> (aluLongForm ? 52 : 47)) & 1;
+                local uint aluRounding = 0; // nearest even, floor, ceil, truncate
+                local uint aluFlushToZero = (word >> (aluLongForm ? 55 : 44)) & 1;
+                local uint aluSaturate = 0;
+                if (aluOperation == "FADD" || aluOperation == "FMNMX") {
+                    local uint aluFirstAbsolute = (word >> (aluLongForm ? 54 : 46)) & 1;
+                    local uint aluFirstNegate = (word >> (aluLongForm ? 56 : 48)) & 1;
+                    local uint aluSecondAbsolute = (word >> (aluLongForm ? 57 : 49)) & 1;
+                    local uint aluSecondNegate = (word >> (aluLongForm ? 53 : 45)) & 1;
+                    if (aluOperation == "FADD" && !aluLongForm) {
+                        aluRounding = (word >> 39) & 3;
+                        aluSaturate = (word >> 50) & 1;
+                    } else if (aluOperation == "FMNMX") {
+                        local uint aluMinPredicate = (word >> 39) & 7;
+                        local uint aluMinPredicateInverted = (word >> 42) & 1;
+                        // True selects minimum; false selects maximum.
+                    }
+                } else if (aluOperation == "FMUL") {
+                    aluFlushToZero = (word >> (aluLongForm ? 53 : 44)) & 1;
+                    local uint aluDnz = (word >> (aluLongForm ? 54 : 45)) & 1;
+                    // nvdisasm calls DNZ "FMZ".
+                    aluSaturate = (word >> (aluLongForm ? 55 : 50)) & 1;
+                    if (!aluLongForm) {
+                        aluRounding = (word >> 39) & 3;
+                        local uint aluProductNegate = (word >> 48) & 1;
+                        local uint aluScaleCode = (word >> 41) & 7;
+                        // 0 none, 1/2/3 divide by 2/4/8, 4/5/6 multiply by 8/4/2
+                    } // Long FMUL uses the immediate sign bit for negation.
+                } else if (aluOperation == "FFMA") {
+                    aluFlushToZero = (word >> 53) & 1;
+                    local uint aluDnz = (word >> 54) & 1;
+                    local uint aluProductNegate = (word >> (aluLongForm ? 56 : 48)) & 1;
+                    local uint aluThirdNegate = (word >> (aluLongForm ? 57 : 49)) & 1;
+                    aluSaturate = (word >> (aluLongForm ? 55 : 50)) & 1;
+                    if (!aluLongForm) {
+                        aluRounding = (word >> 51) & 3;
+                        local uint aluRegisterAt39 = (word >> 39) & 255;
+                        // Third source, or second source for the 0x5180 encoding.
+                    } // FFMA32I uses the old destination as its third source.
+                }
+            }
+        }
+    }
+    local uint64 integerBase = 0;
+    local int integerSourceKind = -1; // register, constant buffer, signed20, raw32
+    if ((word >> 60) == 5) { integerBase = aluNormal; integerSourceKind = 0; }
+    else if ((word >> 60) == 4) { integerBase = aluNormal + 0x1000000000000000; integerSourceKind = 1; }
+    else if ((word >> 60) == 3) { integerBase = aluCompact + 0x2400000000000000; integerSourceKind = 2; }
+    local string integerOperation = "";
+    if (integerBase == 0x5c10000000000000) integerOperation = "IADD";
+    else if (integerBase == 0x5c18000000000000) integerOperation = "ISCADD";
+    else if (integerBase == 0x5c40000000000000) integerOperation = "LOP";
+    else if (integerBase == 0x5c48000000000000) integerOperation = "SHL";
+    else if (integerBase == 0x5c28000000000000) integerOperation = "SHR";
+    else if (integerBase == 0x5c00000000000000) integerOperation = "BFE";
+    else if (integerBase == 0x5c30000000000000) integerOperation = "FLO";
+    if ((word & 0xfe00000000000000) == 0x1c00000000000000) { integerOperation = "IADD"; integerSourceKind = 3; }
+    else if (aluLong == 0x1400000000000000) { integerOperation = "ISCADD"; integerSourceKind = 3; }
+    else if (aluLong == 0x0400000000000000) { integerOperation = "LOP"; integerSourceKind = 3; }
+    local uint isConversion = integerBase == 0x5ca8000000000000 || integerBase == 0x5cb0000000000000 || integerBase == 0x5cb8000000000000;
+    if (integerOperation != "" || isConversion) {
+        local uint integerDestination = word & 255;
+        if (!isConversion && integerOperation != "FLO") local uint integerSourceA = (word >> 8) & 255;
+        if (integerSourceKind == 0) local uint integerSourceRegister = (word >> 20) & 255;
+        else if (integerSourceKind == 1) {
+            local uint integerSourceBuffer = (word >> 34) & 31;
+            local short integerSourceByteOffset = ((word >> 20) & 0x3fff) * 4;
+        } else if (integerSourceKind == 2) {
+            if (integerBase == 0x5ca8000000000000 || integerBase == 0x5cb0000000000000)
+                local uint conversionFloatBits = (((word >> 20) & 0x7ffff) << 12) | (((word >> 56) & 1) << 31);
+            else local uint integerImmediateBits = ((word >> 20) & 0x7ffff) | (((word >> 56) & 1) * 0xfff80000);
+        } else local uint integerImmediateBits = (word >> 20) & 0xffffffff;
+        local uint integerLongForm = integerSourceKind == 3;
+        local uint integerWriteCC = (word >> (integerLongForm ? 52 : 47)) & 1;
+        if (isConversion) {
+            local uint conversionFloatToFloat = integerBase == 0x5ca8000000000000;
+            local uint conversionFloatToInteger = integerBase == 0x5cb0000000000000;
+            local uint conversionDestinationBits = 8 << ((word >> 8) & 3);
+            local uint conversionSourceBits = 8 << ((word >> 10) & 3);
+            if (!conversionFloatToFloat) local uint conversionIntegerSigned = (word >> (conversionFloatToInteger ? 12 : 13)) & 1;
+            local uint conversionRounding = (word >> 39) & 3; // nearest even, floor, ceil, truncate
+            local uint conversionSourceSelection = (word >> 41) & ((conversionFloatToInteger || conversionFloatToFloat) ? 1 : 3);
+            local uint conversionAbsolute = (word >> 49) & 1;
+            local uint conversionNegate = (word >> 45) & 1;
+            if (conversionFloatToInteger || conversionFloatToFloat) local uint conversionFTZ = (word >> 44) & 1;
+            if (conversionFloatToFloat) {
+                local uint conversionIntegralRounding = (word >> 42) & 1;
+                local uint conversionSaturate = (word >> 50) & 1;
+                // Bit 42 selects integral rounding; the result remains float.
+            }
+        } else if (integerOperation == "BFE" || integerOperation == "FLO") {
+            local uint integerBitSigned = (word >> 48) & 1;
+            if (integerOperation == "BFE") {
+                local uint bfeReverse = (word >> 40) & 1;
+                // Range operand: offset in bits 0-7, length in bits 8-15.
+            } else {
+                local uint floSourceInvert = (word >> 40) & 1;
+                local uint floShiftAmount = (word >> 41) & 1;
+            }
+        } else {
+            local uint integerExtended = integerOperation == "ISCADD" ? 0 :
+                (word >> (integerLongForm ? (integerOperation == "IADD" ? 53 : 57) : integerOperation == "SHR" ? 44 : 43)) & 1;
+            if (integerOperation == "IADD") {
+                local uint integerNegateA = (word >> (integerLongForm ? 56 : 49)) & 1;
+                local uint integerNegateB = integerLongForm ? 0 : ((word >> 48) & 1);
+                local uint integerPlusOneMode = !integerExtended && integerNegateA && integerNegateB;
+                local uint integerSaturate = (word >> (integerLongForm ? 54 : 50)) & 1;
+            } else if (integerOperation == "ISCADD") {
+                local uint integerScale = (word >> (integerLongForm ? 53 : 39)) & 31;
+                local uint integerNegateA = integerLongForm ? 0 : (word >> 49) & 1;
+                local uint integerNegateB = integerLongForm ? 0 : (word >> 48) & 1;
+                local uint integerPlusOneMode = integerNegateA && integerNegateB;
+            } else if (integerOperation == "LOP") {
+                local uint integerLogic = (word >> (integerLongForm ? 53 : 41)) & 3; // AND, OR, XOR, PASS_B
+                local uint integerInvertA = (word >> (integerLongForm ? 55 : 39)) & 1;
+                local uint integerInvertB = (word >> (integerLongForm ? 56 : 40)) & 1;
+                if (!integerLongForm) {
+                    local uint integerPredicateDestination = (word >> 48) & 7;
+                    local uint integerPredicateMode = (word >> 44) & 3; // 2 = Z, 3 = NZ
+                }
+            } else {
+                local uint integerShiftWrap = (word >> 39) & 1;
+                if (integerOperation == "SHR") local uint integerShiftSigned = (word >> 48) & 1;
+            }
+        }
+    }
+    local uint64 attributeOpcode = word & 0xfff8000000000000;
+    if (attributeOpcode == 0xefd8000000000000 || attributeOpcode == 0xeff0000000000000) {
+        local uint attributeIsLoad = attributeOpcode == 0xefd8000000000000;
+        local uint attributeDataRegister = word & 255; // ALD destination, AST source
+        local uint attributeAddressRegister = (word >> 8) & 255; // RZ = direct
+        local uint attributeByteOffset = (word >> 20) & 0x3ff;
+        local uint attributePatch = (word >> 31) & 1;
+        local uint attributeOutputFlag = (word >> 32) & 1;
+        local uint attributeVertexRegister = (word >> 39) & 255;
+        local uint attributeComponents = ((word >> 47) & 3) + 1;
+        local uint attributePhysical = !attributePatch && attributeAddressRegister != 255;
+        // ALD bit 32 selects output attributes.
+    } else if (attributeOpcode == 0xefa0000000000000) {
+        local uint al2pDestination = word & 255;
+        local uint al2pAddressRegister = (word >> 8) & 255;
+        local int al2pByteOffset = (word >> 20) & 0x7ff;
+        if (al2pByteOffset >= 0x400) al2pByteOffset -= 0x800;
+        local uint al2pOutput = (word >> 32) & 1;
+        local uint al2pPredicateDestination = (word >> 44) & 7;
+        local uint al2pComponents = ((word >> 47) & 3) + 1;
+    } else if ((word >> 56) == 0xe0) {
+        local uint ipaDestination = word & 255;
+        local uint ipaAddressRegister = (word >> 8) & 255;
+        local uint ipaMultiplierRegister = (word >> 20) & 255;
+        local uint ipaAttributeByteOffset = (word >> 28) & 0x3ff;
+        local uint ipaIndexed = (word >> 38) & 1;
+        local uint ipaOffsetRegister = (word >> 39) & 255;
+        local uint ipaPredicateSource = (word >> 47) & 7; // Input predicate; separate from execution guard.
+        local uint ipaPredicateInverted = (word >> 50) & 1;
+        local uint ipaSaturate = (word >> 51) & 1;
+        local uint ipaLocation = (word >> 52) & 3; // default, centroid, offset, invalid
+        local uint ipaMode = (word >> 54) & 3; // PASS, perspective, CONSTANT, SC
+    }
+    local uint64 compareNormal = word & 0xfff0000000000000;
+    local uint64 compareCompact = word & 0xfef0000000000000;
+    local uint compareToPredicates = compareNormal == 0x5bb0000000000000 || compareNormal == 0x4bb0000000000000 || compareCompact == 0x36b0000000000000;
+    local uint compareToRegister = (word >> 56) == 0x58 || (word >> 56) == 0x48 || (word & 0xfe00000000000000) == 0x3000000000000000;
+    if (compareToPredicates || compareToRegister) {
+        local uint compareSourceKind;
+        if (compareToPredicates) compareSourceKind = compareNormal == 0x5bb0000000000000 ? 0 : compareNormal == 0x4bb0000000000000 ? 1 : 2;
+        else compareSourceKind = (word >> 56) == 0x58 ? 0 : (word >> 56) == 0x48 ? 1 : 2;
+        local uint compareFirstRegister = (word >> 8) & 255;
+        if (compareSourceKind == 0) {
+            local uint compareSecondRegister = (word >> 20) & 255;
+        } else if (compareSourceKind == 1) {
+            local uint compareConstantBuffer = (word >> 34) & 31;
+            local int compareConstantByteOffset = ((word >> 20) & 0x3fff) * 4;
+            if (compareConstantByteOffset >= 0x8000) compareConstantByteOffset -= 0x10000;
+        } else {
+            local uint compareImmediateBits = ((word >> 20) & 0x7ffff) << 12;
+            if ((word >> 56) & 1) compareImmediateBits |= 0x80000000;
+        }
+        local uint compareAccumulator = (word >> 39) & 7;
+        local uint compareAccumulatorInverted = (word >> 42) & 1;
+        local uint compareFirstNegate = (word >> 43) & 1;
+        local uint compareSecondAbsolute = (word >> 44) & 1;
+        local uint compareLogic = (word >> 45) & 3; // AND, OR, XOR, invalid
+        local uint compareCondition = (word >> 48) & 15;
+        if (compareToPredicates) {
+            local uint compareDestination = (word >> 3) & 7;
+            local uint compareSecondaryDestination = word & 7;
+            local uint compareFirstAbsolute = (word >> 7) & 1;
+            local uint compareSecondNegate = (word >> 6) & 1;
+            local uint compareFlushToZero = (word >> 47) & 1;
+        } else {
+            local uint compareDestination = word & 255;
+            local uint compareWritesCC = (word >> 47) & 1;
+            local uint compareBooleanFloat = (word >> 52) & 1;
+            local uint compareSecondNegate = (word >> 53) & 1;
+            local uint compareFirstAbsolute = (word >> 54) & 1;
+            local uint compareFlushToZero = (word >> 55) & 1;
+        }
+    }
+    local uint64 icmpBase = 0;
+    local int icmpSourceKind = -1;
+    if ((word >> 60) == 5) { icmpBase = compareNormal; icmpSourceKind = 0; }
+    else if ((word >> 60) == 4) { icmpBase = compareNormal + 0x1000000000000000; icmpSourceKind = 1; }
+    else if ((word >> 60) == 3) { icmpBase = compareCompact + 0x2500000000000000; icmpSourceKind = 2; }
+    if (icmpBase == 0x5b50000000000000 || icmpBase == 0x5b60000000000000) {
+        local uint icmpToPredicates = icmpBase == 0x5b60000000000000;
+        local uint icmpFirstRegister = (word >> 8) & 255;
+        if (icmpSourceKind == 0) local uint icmpSecondRegister = (word >> 20) & 255;
+        else if (icmpSourceKind == 1) {
+            local uint icmpConstantBuffer = (word >> 34) & 31;
+            local int icmpConstantByteOffset = ((word >> 20) & 0x3fff) * 4;
+            if (icmpConstantByteOffset >= 0x8000) icmpConstantByteOffset -= 0x10000;
+        } else local uint icmpImmediateBits = ((word >> 20) & 0x7ffff) | (((word >> 56) & 1) * 0xfff80000);
+        local uint icmpAccumulator = (word >> 39) & 7;
+        local uint icmpAccumulatorInverted = (word >> 42) & 1;
+        local uint icmpExtended = (word >> 43) & 1;
+        local uint icmpLogic = (word >> 45) & 3; // AND, OR, XOR, invalid
+        local uint icmpSigned = (word >> 48) & 1;
+        local uint icmpCondition = (word >> 49) & 7; // F, LT, EQ, LE, GT, NE, GE, T
+        if (icmpToPredicates) {
+            local uint icmpDestination = (word >> 3) & 7;
+            local uint icmpSecondaryDestination = word & 7;
+        } else {
+            local uint icmpDestination = word & 255;
+            local uint icmpBooleanFloat = (word >> 44) & 1; // Float 0/1 instead of integer 0/0xffffffff.
+            local uint icmpWritesCC = (word >> 47) & 1;
+        }
+    }
+    local uint controlOpcode = word >> 48;
+    if (controlOpcode == 0xe330) { // KIL
+        local uint killCondition = word & 31;
+        local uint64 killUnrecognizedBits = word & ~(0xffff000000000000 | 0xf0000 | 31);
+        // Suppresses fragment output while retaining helper execution.
+    }
+    local uint controlPush = controlOpcode == 0xe290 || controlOpcode == 0xe2a0 || controlOpcode == 0xe2b0; // SSY, PBK, PCNT
+    local uint controlPop = controlOpcode == 0xf0f8 || controlOpcode == 0xe340 || controlOpcode == 0xe350; // SYNC, BRK, CONT
+    if (controlPush || controlPop || controlOpcode == 0xe240) { // BRA
+        local uint controlCondition = word & 31;
+        if (!controlPop) {
+            local uint controlFromConstantBuffer = (word >> 5) & 1;
+            if (controlFromConstantBuffer) {
+                local uint controlConstantBuffer = (word >> 36) & 31;
+                local uint controlConstantByteOffset = (word >> 20) & 0xffff;
+            } else {
+                local int controlByteDisplacement = (word >> 20) & 0xffffff;
+                if (controlByteDisplacement >= 0x800000) controlByteDisplacement -= 0x1000000;
+                // Target = instruction address + 8 + displacement.
+            }
+            if (!controlPush) {
+                local uint controlLimit = (word >> 6) & 1;
+                local uint controlUniform = (word >> 7) & 1;
+            }
+        }
+    }
+    if (controlOpcode == 0xf0f0) { // DEPBAR
+        local uint dependencyBarrierMask = word & 63;
+        local uint dependencyBarrierCount = (word >> 20) & 63;
+        local uint dependencyBarrierScoreboard = (word >> 26) & 7;
+        local uint dependencyBarrierLessEqual = (word >> 29) & 1;
+    }
+    if ((word & 0xfff8000000000000) == 0xefe8000000000000) {
+        local uint pixelDestination = word & 255;
+        local uint pixelAddressRegister = (word >> 8) & 255;
+        local uint pixelPredicateDestination = (word >> 45) & 7;
+        local uint pixelValue = (word >> 31) & 7;
+        // 0 count, 1 COVMASK, 2 COVERED, 3 OFFSET, 4 CENTROID_OFFSET, 5 MY_INDEX
+    }
+    local uint xmadForm = 4; // 0 registers, 1 B constant, 2 C constant, 3 B imm16
+    if ((word & 0xfe00000000000000) == 0x4e00000000000000) xmadForm = 1;
+    else if ((word & 0xff80000000000000) == 0x5100000000000000) xmadForm = 2;
+    else if ((word & 0xffc0000000000000) == 0x5b00000000000000) xmadForm = 0;
+    else if ((word & 0xffc0000000000000) == 0x3600000000000000) xmadForm = 3;
+    if (xmadForm != 4) {
+        local uint xmadDestination = word & 255;
+        local uint xmadSourceA = (word >> 8) & 255;
+        if (xmadForm == 1 || xmadForm == 2) {
+            local uint xmadConstantBuffer = (word >> 34) & 31;
+            local int xmadConstantByteOffset = ((word >> 20) & 0x3fff) * 4;
+            if (xmadConstantByteOffset >= 0x8000) xmadConstantByteOffset -= 0x10000;
+            local uint xmadOtherRegister = (word >> 39) & 255; // C for form 1, B for form 2
+        } else {
+            local uint xmadSourceC = (word >> 39) & 255;
+            if (xmadForm == 0) local uint xmadSourceB = (word >> 20) & 255;
+            else local uint xmadImmediateBits = (word >> 20) & 0xffff;
+        }
+        local uint xmadSignedA = (word >> 48) & 1;
+        local uint xmadSignedB = (word >> 49) & 1;
+        local uint xmadHighHalfA = (word >> 53) & 1;
+        local uint xmadHighHalfB = xmadForm == 3 ? 0 : (word >> (xmadForm == 0 ? 35 : 52)) & 1;
+        local uint xmadProductShiftLeft = xmadForm == 2 ? 0 : (word >> (xmadForm == 1 ? 55 : 36)) & 1;
+        local uint xmadMerge = xmadForm == 2 ? 0 : (word >> (xmadForm == 1 ? 56 : 37)) & 1;
+        local uint xmadAccumulatorMode = (word >> 50) & (xmadForm == 1 || xmadForm == 2 ? 3 : 7);
+        // 0 full C, 1 CLO, 2 CHI, 3 CSFU, 4 CBCC
+        local uint xmadExtended = (word >> (xmadForm == 1 || xmadForm == 2 ? 54 : 38)) & 1;
+        local uint xmadWritesCC = (word >> 47) & 1;
+    }
+    if ((word & 0xfff8000000000000) == 0xef90000000000000) {
+        local uint ldcDestination = word & 255;
+        local uint ldcAddressRegister = (word >> 8) & 255; // 255 = RZ
+        local int ldcDisplacement = (word >> 20) & 0xffff;
+        if (ldcDisplacement >= 0x8000) ldcDisplacement -= 0x10000;
+        local uint ldcBuffer = (word >> 36) & 31;
+        local uint ldcMode = (word >> 44) & 3; // Indexed, IL, IS, ISL
+        local uint ldcType = (word >> 48) & 7; // U8, I8, U16, I16, B32, B64; 6/7 invalid
+        local uint64 ldcUnrecognizedBits = word & ~(0xfff8000000000000 | 0xf0000 | 0xffff
+            | (uint64(0x1fffff) << 20) | (uint64(3) << 44) | (uint64(7) << 48));
+    }
+    if ((word & 0xfff8000000000000) == 0xef40000000000000 ||
+        (word & 0xfff8000000000000) == 0xef50000000000000) {
+        local uint localIsStore = (word >> 52) & 1;
+        local uint localDataRegister = word & 255;
+        local uint localAddressRegister = (word >> 8) & 255;
+        local int localDisplacement = (word >> 20) & 0xffffff;
+        if (localAddressRegister != 255 && localDisplacement >= 0x800000)
+            localDisplacement -= 0x1000000;
+        local uint localType = (word >> 48) & 7; // U8, S8, U16, S16, B32, B64, B128; 7 unknown
+        local uint localCache = (word >> 44) & 3; // LDL: default, LU, CI, CV; STL: default, CG, CS, WT
+        local uint64 localUnrecognizedBits = word & (uint64(3) << 46);
+        // RZ selects unsigned absolute addressing; otherwise displacement is signed.
+    }
+    if ((word & 0xfff8000000000000) == 0xeed0000000000000) {
+        local uint ldgDestination = word & 255;
+        local uint ldgAddressRegister = (word >> 8) & 255;
+        local uint ldgExtendedAddress = (word >> 45) & 1;
+        local int ldgDisplacement = (word >> 20) & 0xffffff;
+        if (ldgAddressRegister != 255 && ldgDisplacement >= 0x800000)
+            ldgDisplacement -= 0x1000000;
+        local uint ldgType = (word >> 48) & 7; // U8, S8, U16, S16, B32, B64, B128, B128.U
+        local uint ldgCache = (word >> 46) & 3; // default, CG, CI, CV
+        local uint64 ldgUnrecognizedBits = word & (uint64(1) << 44);
+    }
+    if ((word & 0xfe00000000000000) == 0xda00000000000000) {
+        local uint tldsDestination0 = word & 255;
+        local uint tldsDestination1 = (word >> 28) & 255;
+        local uint tldsSource0 = (word >> 8) & 255;
+        local uint tldsSource1 = (word >> 20) & 255;
+        local uint tldsIndex = (word >> 36) & 0x1fff;
+        local uint tldsNodep = (word >> 49) & 1;
+        local uint tldsMaskCode = (word >> 50) & 7;
+        local uint tldsModeCode = (word >> 53) & 15;
+        local uint tldsSmallMasks[8] = {1,2,4,8,3,9,10,12};
+        local uint tldsLargeMasks[5] = {7,11,13,14,15};
+        local uint tldsComponentMask = 0;
+        if (tldsDestination1 == 255) tldsComponentMask = tldsSmallMasks[tldsMaskCode];
+        else if (tldsMaskCode < 5) tldsComponentMask = tldsLargeMasks[tldsMaskCode];
+        local uint tldsWidth0[16] = {1,1,1,0,2,2,2,2,1,0,0,0,2,0,0,0};
+        local uint tldsWidth1[16] = {0,1,1,0,1,1,1,1,2,0,0,0,2,0,0,0};
+        local uint tldsOperandSpanValid = tldsWidth0[tldsModeCode] != 0 &&
+            tldsSource0 + tldsWidth0[tldsModeCode] <= 256 &&
+            tldsSource1 + tldsWidth1[tldsModeCode] <= 256;
+        // -1 = absent/unknown; 255 = RZ
+        local int tldsCoordinateRegisters[3] = {-1,-1,-1};
+        local int tldsLayerRegister = -1;
+        local int tldsLodRegister = -1;
+        local int tldsOffsetRegister = -1;
+        local int tldsSampleRegister = -1;
+        if (tldsOperandSpanValid) {
+            tldsCoordinateRegisters[0] = tldsSource0;
+            if (tldsModeCode == 2) tldsCoordinateRegisters[1] = tldsSource1;
+            else if (tldsModeCode == 8) {
+                tldsLayerRegister = tldsSource0;
+                tldsCoordinateRegisters[0] = tldsSource1;
+                tldsCoordinateRegisters[1] = tldsSource1 + 1;
+            } else if (tldsWidth0[tldsModeCode] == 2)
+                tldsCoordinateRegisters[1] = tldsSource0 + 1;
+            if (tldsModeCode == 7) tldsCoordinateRegisters[2] = tldsSource1;
+            if (tldsModeCode == 1 || tldsModeCode == 5 || tldsModeCode == 12)
+                tldsLodRegister = tldsSource1;
+            if (tldsModeCode == 4) tldsOffsetRegister = tldsSource1;
+            if (tldsModeCode == 12) tldsOffsetRegister = tldsSource1 + 1;
+            if (tldsModeCode == 6) tldsSampleRegister = tldsSource1;
+        }
+    }
+    if ((word & 0xfe00000000000000) == 0xd800000000000000) {
+        local uint texsDestination0 = word & 255;
+        local uint texsDestination1 = (word >> 28) & 255;
+        // dest0 receives the first two selected channels; dest1 receives the rest.
+        local uint texsSource0 = (word >> 8) & 255;
+        local uint texsSource1 = (word >> 20) & 255;
+        local uint texsIndex = (word >> 36) & 0x1fff;
+        local uint texsNodep = (word >> 49) & 1;
+        local uint texsMaskCode = (word >> 50) & 7;
+        local uint texsModeCode = (word >> 53) & 15;
+        local uint texsSmallMasks[8] = {1,2,4,8,3,9,10,12};
+        local uint texsLargeMasks[5] = {7,11,13,14,15};
+        local uint texsComponentMask = 0;
+        if (texsDestination1 == 255) texsComponentMask = texsSmallMasks[texsMaskCode];
+        else if (texsMaskCode < 5) texsComponentMask = texsLargeMasks[texsMaskCode];
+        // NVN graphics texture slot = (texsIndex - 8) / 2, for even indices >= 8.
+        local uint texsWidth0[16] = {1,1,1,2,2,2,2,2,2,2,2,2,2,2,0,0};
+        local uint texsWidth1[16] = {0,1,1,1,1,2,1,1,1,2,1,1,1,2,0,0};
+        local uint texsOperandSpanValid = texsWidth0[texsModeCode] != 0 &&
+            texsSource0 + texsWidth0[texsModeCode] <= 256 &&
+            texsSource1 + texsWidth1[texsModeCode] <= 256;
+        local int texsCoordinateRegisters[3] = {-1,-1,-1};
+        local int texsLayerRegister = -1;
+        local int texsLodRegister = -1;
+        local int texsComparisonRegister = -1;
+        if (texsOperandSpanValid) {
+            texsCoordinateRegisters[0] = texsSource0;
+            if (texsModeCode == 1 || texsModeCode == 2)
+                texsCoordinateRegisters[1] = texsSource1;
+            else if (texsModeCode >= 7 && texsModeCode <= 9) {
+                texsLayerRegister = texsSource0;
+                texsCoordinateRegisters[0] = texsSource0 + 1;
+                texsCoordinateRegisters[1] = texsSource1;
+            } else if (texsWidth0[texsModeCode] == 2)
+                texsCoordinateRegisters[1] = texsSource0 + 1;
+            if (texsModeCode >= 10) texsCoordinateRegisters[2] = texsSource1;
+            if (texsModeCode == 3 || texsModeCode == 5) texsLodRegister = texsSource1;
+            if (texsModeCode == 13) texsLodRegister = texsSource1 + 1;
+            if (texsModeCode == 4 || texsModeCode == 6) texsComparisonRegister = texsSource1;
+            if (texsModeCode == 5 || texsModeCode == 9) texsComparisonRegister = texsSource1 + 1;
+        }
+    }
+};
+
+struct SMaxwellInstructionGroup {
+    uint64 schedulingWord <format=hex>;
+    Assert((schedulingWord >> 63) == 0, "Invalid Maxwell scheduling word");
+    SMaxwellInstruction instruction0(schedulingWord & 0x1fffff);
+    SMaxwellInstruction instruction1((schedulingWord >> 21) & 0x1fffff);
+    SMaxwellInstruction instruction2((schedulingWord >> 42) & 0x1fffff);
+};
+
+struct SMaxwellCode(uint64 size) {
+    Assert(size % 32 == 0, "Partial Maxwell instruction group");
+    if (size) SMaxwellInstructionGroup groups[size / 32] <optimize=false>;
+};
+
+#endif // _SHADERMAXWELL
